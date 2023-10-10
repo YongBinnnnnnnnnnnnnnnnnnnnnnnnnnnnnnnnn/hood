@@ -34,7 +34,6 @@ EOF
 else
   sudo cp -r boot/* $prefix/boot/firmware/
   sudocpcontent ./modules $prefix/etc/
-  sudocpcontent ./rc.local $prefix/etc/
   sudocpcontent ./danted.conf $prefix/etc/
 
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/userconfig.service
@@ -55,9 +54,14 @@ else
   sudo cp dante-server_1.4.2+dfsg-7+b2_arm64.deb $prefix/var/cache/apt/archives/
 fi
 
+if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 
+  sudosedi "s/ quiet / quiet ipv6.disable=1 /" $prefix/boot/firmware/cmdline.txt
+fi
+
 sudo cp 99-fbturbo.conf $prefix/usr/share/X11/xorg.conf.d/
 sudo cp 99-calibration.conf $prefix/usr/share/X11/xorg.conf.d/
 
+sudocpcontent ./rc.local $prefix/etc/
 sudocpcontent ./hosts $prefix/etc/
 sudocpcontent ./sysctl.conf $prefix/etc/
 sudocpcontent ./nftables.conf $prefix/etc/
@@ -89,7 +93,7 @@ sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/
 sudocpcontent ./before-network.service $prefix/usr/lib/systemd/system/
 systemctl --root=$prefix enable before-network.service
 sudo ln -s /lib/systemd/system/before-network.service $prefix/etc/systemd/system/multi-user.target.wants/before-network.service
-sudo ln -s /lib/systemd/system/nftables.service $prefix/etc/systemd/system/sysinit/nftables.service
+sudo ln -s /lib/systemd/system/nftables.service $prefix/etc/systemd/system/sysinit.target.wants/nftables.service
 sudo ln -s /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/system/multi-user.target.wants/NetworkManager.service
 sudo ln -s /lib/systemd/system/NetworkManager-wait-online.service $prefix/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
 sudo ln -s /lib/systemd/system/NetworkManager-dispatcher.service $prefix/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service

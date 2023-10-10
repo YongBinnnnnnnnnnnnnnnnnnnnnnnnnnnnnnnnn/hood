@@ -17,8 +17,18 @@ function internet_access_on(){
   echo "internet access on " $1 | tee -a $logfile >  /dev/tty1
   nft insert rule ip filter output index 3 oif $1 tcp dport {53, 80, 443} accept
   nft insert rule ip filter output index 3 oif $1 udp dport {53} log prefix \"[HOOD A]\" flags all accept
-  nft insert rule ip filter input index 3 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept
-  nft insert rule ip filter output index 3 oif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
+  nft insert rule ip filter input index 3 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept notrack
+  nft insert rule ip filter output index 3 oif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept notrack
+  nft insert rule arp filter input index 0 iif $1 log prefix \"[HOOD A]\" flags all accept notrack
+  nft insert rule arp filter output index 0 oif $1 log prefix \"[HOOD A]\" flags all accept notrack
+}
+
+function revoke_dhcp_client_access_on(){
+  echo "revoke dhcp access on " $1 | tee -a $logfile >  /dev/tty1
+  nft delete rule ip filter input iif $1 udp dport {67} udp sport {68} accept notrack
+  nft delete rule ip filter output iif $1 udp sport {68} udp dport {67} accept notrack
+  nft delete rule arp filter input iif $1 log prefix \"[HOOD A]\" flags all accept notrack
+  nft delete rule arp filter output oif $1 log prefix \"[HOOD A]\" flags all accept notrack
 }
 
 function revoke_internet_access_on(){
@@ -27,6 +37,8 @@ function revoke_internet_access_on(){
   nft delete rule ip filter output oif $1 udp dport {53} accept
   nft delete rule ip filter input iif $1 udp dport {67} udp sport {68} accept
   nft delete rule ip filter output iif $1 udp sport {68} udp dport {67} accept
+  nft delete rule arp filter input iif $1 log prefix \"[HOOD A]\" flags all accept notrack
+  nft delete rule arp filter output oif $1 log prefix \"[HOOD A]\" flags all accept notrack
 }
 
 #dhcp server 67 client 68
@@ -35,6 +47,8 @@ function initial_firewall_rules(){
   disown
   nohup dmesg --color=never -w -e |grep "\[HOOD " | sed -r "s/.*IN=(\w+?) OUT=(\w+?) SRC=([^ ]+) DST=([^ ]+) .* PROTO=(\w+) SPT=(\w+) DPT=(\w+) (.*)/\2->\1 \5 \3:\6 -> \4:\7/g" |xargs -I {} date +"%Y-%m-%d %H:%M:%S "{} | tee -a /var/log/hood-firewal-readable.log > /dev/tty1 &
   disown
+  sysctl net.netfilter.nf_conntrack_udp_timeout=10
+  sysctl net.netfilter.nf_conntrack_udp_timeout_stream=10
 }
 
 function alter_shared_forward_rules() {
@@ -58,6 +72,10 @@ elif [ "$2" = "pre-up" ]; then
     *) internet_access_on $1 $2;;
   esac
 elif [ "$2" = "up" ]; then
+  case $1 in 
+    usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then revoke_dhcp_client_access_on $1 $2; fi;;
+    *) revoke_dhcp_client_access_on $1 $2;;
+  esac
   if [[ "$1" = "wlan0" || "$1" = "eth0" ]]; then
     if test -f /var/hood_harden_only; then
       exit
