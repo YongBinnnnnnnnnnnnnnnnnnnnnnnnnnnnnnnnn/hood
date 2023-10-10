@@ -52,12 +52,12 @@ else
   sudo cp dante-server_1.4.2+dfsg-7+b2_arm64.deb $prefix/var/cache/apt/archives/
 fi
 
-if ! grep disable-bt $prefix/boot/firmware/config.txt; then
-  sudo tee -a $prefix/boot/firmware/config.txt <<EOF
-dtoverlay=disable-bt
-dtoverlay=disable-wifi
-EOF
-fi
+#if ! grep disable-bt $prefix/boot/firmware/config.txt; then
+#  sudo tee -a $prefix/boot/firmware/config.txt <<EOF
+#dtoverlay=disable-bt
+#dtoverlay=disable-wifi
+#EOF
+#fi
 
 if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 
   sudosedi "s/ quiet / quiet ipv6.disable=1 /" $prefix/boot/firmware/cmdline.txt
@@ -66,7 +66,11 @@ fi
 
 sudo tee /etc/modprobe.d/bin-y-blacklist.conf <<EOF
 blacklist ipv6
-#blacklist bluetooth
+blacklist bluetooth
+blacklist btbcm
+blacklist hci_uart
+blacklist i2c_brcmstb
+blacklist i2c_dev
 EOF
 
 sudo cp 99-fbturbo.conf $prefix/usr/share/X11/xorg.conf.d/
@@ -106,6 +110,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
 fi
 
 sudo chmod -x  $prefix/etc/*.conf
+sudocpcontent ./dhclient.conf $prefix/etc/dhcp/
 sudocpcontent ./dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
 sudo chmod -x  $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
 sudo ln -s /etc/NetworkManager/dnsmasq.d/dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
@@ -134,7 +139,6 @@ sudosedi "s|http://deb.debian.org/debian|https://deb.debian.org/debian|g" $prefi
 sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
 
 sudocpcontent ./before-network.service $prefix/usr/lib/systemd/system/
-systemctl --root=$prefix enable before-network.service
 sudo ln -s /lib/systemd/system/before-network.service $prefix/etc/systemd/system/multi-user.target.wants/before-network.service
 sudo ln -s /lib/systemd/system/nftables.service $prefix/etc/systemd/system/sysinit.target.wants/nftables.service
 sudo ln -s /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/system/multi-user.target.wants/NetworkManager.service
