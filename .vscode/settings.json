@@ -1,0 +1,11 @@
+{
+    "search.exclude": {
+        "**/environment": true
+    },
+    "explorer.autoRevealExclude": {
+        "**/environment": true
+    },
+    "files.exclude": {
+        "environment": true
+    }
+}
