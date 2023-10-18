@@ -6,6 +6,12 @@
         "**/environment": true
     },
     "files.exclude": {
-        "environment": true
+        "environment": true,
+        "download": true
+    },
+    "files.watcherExclude": {
+        "download": true,
+        "environment": true,
+        "references": true
     }
 }
