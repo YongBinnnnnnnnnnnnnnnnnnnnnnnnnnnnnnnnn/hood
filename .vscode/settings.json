@@ -1,9 +1,9 @@
 {
     "search.exclude": {
-        "**/environment": true
+        "environment": true
     },
     "explorer.autoRevealExclude": {
-        "**/environment": true
+        "environment": true
     },
     "files.exclude": {
         "environment": true,
@@ -13,5 +13,6 @@
         "download": true,
         "environment": true,
         "references": true
-    }
+    },
+    "latex-workshop.latex.autoBuild.run": "never",
 }
