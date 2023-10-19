@@ -80,18 +80,23 @@ user: the configuration of this portable device will be applied to protect
 everything behind it, so people do not need to do the time consuming 
 configuration work on different softwares and operating systems one by one. 
 Even things that could not be configured will be under the limitation of 
-the firewall. 
+the firewall. Not to mention that many things cannot be configured freely.
+In example, people cannot untrust a built-in trusted root certificate from 
+iPhone via Settings app.
+
 
 
 \chapter{Comparsion to existing works}
-\section{Commercial hardwares}
+\section{Commercial hardware}
 Commercial firewalls are expensive. In switzerland, the price of a entry 
 level firewall is more than twice of a raspberry pi. Raspberry Pi being
 used in this work could be replaced with some cheaper alternatives, making 
 the cost will be even lower. Commercial firewalls also do not provide a 
 screen to display network activities in real-time.
 
-
+\section{SSL proxy}
+Unlike traditional MITM SSL proxy, the proxy used in this device will work 
+in non-intrusive way which means it will not decrypt SSL sessions.
 
 \chapter[Short title]{A chapter title which will run over two lines --- it's for
   testing purpose}
