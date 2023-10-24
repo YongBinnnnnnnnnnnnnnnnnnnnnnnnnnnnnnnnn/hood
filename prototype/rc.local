@@ -1,0 +1,126 @@
+#!/bin/bash
+
+#echo '1-1' > /sys/class/backlight/
+#ls /sys/class/backlight/ > /var/tmp/test
+if test -f /usr/sbin/avahi-daemon; then
+  apt-get autoremove --purge -y avahi-daemon dphys-swapfile vim-tiny vim-common
+  reboot
+else
+  echo '1-1' > /sys/bus/usb/drivers/usb/unbind
+fi
+echo "nameserver 127.0.0.1" > /etc/resolv.conf
+
+/usr/bin/tvservice -o
+
+hostname_format=$(($RANDOM % 6))
+if [[ $hostname_format == 0 ]]; then
+  hostname="WIN-"`cat /dev/random | tr -dc "A-Z0-9"|head -c 11`
+elif [[ $hostname_format == 1 ]]; then
+  hostname="LAPTOP-"`cat /dev/random | tr -dc "A-Z0-9"|head -c 8`
+elif [[ $hostname_format == 2 ]]; then
+  hostname="DESKTOP-"`cat /dev/random | tr -dc "A-Z0-9"|head -c 7`
+elif [[ $hostname_format == 3 ]]; then
+  hostname="iPad"
+elif [[ $hostname_format == 4 ]]; then
+  hostname="iPhone"
+elif [[ $hostname_format == 5 ]]; then
+  hostname="Apple Watch"
+fi
+
+hostnamectl set-hostname $hostname
+
+if true; then
+#modprobe dwc2
+#modprobe libcomposite
+gadget=/sys/kernel/config/usb_gadget/pi
+mkdir -p ${gadget}
+#echo "0x1d6b" > ${gadget}/idVendor #linux
+#echo "0x0104" > ${gadget}/idProduct # mulstifunction gomposite
+#echo "0x1d50" > ${gadget}/idVendor
+#echo "0x60c7" > ${gadget}/idProduct
+#echo "0x1d6b" > ${gadget}/idVendor #linux
+#echo "0x0137" > ${gadget}/idProduct # mulstifunction gomposite
+echo "0x0694" > ${gadget}/idVendor #LEGO
+echo "0x0005" > ${gadget}/idProduct # EV3
+echo "0x1000" > ${gadget}/bcdDevice
+echo "0x0200" > ${gadget}/bcdUSB
+echo "0xEF" > ${gadget}/bDeviceClass
+echo "0x02" > ${gadget}/bDeviceSubClass
+echo "0x01" > ${gadget}/bDeviceProtocol
+mkdir -p ${gadget}/strings/0x409
+echo "" > ${gadget}/strings/0x409/manufacturer
+echo "" > ${gadget}/strings/0x409/product
+echo "fedcba9876543211" > ${gadget}/strings/0x409/serialnumber
+mkdir -p ${gadget}/configs/c.1
+echo "250" > ${gadget}/configs/c.1/MaxPower
+#echo "0x80" > ${gadget}/configs/c.1/bmAttributes
+echo "0xC0" > ${gadget}/configs/c.1/bmAttributes
+mkdir -p ${gadget}/configs/c.1/strings/0x409
+echo "RNDIS" > ${gadget}/configs/c.1/strings/0x409/configuration
+#mkdir -p ${gadget}/configs/c.2
+#echo "250" > ${gadget}/configs/c.2/MaxPower
+#mkdir -p ${gadget}/configs/c.2/strings/0x409
+#echo "ECM" > ${gadget}/configs/c.2/strings/0x409/configuration
+
+mkdir -p ${gadget}/functions/ecm.usb0
+echo "00:dd:dc:eb:6d:a1" > ${gadget}/functions/ecm.usb0/dev_addr
+echo "00:dc:c8:f7:75:14" > ${gadget}/functions/ecm.usb0/host_addr
+mkdir -p ${gadget}/functions/rndis.usb0
+echo "00:dd:dc:eb:6d:a1" > ${gadget}/functions/rndis.usb0/dev_addr
+echo "00:dc:c8:f7:75:14" > ${gadget}/functions/rndis.usb0/host_addr
+mkdir -p ${gadget}/functions/rndis.usb0/os_desc
+echo "RNDIS" > ${gadget}/functions/rndis.usb0/os_desc/interface.rndis/compatible_id
+echo "5162001" > ${gadget}/functions/rndis.usb0/os_desc/interface.rndis/sub_compatible_id
+
+mkdir -p ${gadget}/os_desc
+echo "1" > ${gadget}/os_desc/use
+echo "0xcd" > ${gadget}/os_desc/b_vendor_code
+echo "MSFT100" > ${gadget}/os_desc/qw_sign
+ln -s ${gadget}/configs/c.1 ${gadget}/os_desc
+ln -s ${gadget}/functions/rndis.usb0 ${gadget}/configs/c.1
+#ln -s ${gadget}/functions/ecm.usb0 ${gadget}/configs/c.2
+
+ls /sys/class/udc > ${gadget}/UDC
+udevadm settle -t 5 || :
+fi
+
+usb_network_dev=usb0
+#if test /sys/class/net/usb1; then
+#  usb_network_dev=usb1
+#fi
+/usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --keep-in-foreground --interface=usb0 --clear-on-reload --strict-order --listen-address=10.0.2.1 --dhcp-range=10.0.2.1,10.0.2.2,24h --dhcp-lease-max=1 --dhcp-leasefile=/var/tmp/dnsmasq.leases --conf-dir=/etc/NetworkManager/dnsmasq-shared.d &
+#/usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --keep-in-foreground --interface=usb1 --clear-on-reload --strict-order --listen-address=10.0.2.1 --dhcp-range=10.0.2.1,10.0.2.2,24h --dhcp-lease-max=1 --dhcp-leasefile=/var/tmp/dnsmasq.leases --conf-dir=/etc/NetworkManager/dnsmasq-shared.d &
+#nmcli connection up usb0
+ip link set $usb_network_dev up
+ip address add 10.0.2.1/24 dev $usb_network_dev
+
+cd /var/AdGuardHome
+sudo -u nobody ./run_adguard.sh
+
+while ! ip address show $usb_network_dev|grep inet > /dev/null; do
+  sleep 1
+done
+echo $usb_network_dev is up
+while true; do
+  if [[ "`ip address|grep inet|wc -l`" > "2" ]]; then
+   break;
+  fi
+  sleep 1
+done
+#/usr/sbin/danted > /dev/tty1 &
+#sudo -u nobody sh -c "sleep 21 && /var/login_usi.py > /dev/null" 2>&1 &
+
+#sh -c "sleep 5 && nmcli connection up usb0  > /dev/null" 2>&1 &
+
+
+iptables --list-rules > /var/iprules_dump
+iptables -t nat --list-rules >> /var/iprules_dump
+iptables-save >> /var/iprules_dump
+ip route list >> /var/iprules_dump
+apt list --installed | grep "\[installed\]" > /var/apt_dump
+ip address > /var/network_dump
+ss -tupna >> /var/network_dump
+ip neighbor >> /var/network_dump
+ps -ef> /var/ps_dump
+
+exit 0
