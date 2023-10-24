@@ -34,10 +34,8 @@ pass out log quick proto udp from any port 67 to any port 68 keep state
 block log  quick all
 EOF
 sudo tee /etc/dhclient.conf <<EOF
-interface "em0" {
-  send host-name "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
-}
 interface "ue0" {
+  send dhcp-client-identifier "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
   send host-name "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
 }
 EOF
@@ -58,7 +56,6 @@ fi
 sudo service pf start
 sudo service pflog start
 sudo pfctl -f /etc/pf.conf
-sudo cp -pf $script_dir/../dhclient.conf /etc/
 cp -Rf $script_dir/../v/home/x/.mozilla ~/
 git config --global user.name "Yong Bin"
 git config --global user.email yongb@usi.ch
