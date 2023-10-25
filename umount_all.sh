@@ -6,6 +6,6 @@ if ! [ "$1" ]; then
   exit
 fi
 while lsof |grep  "/dev/da"; do
-  kill $(lsof |grep  "/dev/da"|head -n 1|awk '{print $2}')
+  sudo kill $(lsof |grep  "/dev/da"|head -n 1|awk '{print $2}')
 done
 sudo umount /dev/da*
