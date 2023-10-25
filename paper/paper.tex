@@ -101,6 +101,9 @@ in non-intrusive way which means it will not decrypt SSL sessions.
 
 Due to its security-focused nature, OpenBSD would be a great choice when buiding a firewall. However, as a portable device, it is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most of Linux, Windows, BSD and MacOS could be supported. FreeBSD USB stack can run in device mode and provided 3 virtual network iterface templates but none of them works with Microsoft Windows\citet{freebsdhb:usb}. Considering the large market share of Microsoft Windows, linux is decided as the base OS of this firewall device.
 
+\section{SSL Proxy}
+
+The proxy will only work on SSL handshake packets. It will remove all weak algorithms from ClientHello and if the negotiation result is to use a weak algorithm, the connection will be blocked.
 
 \chapter[Short title]{A chapter title which will run over two lines --- it's for
   testing purpose}
