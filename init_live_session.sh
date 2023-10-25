@@ -49,7 +49,7 @@ sudo tee -a /etc/hosts <<EOF
 #0.0.0.0 shavar.services.mozilla.com
 #0.0.0.0 content-signature-2.cdn.mozilla.net
 #0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
-#0.0.0.0 safebrowsing.googleapis.com
+0.0.0.0 safebrowsing.googleapis.com
 0.0.0.0 redirector.gvt1.com
 0.0.0.0 openvsxorg.blob.core.windows.net
 EOF
