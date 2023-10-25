@@ -63,7 +63,7 @@ git config --global user.email yongb@usi.ch
 sudo rm /usr/local/share/texmf-dist
 
 if sudo pkg upgrade -y firefox; then
-  sudo pkg install -y texlive-base vscode
+  sudo pkg install -y texlive-base vscode cmake-core
   sudo mv /usr/local/share/texmf-dist /usr/local/share/texmf-dist-old
   sudo ln -s $script_dir/environment/usr/local/share/texmf-dist /usr/local/share/texmf-dist
   sudo pkg -o RUN_SCRIPTS=false -o INSTALL_AS_USER=true add download/fake-texmf.tar
