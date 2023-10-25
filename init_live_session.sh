@@ -50,6 +50,8 @@ sudo tee -a /etc/hosts <<EOF
 #0.0.0.0 content-signature-2.cdn.mozilla.net
 #0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
 #0.0.0.0 safebrowsing.googleapis.com
+0.0.0.0 redirector.gvt1.com
+0.0.0.0 openvsxorg.blob.core.windows.net
 EOF
 
 if ! ifconfig em0|grep active; then
@@ -71,9 +73,12 @@ git config --global user.email yongb@usi.ch
 #sudo mkdir -p /usr/local/texlive/
 sudo rm /usr/local/share/texmf-dist
 
-certctl -v list|grep "subject=C = "|grep -v "=C = US"|awk '$2="/etc/ssl/certs/"{print $2$1}'|xargs readlink -f|xargs -I {} sudo mv {} /tmp/
-sudo mv /usr/local/share/certs/ca-root-nss.crt  /tmp/
-tr '\n' '\0' < /tmp/ca-root-nss.crt|sed -re "s/Certificate\:\x00/\n/g"|sed "s/.*C = [^U][^S].*//g"|tr "\n" "%"|sed -E "s/%+/Certificate:\x00/g"|tr '\0' '\n'|sudo tee /usr/local/share/certs/ca-root-nss.crt
+if ! [ -f /tmp/ca-root-nss.crt ]; then
+  certctl -v list|grep "subject=C = "|grep -v "=C = US"|awk '$2="/etc/ssl/certs/"{print $2$1}'|xargs readlink -f|xargs -I {} sudo mv {} /tmp/
+  sudo mv /usr/local/share/certs/ca-root-nss.crt  /tmp/
+  tr '\n' '\0' < /tmp/ca-root-nss.crt|sed -re "s/Certificate\:\x00/\n/g"|sed "s/.*C = [^U][^S].*//g"|tr "\n" "%"|sed -E "s/%+/Certificate:\x00/g"|tr '\0' '\n'|sudo tee /usr/local/share/certs/ca-root-nss.crt
+  sudo certctl rehash
+fi
 
 if sudo pkg upgrade -y firefox; then
   sudo pkg install -y texlive-base vscode cmake-core
