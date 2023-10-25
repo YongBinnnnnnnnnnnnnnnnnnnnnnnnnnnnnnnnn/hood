@@ -19,7 +19,6 @@ sudo devctl disable -f efirtc0
 sudo devctl disable -f uart0
 sudo devctl disable -f uart1
 sudo devctl disable -f uart2
-sudo devctl disable -f em0
 sudo kldunload acpi_wmi ichsmb mac_ntpd
 sudo sysrc pf_enable=yes
 sudo sysrc pflog_enable=yes
@@ -34,6 +33,10 @@ pass out log quick proto udp from any port 67 to any port 68 keep state
 block log  quick all
 EOF
 sudo tee /etc/dhclient.conf <<EOF
+interface "em0" {
+  send dhcp-client-identifier "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
+  send host-name "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
+}
 interface "ue0" {
   send dhcp-client-identifier "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
   send host-name "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
@@ -49,6 +52,12 @@ sudo tee -a /etc/hosts <<EOF
 #0.0.0.0 safebrowsing.googleapis.com
 EOF
 
+if ! ifconfig em0|grep active; then
+  sudo ifconfig em0 link random
+  cd /tmp
+  mate-terminal -e "sudo tcpdump -n -e -ttt -i pflog0"
+  cd -
+fi
 if ! ifconfig ue0|grep active; then
   sudo ifconfig ue0 link random
   mate-terminal -e "sudo tcpdump -n -e -ttt -i pflog0"
@@ -61,6 +70,10 @@ git config --global user.name "Yong Bin"
 git config --global user.email yongb@usi.ch
 #sudo mkdir -p /usr/local/texlive/
 sudo rm /usr/local/share/texmf-dist
+
+certctl -v list|grep "subject=C = "|grep -v "=C = US"|awk '$2="/etc/ssl/certs/"{print $2$1}'|xargs readlink -f|xargs -I {} sudo mv {} /tmp/
+sudo mv /usr/local/share/certs/ca-root-nss.crt  /tmp/
+tr '\n' '\0' < /tmp/ca-root-nss.crt|sed -re "s/Certificate\:\x00/\n/g"|sed "s/.*C = [^U][^S].*//g"|tr "\n" "%"|sed -E "s/%+/Certificate:\x00/g"|tr '\0' '\n'|sudo tee /usr/local/share/certs/ca-root-nss.crt
 
 if sudo pkg upgrade -y firefox; then
   sudo pkg install -y texlive-base vscode cmake-core
