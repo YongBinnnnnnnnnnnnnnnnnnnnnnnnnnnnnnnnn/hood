@@ -41,12 +41,12 @@ interface "ue0" {
 EOF
 sudo tee -a /etc/hosts <<EOF
 127.0.0.1 livecd
-0.0.0.0 firefox.settings.services.mozilla.com
-0.0.0.0 contile.services.mozilla.com
-0.0.0.0 shavar.services.mozilla.com
-0.0.0.0 content-signature-2.cdn.mozilla.net
-0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
-0.0.0.0 safebrowsing.googleapis.com
+#0.0.0.0 firefox.settings.services.mozilla.com
+#0.0.0.0 contile.services.mozilla.com
+#0.0.0.0 shavar.services.mozilla.com
+#0.0.0.0 content-signature-2.cdn.mozilla.net
+#0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
+#0.0.0.0 safebrowsing.googleapis.com
 EOF
 
 if ! ifconfig ue0|grep active; then
