@@ -7,7 +7,9 @@
     },
     "files.exclude": {
         "environment": true,
-        "download": true
+        "download": true,
+        "proxy/build": true,
+        "proxy/libs": true
     },
     "files.watcherExclude": {
         "download": true,
