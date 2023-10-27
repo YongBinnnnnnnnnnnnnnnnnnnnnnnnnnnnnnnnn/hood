@@ -64,6 +64,11 @@ pkg_env: {
 EOF
 fi
 
+find ~/.mozilla/firefox/|grep prefs.js|xargs tee -a<<EOF
+user_pref("network.proxy.socks", "10.0.2.1");
+user_pref("network.proxy.socks_port", 11371);
+EOF
+
 if ! ifconfig em0|grep active; then
   sudo ifconfig em0 link random
   cd /tmp
