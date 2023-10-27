@@ -1,0 +1,15 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          firewall
+# Required-Start:    mountkernfs $local_fs
+# Required-Stop:     mountkernfs $local_fs
+# Default-Start:     S
+# Default-Stop:      1
+# Short-Description: start firewall
+# Description: Start firewall
+### END INIT INFO
+
+/etc/NetworkManager/dispatcher.d/02-my-dispatcher - before-network-service
+
+# vim: noet ts=8
