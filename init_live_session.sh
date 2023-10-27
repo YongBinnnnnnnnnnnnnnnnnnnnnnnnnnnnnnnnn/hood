@@ -1,5 +1,5 @@
 #!/bin/sh
-export SOCKS5_PROXY="10.0.2.1:11371"
+export ALL_PROXY="socks5h://10.0.2.1:11371"
 git config --global http.proxy 'socks5h://10.0.2.1:11371'
 #sudo -E pkg -c $(dirname "$0")/pkg_environment/ install texlive-full vscode
 script_dir=$(readlink -f $(dirname "$0"))
