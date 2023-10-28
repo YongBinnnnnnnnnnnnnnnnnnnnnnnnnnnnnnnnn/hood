@@ -1,5 +1,5 @@
 #!/bin/sh
-export ALL_PROXY="socks5h://10.0.2.1:11371"
+export SOCKS5_PROXY="10.0.2.1:11371"
 git config --global http.proxy 'socks5h://10.0.2.1:11371'
 #sudo -E pkg -c $(dirname "$0")/pkg_environment/ install texlive-full vscode
 script_dir=$(readlink -f $(dirname "$0"))
@@ -21,6 +21,7 @@ sudo devctl disable -f efirtc0
 sudo devctl disable -f uart0
 sudo devctl disable -f uart1
 sudo devctl disable -f uart2
+sudo devctl disable -f em0
 sudo kldunload acpi_wmi ichsmb mac_ntpd
 sudo sysrc pf_enable=yes
 sudo sysrc pflog_enable=yes
@@ -64,10 +65,14 @@ pkg_env: {
 EOF
 fi
 
-find ~/.mozilla/firefox/|grep prefs.js|xargs tee -a<<EOF
+prefs_js="$(find ~/.mozilla/firefox/|grep prefs.js)"
+if ! grep socks_port $prefs_js; then
+tee -a $prefs_js<<EOF
 user_pref("network.proxy.socks", "10.0.2.1");
 user_pref("network.proxy.socks_port", 11371);
 EOF
+fi
+exit
 
 if ! ifconfig em0|grep active; then
   sudo ifconfig em0 link random
@@ -88,6 +93,7 @@ git config --global user.email yongb@usi.ch
 #sudo mkdir -p /usr/local/texlive/
 sudo rm /usr/local/share/texmf-dist
 
+sudo dhclient ue0
 if ! [ -f /tmp/ca-root-nss.crt ]; then
   certctl -v list|grep "subject=C = "|grep -v "=C = US"|awk '$2="/etc/ssl/certs/"{print $2$1}'|xargs readlink -f|xargs -I {} sudo mv {} /tmp/
   sudo mv /usr/local/share/certs/ca-root-nss.crt  /tmp/
