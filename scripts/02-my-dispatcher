@@ -1,7 +1,7 @@
 #!/bin/bash
 
 logfile=/var/log/my-dispatcher.log
-echo $1 $2 start > /dev/tty1
+echo $1 $2 start | tee -a $logfile >  /dev/tty1
 
 function proxy_access_on(){
   #iptables $2 INPUT -i $1 -m addrtype --dst-type broadcast -j ACCEPT
@@ -18,71 +18,143 @@ function initial_firewall_rules(){
   #if iptables-save |grep ":IDL - " > /dev/null; then
   #  return 0
   #fi
-  iptables -N IDL
-  iptables -A IDL -j LOG --log-level warning --log-prefix "[UFW ID]"
-  iptables -A IDL -j DROP
-  iptables -N ODL
-  iptables -A ODL -j LOG --log-level warning --log-prefix "[UFW OD]"
-  iptables -A ODL -j DROP
-  iptables -N FDL
-  iptables -A FDL -j LOG --log-level warning --log-prefix "[UFW FD]"
-  iptables -A FDL -j DROP
-  iptables -I INPUT -j IDL
-  iptables -I OUTPUT -j ODL
-  iptables -I FORWARD -j FDL
-  iptables -N OAL
-  iptables -A OAL -j LOG --log-level warning --log-prefix "[UFW OA]"
-  iptables -A OAL -j ACCEPT
-  iptables -N FAL
-  iptables -A FAL -j LOG --log-level warning --log-prefix "[UFW FA]"
-  iptables -A FAL -j ACCEPT
+  iptables -N IDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A IDL -j LOG --log-level warning --log-prefix "[UFW ID]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A IDL -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -N ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A ODL -j LOG --log-level warning --log-prefix "[UFW OD]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A ODL -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -N FDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FDL -j LOG --log-level warning --log-prefix "[UFW FD]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FDL -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -j IDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -j ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I FORWARD -j FDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -N OAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A OAL -j LOG --log-level warning --log-prefix "[UFW OA]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A OAL -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -N FAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FAL -j LOG --log-level warning --log-prefix "[UFW FA]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FAL -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
 
   #iptables -I INPUT -i -m addrtype --dst-type multicast -j IDL
   #iptables -I INPUT -i -m addrtype --dst-type broadcast -j IDL
   #iptables -I INPUT -i -m addrtype --dst-type anycast -j IDL
-  iptables -I INPUT -m addrtype --dst-type multicast -j DROP
-  iptables -I INPUT -m addrtype --dst-type broadcast -j DROP
-  iptables -I INPUT -m addrtype --dst-type anycast -j DROP
+  iptables -I INPUT -m addrtype --dst-type multicast -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -m addrtype --dst-type broadcast -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -m addrtype --dst-type anycast -j DROP 2>| tee -a $logfile >  /dev/tty1
   #iptables -I INPUT -m addrtype --dst-type unicast -j DROP
   #iptables -t nat -A POSTROUTING -o usb0 -j MASQUERADE
-  iptables -I INPUT -i lo -j ACCEPT
-  iptables -I INPUT -p icmp --icmp-type 3 -j ACCEPT
+  iptables -I INPUT -i lo -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -p icmp --icmp-type 3 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
   #iptables -I INPUT -p icmp --icmp-type 11 -j ACCEPT
   #iptables -I INPUT -p icmp --icmp-t8pe 12 -j ACCEPT
   #iptables -I INPUT -p udp --sport 67 --dport 68 -j ACCEPT
   #iptables -I INPUT -p udp --sport 68 --dport 67 -j ACCEPT
-  iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+  iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
 
-  iptables -I OUTPUT -m addrtype --dst-type multicast -j ODL
-  iptables -I OUTPUT -m addrtype --dst-type broadcast -j ODL
-  iptables -I OUTPUT -m addrtype --dst-type anycast -j ODL
+  iptables -I OUTPUT -m addrtype --dst-type multicast -j ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -m addrtype --dst-type broadcast -j ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -m addrtype --dst-type anycast -j ODL 2>| tee -a $logfile >  /dev/tty1
   #iptables -I OUTPUT -m addrtype --dst-type unicast -j ODL
   #iptables -I INPUT IDL
   #iptables -I OUTPUT -p tcp --dport 21 -j ACCEPT
   #iptables -I OUTPUT -p tcp --dport 22 -j ACCEPT
-  iptables -I OUTPUT -p tcp --dport 53 -j OAL
-  iptables -I OUTPUT -p tcp --dport 80 -j OAL
-  iptables -I OUTPUT -p tcp --dport 443 -j ACCEPT
-  iptables -I OUTPUT -p tcp --dport 8443 -j OAL
+  iptables -I OUTPUT -p tcp --dport 53 -j OAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p tcp --dport 80 -j OAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p tcp --dport 443 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p tcp --dport 8443 -j OAL 2>| tee -a $logfile >  /dev/tty1
   #iptables -I OUTPUT -p tcp --dport 9001 -j ACCEPT
   #iptables -I OUTPUT -p tcp --dport 853 -j ACCEPT
-  iptables -I OUTPUT -p tcp --dport 11371 -j ACCEPT
+  iptables -I OUTPUT -p tcp --dport 11371 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
 
-  iptables -I OUTPUT -p udp --dport 53 -j OAL
+  iptables -I OUTPUT -p udp --dport 53 -j OAL 2>| tee -a $logfile >  /dev/tty1
   #iptables -I OUTPUT -p udp --sport 68 --dport 67 -j ACCEPT
   #iptables -I OUTPUT -p udp --sport 67 -s 10.0.2.1 --dport 68 -j ACCEPT
-  iptables -I OUTPUT -p udp --dport 123 -j OAL
+  iptables -I OUTPUT -p udp --dport 123 -j OAL 2>| tee -a $logfile >  /dev/tty1
 
-  iptables -I OUTPUT -o lo -j ACCEPT
-  iptables -I OUTPUT -p icmp --icmp-type 3 -j ACCEPT
-  iptables -I OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+  iptables -I OUTPUT -o lo -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p icmp --icmp-type 3 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
 
-  iptables -I FORWARD -o lo -j FDL
+  iptables -I FORWARD -o lo -j FDL 2>| tee -a $logfile >  /dev/tty1
   #iptables -I FORWARD -m addrtype --dst-type unicast -j FDL
   proxy_access_on usb0 -I
   proxy_access_on usb1 -I
 
 }
+
+function initial_firewall_rules_nft(){
+  nft add table ip firewall
+  #if iptables-save |grep ":IDL - " > /dev/null; then
+  #  return 0
+  #fi
+  iptables -N IDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A IDL -j LOG --log-level warning --log-prefix "[UFW ID]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A IDL -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -N ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A ODL -j LOG --log-level warning --log-prefix "[UFW OD]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A ODL -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -N FDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FDL -j LOG --log-level warning --log-prefix "[UFW FD]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FDL -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -j IDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -j ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I FORWARD -j FDL 2>| tee -a $logfile >  /dev/tty1
+  iptables -N OAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A OAL -j LOG --log-level warning --log-prefix "[UFW OA]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A OAL -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -N FAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FAL -j LOG --log-level warning --log-prefix "[UFW FA]" 2>| tee -a $logfile >  /dev/tty1
+  iptables -A FAL -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+
+  #iptables -I INPUT -i -m addrtype --dst-type multicast -j IDL
+  #iptables -I INPUT -i -m addrtype --dst-type broadcast -j IDL
+  #iptables -I INPUT -i -m addrtype --dst-type anycast -j IDL
+  iptables -I INPUT -m addrtype --dst-type multicast -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -m addrtype --dst-type broadcast -j DROP 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -m addrtype --dst-type anycast -j DROP 2>| tee -a $logfile >  /dev/tty1
+  #iptables -I INPUT -m addrtype --dst-type unicast -j DROP
+  #iptables -t nat -A POSTROUTING -o usb0 -j MASQUERADE
+  iptables -I INPUT -i lo -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I INPUT -p icmp --icmp-type 3 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  #iptables -I INPUT -p icmp --icmp-type 11 -j ACCEPT
+  #iptables -I INPUT -p icmp --icmp-t8pe 12 -j ACCEPT
+  #iptables -I INPUT -p udp --sport 67 --dport 68 -j ACCEPT
+  #iptables -I INPUT -p udp --sport 68 --dport 67 -j ACCEPT
+  iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+
+  iptables -I OUTPUT -m addrtype --dst-type multicast -j ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -m addrtype --dst-type broadcast -j ODL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -m addrtype --dst-type anycast -j ODL 2>| tee -a $logfile >  /dev/tty1
+  #iptables -I OUTPUT -m addrtype --dst-type unicast -j ODL
+  #iptables -I INPUT IDL
+  #iptables -I OUTPUT -p tcp --dport 21 -j ACCEPT
+  #iptables -I OUTPUT -p tcp --dport 22 -j ACCEPT
+  iptables -I OUTPUT -p tcp --dport 53 -j OAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p tcp --dport 80 -j OAL 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p tcp --dport 443 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p tcp --dport 8443 -j OAL 2>| tee -a $logfile >  /dev/tty1
+  #iptables -I OUTPUT -p tcp --dport 9001 -j ACCEPT
+  #iptables -I OUTPUT -p tcp --dport 853 -j ACCEPT
+  iptables -I OUTPUT -p tcp --dport 11371 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+
+  iptables -I OUTPUT -p udp --dport 53 -j OAL 2>| tee -a $logfile >  /dev/tty1
+  #iptables -I OUTPUT -p udp --sport 68 --dport 67 -j ACCEPT
+  #iptables -I OUTPUT -p udp --sport 67 -s 10.0.2.1 --dport 68 -j ACCEPT
+  iptables -I OUTPUT -p udp --dport 123 -j OAL 2>| tee -a $logfile >  /dev/tty1
+
+  iptables -I OUTPUT -o lo -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -p icmp --icmp-type 3 -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+  iptables -I OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>| tee -a $logfile >  /dev/tty1
+
+  iptables -I FORWARD -o lo -j FDL 2>| tee -a $logfile >  /dev/tty1
+  #iptables -I FORWARD -m addrtype --dst-type unicast -j FDL
+  proxy_access_on usb0 -I
+  proxy_access_on usb1 -I
+
+}
+
 
 
 function alter_shared_forward_rules() {
@@ -233,4 +305,5 @@ fi
 echo $1 $2 end > /dev/tty1
 
 
+nft flush table ip firewall
 exit 0

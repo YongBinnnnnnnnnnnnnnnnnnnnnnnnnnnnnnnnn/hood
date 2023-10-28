@@ -74,7 +74,6 @@ sudo ln -s /lib/systemd/system/NetworkManager-dispatcher.service ~/m2/etc/system
 sudo rm ~/m2/etc/systemd/system/multi-user.target.wants/dhcpcd.service
 sudo rm ~/m2/etc/systemd/system/dbus-org.freedesktop.Avahi.service
 
-
 sudo cp 02-my-dispatcher ~/m2/etc/NetworkManager/dispatcher.d/
 sudo ln -s /etc/NetworkManager/dispatcher.d/02-my-dispatcher ~/m2/etc/NetworkManager/dispatcher.d/pre-up.d/02-my-dispatcher
 sudo ln -s /etc/NetworkManager/dispatcher.d/02-my-dispatcher ~/m2/etc/NetworkManager/dispatcher.d/pre-down.d/02-my-dispatcher
