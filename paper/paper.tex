@@ -105,11 +105,11 @@ Due to its security-focused nature, OpenBSD would be a great choice when buiding
 
 The proxy will only work on SSL handshake packets. It will remove all weak algorithms from ClientHello and if the negotiation result is to use a weak algorithm, the connection will be blocked.
 
-\chapter[Strategies]{Defense strategies when using the firewall}
+\chapter{Defense strategies when using the firewall}
 
-\section{Trusted certificates}
+\section{Untrust certificates}
 
-Even if certificate authorities do not want to do evil, their public key could also have been stolen. Thus none of them are trustworthy. However, whole SSL is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without SSL. When trying to decide which certificates to untrust, people could at first consider the CAs of the place you living in, the CAs of the place you come from, and their enemies and alies. SSL-pinning can prevent one trusted authority from doing MITM attack while the user is trying connect to a endpoint which using the certificate from another authority. However, configuring SSL-pinning to all the websites they use is hard and time consuming to average users and if they do not have a basic trusted environment, they cannot be certain whether they are doing it correctly. SSL-pinning can be configured to the proxy when needed.
+Even if CAs (certificate authorities) do not want to do evil, their private key could still have been stolen. Thus, none of them are trustworthy. However, whole SSL is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without SSL. When trying to decide which certificates to untrust, people could at first consider the CAs of the place you living in, the CAs of the place you come from, and their enemies and allies. SSL-pinning can prevent one trusted authority from doing MITM attack while the user is communicating to an endpoint which using the certificate from another authority. However, configuring SSL-pinning to all the websites they use is hard and time consuming to average users and if they do not have a basic trusted environment, they cannot be certain whether they are doing it correctly. SSL-pinning can be configured to the proxy when needed.
 
 \chapter[Short title]{A chapter title which will run over two lines --- it's for
   testing purpose}
