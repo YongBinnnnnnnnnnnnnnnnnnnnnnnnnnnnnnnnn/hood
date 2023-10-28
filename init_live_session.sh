@@ -70,6 +70,7 @@ if ! grep socks_port $prefs_js; then
 tee -a $prefs_js<<EOF
 user_pref("network.proxy.socks", "10.0.2.1");
 user_pref("network.proxy.socks_port", 11371);
+user_pref("network.proxy.type", 1);
 EOF
 fi
 exit
