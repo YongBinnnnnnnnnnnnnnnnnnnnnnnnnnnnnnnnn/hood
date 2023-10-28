@@ -65,7 +65,7 @@ function initial_firewall_rules(){
   iptables -I OUTPUT -p tcp --dport 443 -j ACCEPT
   iptables -I OUTPUT -p tcp --dport 8443 -j OAL
   #iptables -I OUTPUT -p tcp --dport 9001 -j ACCEPT
-  iptables -I OUTPUT -p tcp --dport 853 -j ACCEPT
+  #iptables -I OUTPUT -p tcp --dport 853 -j ACCEPT
   iptables -I OUTPUT -p tcp --dport 11371 -j ACCEPT
 
   iptables -I OUTPUT -p udp --dport 53 -j OAL
@@ -166,10 +166,8 @@ elif [ "$2" = "pre-up" ]; then
   fi
 elif [ "$2" = "up" ]; then
   if [[ "$1" = "wlan0" || "$1" = "eth0" ]]; then
-    if nmcli -g GENERAL.STATE con show USI-Guest | grep activ; then
-      echo "Login USI-Guest" |tee -a $logfile > /dev/tty1
-      nmcli con show USI-Guest |tee -a $logfile > /dev/tty1
-      /var/login_usi.py 2>&1 |tee -a $logfile > /dev/tty1
+    if test -f /var/harden_only; then
+      exit
     fi
     echo "test danted" |tee -a $logfile > /dev/tty1
     if ! test -f /usr/sbin/danted; then

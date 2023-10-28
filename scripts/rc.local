@@ -5,8 +5,6 @@
 if test -f /usr/sbin/avahi-daemon; then
   apt-get autoremove --purge -y avahi-daemon dphys-swapfile vim-tiny vim-common
   reboot
-else
-  echo '1-1' > /sys/bus/usb/drivers/usb/unbind
 fi
 echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
