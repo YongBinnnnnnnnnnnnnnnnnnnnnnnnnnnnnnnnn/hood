@@ -44,8 +44,6 @@ function wait_internet_access(){
     sleep 1
   done
 }
-echo /sys/class/net/$1/../../driver | tee -a $logfile 
-=
 
 if [ "$2" = "before-network-service" ]; then
   initial_firewall_rules
