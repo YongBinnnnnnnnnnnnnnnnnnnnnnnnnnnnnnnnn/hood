@@ -1,6 +1,8 @@
 #!/bin/sh
 machine=$(uname -s)
 
+mkdir -p /tmp/hood-install
+
 if [ $machine = "FreeBSD" ]; then
   alias sudocpcontent="sudo cp"
   alias sudosedi="sudo sed -i '' -e "
@@ -60,6 +62,13 @@ sudo cp 99-calibration.conf $prefix/usr/share/X11/xorg.conf.d/
 sudocpcontent ./hosts $prefix/etc/
 sudocpcontent ./sysctl.conf $prefix/etc/
 sudocpcontent ./nftables.conf $prefix/etc/
+
+if grep "#" $prefix/etc/ca-certificates.conf; then 
+  sed -e '/^$/d' -e '/^#/d' $prefix/etc/ca-certificates.conf | xargs -I {} sh -c "openssl x509 -text -in ${prefx}/usr/share/ca-certificates/{}|grep \"C = US,\">/dev/null&&echo {}||echo \!{}" > /tmp/hood-install/ca-certificates.conf
+  sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
+  sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
+fi
+
 sudo chmod -x  $prefix/etc/*.conf
 sudocpcontent ./dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
 sudo chmod -x  $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
@@ -68,12 +77,11 @@ sudocpcontent ./NetworkManager.conf $prefix/etc/NetworkManager/NetworkManager.co
 sudo cp firewall $prefix/etc/init.d/
 sudocpcontent ./timesyncd.conf $prefix/etc/systemd/
 sudo chmod -x $prefix/etc/systemd/timesyncd.conf
-
-
-#sudosedi "s|http://archive.raspberrypi.org/debian/ bullseye main |[arch=arm64] https://mirror.init7.net/raspbian/raspbian/ bullseye main arm64|g" $prefix/etc/apt/sources.list.d/raspi.list
-sudosedi "s|http://archive.raspberrypi.org/|https://archive.raspberrypi.org/|g" $prefix/etc/apt/sources.list.d/raspi.list
+#sudosedi "s|http://archive.raspberrypi..../debian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list.d/raspi.list
+sudosedi "s|http://archive.raspberrypi..../|https://archive.raspberrypi.com/|g" $prefix/etc/apt/sources.list.d/raspi.list
 #sudosedi "s|deb http://deb.debian.org|#deb http://deb.debian.org|g" $prefix/etc/apt/sources.list
-sudosedi "" -e "s|http://deb.debian.org/debian|https://mirror.init7.net/debian|g" $prefix/etc/apt/sources.list
+sudosedi "s|http://raspbian.raspberrypi.com/raspbian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list
+sudosedi "s|http://deb.debian.org/debian|https://mirror.init7.net/debian|g" $prefix/etc/apt/sources.list
 sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
 
 sudocpcontent ./before-network.service $prefix/usr/lib/systemd/system/
