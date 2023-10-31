@@ -8,7 +8,7 @@ if [ $machine = "FreeBSD" ]; then
   alias sudosedi="sudo sed -i '' -e "
 elif [ $machine = "Linux" ]; then
   alias sudocpcontent="sudo cp --no-preserve=mode,ownership"
-  alias sudosedi="sudo sed -i "
+  alias sudosedi="sudo sed -i -E "
 fi
 
 harden_only=0
@@ -65,6 +65,9 @@ sudocpcontent ./nftables.conf $prefix/etc/
 
 if grep "#" $prefix/etc/ca-certificates.conf; then 
   sed -e '/^$/d' -e '/^#/d' $prefix/etc/ca-certificates.conf | xargs -I {} sh -c "openssl x509 -text -in ${prefx}/usr/share/ca-certificates/{}|grep \"C = US,\">/dev/null&&echo {}||echo \!{}" > /tmp/hood-install/ca-certificates.conf
+  sudosedi "s/^!(.*(Comodo|GlobalSign).*)/\1/ig" /tmp/hood-install/ca-certificates.conf
+  sudosedi "s/^[^\!].*(AffirmTrust).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
+  
   sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
   sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
 fi
