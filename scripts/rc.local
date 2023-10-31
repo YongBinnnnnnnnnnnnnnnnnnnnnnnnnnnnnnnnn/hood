@@ -2,14 +2,6 @@
 
 #echo '1-1' > /sys/class/backlight/
 #ls /sys/class/backlight/ > /var/tmp/test
-if test -f /usr/sbin/avahi-daemon; then
-  apt-get autoremove --purge -y avahi-daemon dphys-swapfile vim-tiny vim-common
-  reboot
-fi
-echo "nameserver 127.0.0.1" > /etc/resolv.conf
-
-/usr/bin/tvservice -o
-
 hostname_format=$(($RANDOM % 6))
 if [[ $hostname_format == 0 ]]; then
   hostname="WIN-"`cat /dev/random | tr -dc "A-Z0-9"|head -c 11`
@@ -26,6 +18,17 @@ elif [[ $hostname_format == 5 ]]; then
 fi
 
 hostnamectl set-hostname $hostname
+
+if test -f /var/hood_harden_only; then
+  exit 0
+fi
+if test -f /usr/sbin/avahi-daemon; then
+  apt-get autoremove --purge -y avahi-daemon dphys-swapfile vim-tiny vim-common
+  reboot
+fi
+echo "nameserver 127.0.0.1" > /etc/resolv.conf
+
+/usr/bin/tvservice -o
 
 if true; then
 #modprobe dwc2

@@ -1,0 +1,129 @@
+#!/bin/bash
+
+logfile=/var/log/hood-dispatcher.log
+echo $1 $2 start | tee -a $logfile >  /dev/tty1
+
+if [ "$1" = "lo" ]; then
+  exit 0
+fi
+
+function proxy_access_on(){
+  nft add rule ip filter input iif $1 tcp saddr 10.0.2.1 tcp dport {11371} accept
+  nft add rule ip filter input iif $1 udp dport {68} udp sport {67} accept
+  nft add rule ip filter output oif $1 udp sport {67} udp dport {68} accept
+}
+
+function internet_access_on(){
+  echo "internet access on " $1 | tee -a $logfile >  /dev/tty1
+  nft add rule ip filter output oif $1 tcp dport {53, 80, 443} accept
+  nft add rule ip filter output oif $1 udp dport {53} accept
+  nft add rule ip filter input iif $1 udp dport {67} udp sport {68} accept
+  nft add rule ip filter output oif $1 udp sport {68} udp dport {67} accept
+}
+
+function revoke_internet_access_on(){
+  echo "revoke internet access on " $1 | tee -a $logfile >  /dev/tty1
+  nft delete rule ip filter output oif $1 tcp dport {53, 80, 443} accept
+  nft delete rule ip filter output oif $1 udp dport {53} accept
+  nft delete rule ip filter input iif $1 udp dport {67} udp sport {68} accept
+  nft delete rule ip filter output iif $1 udp sport {68} udp dport {67} accept
+}
+
+#dhcp server 67 client 68
+function initial_firewall_rules(){
+  true
+}
+
+function alter_shared_forward_rules() {
+  true
+}
+
+function wait_internet_access(){
+  while ! curl http://www.bing.com/ -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36" 2>&1 |grep html > /dev/tty1; do
+    echo "Waiting for network connection to install dante" |tee -a $logfile > /dev/tty1
+    sleep 1
+  done
+}
+echo /sys/class/net/$1/../../driver | tee -a $logfile 
+=
+
+if [ "$2" = "before-network-service" ]; then
+  initial_firewall_rules
+elif [ "$2" = "pre-up" ]; then
+  echo xxf | tee -a $logfile
+  ifconfig $1 link random
+  case $1 in 
+    usb*) echo /sys/class/net/$1/../../driver | tee -a $logfile >  /dev/tty1;if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then internet_access_on $1 $2; fi;;
+    *) internet_access_on $1 $2;;
+  esac
+elif [ "$2" = "up" ]; then
+  if [[ "$1" = "wlan0" || "$1" = "eth0" ]]; then
+    if test -f /var/hood_harden_only; then
+      exit
+    fi
+    echo "test danted" |tee -a $logfile > /dev/tty1
+    if ! test -f /usr/sbin/danted; then
+      echo "dante-server not installed" |tee -a $logfile > /dev/tty1
+      wait_internet_access
+      rm /var/lib/apt/lists/*_*
+      apt-get update 2>&1 |tee -a $logfile > /dev/tty1
+      dpkg --configure -a
+      apt list dante-serer 2>&1 |tee -a $logfile > /dev/tty1
+      apt-get install -y -o Dpkg::Options::="--force-confold" dante-server 2>&1 |tee -a $logfile > /dev/tty1
+      if ! test -f /usr/sbin/danted; then
+        echo "Failed to install dante" |tee -a $logfile > /dev/tty1
+        curl http://www.bing.com/ -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36" 2>&1 |tee -a $logfile > /dev/tty1
+        openssl s_client --connect mirror.init7.net:443 -showcerts </dev/null 2>&1 |tee -a $logfile > /dev/tty1
+
+        sleep 10
+        shutdown -P now
+        exit 0
+      fi
+    fi
+    echo "Config dante to use" $1 |tee -a $logfile > /dev/tty1
+    sed -i "s|external: eth0|external: "$1"|g" /etc/danted.conf
+    sed -i "s|external: wlan0|external: "$1"|g" /etc/danted.conf
+    echo "Up usb0" |tee -a $logfile > /dev/tty1
+    #if nmcli connection show --active|grep usb0; then
+    if ip address show usb0|grep inet; then
+      $0 "usb0" "up"
+    elif ip address show usb1|grep inet; then
+      $0 "usb1" "up"
+    else
+      #ip link set usb0 down
+      #ip link set usb0 address 99:88:77:66:55:43
+      nmcli connection up usb0
+    fi
+    
+    if test -f /do_upgrade; then
+      wait_internet_access
+      apt-get update |tee -a $logfile > /dev/tty1
+      apt-get full-upgrade -y|tee -a $logfile > /dev/tty1
+      rm /do_upgrade
+      reboot
+    fi
+    if test -f /run_once; then
+      wait_internet_access
+      echo "run once" |tee -a $logfile > /dev/tty1
+      rm /tmp/run_once
+      mv /run_once /tmp/
+      /tmp/run_once |tee -a $logfile > /dev/tty1
+      reboot
+    fi
+  elif [ "$1" = "usb0" ]; then
+    killall danted
+    /usr/sbin/danted 2>&1 > /dev/tty1 &
+  fi
+elif [ "$2" = "down" ]; then
+  revoke_internet_access_on $1 $2
+fi
+
+if [ "$2" = "connectivity-change" ]; then
+    exit 0;
+fi
+
+echo $1 $2 end > /dev/tty1
+
+
+nft flush table ip firewall
+exit 0
