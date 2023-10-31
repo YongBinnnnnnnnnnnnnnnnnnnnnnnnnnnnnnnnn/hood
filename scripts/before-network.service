@@ -11,7 +11,7 @@ Type=oneshot
 TimeoutSec=180
 RemainAfterExit=yes
 EnvironmentFile=
-ExecStart=/etc/NetworkManager/dispatcher.d/02-my-dispatcher xyz before-network-service
+ExecStart=/etc/NetworkManager/dispatcher.d/02-hood-dispatcher xyz before-network-service
 
 [Install]
 WantedBy=multi-user.target

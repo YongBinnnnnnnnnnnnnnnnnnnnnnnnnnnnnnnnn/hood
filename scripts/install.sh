@@ -36,7 +36,6 @@ else
   sudocpcontent ./modules $prefix/etc/
   sudocpcontent ./rc.local $prefix/etc/
   sudocpcontent ./danted.conf $prefix/etc/
-  sudocpcontent ./00-firewall.conf $prefix/etc/rsyslog.d/
 
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/userconfig.service
   sudo rm $prefix/etc/systemd/system/getty.target.wants/getty@tty1.service
@@ -66,7 +65,7 @@ sudocpcontent ./nftables.conf $prefix/etc/
 if grep "#" $prefix/etc/ca-certificates.conf; then 
   sed -e '/^$/d' -e '/^#/d' $prefix/etc/ca-certificates.conf | xargs -I {} sh -c "openssl x509 -text -in ${prefx}/usr/share/ca-certificates/{}|grep \"C = US,\">/dev/null&&echo {}||echo \!{}" > /tmp/hood-install/ca-certificates.conf
   sudosedi "s/^!(.*(Comodo|GlobalSign).*)/\1/ig" /tmp/hood-install/ca-certificates.conf
-  sudosedi "s/^[^\!].*(AffirmTrust).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
+  sudosedi "s/^[^\!].*(AffirmTrust|Trustwave).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
   
   sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
   sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d

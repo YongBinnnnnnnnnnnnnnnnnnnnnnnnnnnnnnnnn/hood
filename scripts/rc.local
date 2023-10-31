@@ -2,6 +2,7 @@
 
 #echo '1-1' > /sys/class/backlight/
 #ls /sys/class/backlight/ > /var/tmp/test
+
 hostname_format=$(($RANDOM % 6))
 if [[ $hostname_format == 0 ]]; then
   hostname="WIN-"`cat /dev/random | tr -dc "A-Z0-9"|head -c 11`
@@ -89,7 +90,6 @@ usb_network_dev=usb0
 #if test /sys/class/net/usb1; then
 #  usb_network_dev=usb1
 #fi
-/usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --keep-in-foreground --interface=usb0 --clear-on-reload --strict-order --listen-address=10.0.2.1 --dhcp-range=10.0.2.1,10.0.2.2,24h --dhcp-lease-max=1 --dhcp-leasefile=/var/tmp/dnsmasq.leases --conf-dir=/etc/NetworkManager/dnsmasq-shared.d &
 #/usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --keep-in-foreground --interface=usb1 --clear-on-reload --strict-order --listen-address=10.0.2.1 --dhcp-range=10.0.2.1,10.0.2.2,24h --dhcp-lease-max=1 --dhcp-leasefile=/var/tmp/dnsmasq.leases --conf-dir=/etc/NetworkManager/dnsmasq-shared.d &
 #nmcli connection up usb0
 ip link set $usb_network_dev up
