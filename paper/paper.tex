@@ -105,6 +105,10 @@ Due to its security-focused nature, OpenBSD would be a great choice when buiding
 
 The proxy will only work on SSL handshake packets. It will remove all weak algorithms from ClientHello and if the negotiation result is to use a weak algorithm, the connection will be blocked.
 
+\section{Disguise and randomizatoin}
+
+The device disguises itself as other common devices. It will generate random hostname and MAC address on startup so when local network administrators check their the DHCP server they will always see different device information being recorded.
+
 \chapter{Defense strategies when using the firewall}
 
 \section{Untrust certificates}
@@ -186,3 +190,4 @@ define something weird based on the BPEL specification
 %\lipsum
 1
 \end{document}
+\grid
