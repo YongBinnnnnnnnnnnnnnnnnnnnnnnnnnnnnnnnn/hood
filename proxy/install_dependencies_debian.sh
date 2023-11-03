@@ -7,6 +7,10 @@ if [ -z $HOOD_PROXY_BUILD_CONCURRENCY ]; then
   HOOD_PROXY_BUILD_CONCURRENCY=2
 fi
 
+sudo apt install -y cmake build-essential clang libssl-dev
+
+export TAR_OPTIONS=--no-same-owner
+
 # ---- begin code copied and modified from carla Simulator which is MIT License
 # ==============================================================================
 # -- Get boost includes --------------------------------------------------------
@@ -25,7 +29,7 @@ else
     fi
     echo "Extracting boost."
     tar -xvmf boost_1_83_0.tar.gz --exclude "libs" --exclude "doc" --exclude "example" --exclude "test"
-    tar -xvmf boost_1_83_0.tar.gz --exclude "test" --exclude "example" --exclude "doc" --same-owner boost_1_83_0/libs/asio 
+    tar -xvmf boost_1_83_0.tar.gz --exclude "test" --exclude "example" --exclude "doc" boost_1_83_0/libs/
     mkdir -p $(uname -s)/${BOOST_FILE_NAME}-install/include
     mv ${BOOST_FILE_NAME} ${BOOST_FILE_NAME}-source
   fi
@@ -37,8 +41,7 @@ else
 
   BOOST_CXXFLAGS="-I . -std=c++20"
 
-  ./b2 cxxflags="${BOOST_CXXFLAGS}" -j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release
-  ./b2 -j ${HOOD_PROXY_BUILD_CONCURRENCY} install
+  ./b2 link=static cxxflags="${BOOST_CXXFLAGS}" -j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release install
   ./b2 -j ${HOOD_PROXY_BUILD_CONCURRENCY} --clean-all
 
   # Get rid of  python2 build artifacts completely & do a clean build for python3

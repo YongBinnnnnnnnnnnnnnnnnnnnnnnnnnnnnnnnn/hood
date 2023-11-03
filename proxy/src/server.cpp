@@ -1,7 +1,7 @@
 #include "server.hpp"
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <chrono>
 #include <csignal>
 #include <iostream>
@@ -20,6 +20,7 @@ using std::endl;
 using std::function;
 using std::string;
 using std::chrono::milliseconds;
+
 namespace hood_proxy {
 
 Server::Server()
@@ -62,7 +63,7 @@ void Server::StartTcp() {
 }
 
 void Server::DoAccept() {
-  acceptor_.async_accept([this](error_code error, tcp::socket socket) {
+  acceptor_.async_accept([this](error_code error, tcp::socket /*socket*/) {
     if (stop_) {
       return;
     }
