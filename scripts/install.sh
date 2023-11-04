@@ -25,12 +25,6 @@ echo $harden_only $prefix
 
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/hood_harden_only
-  if ! grep disable-bt $prefix/boot/firmware/config.txt; then
-    sudo tee -a $prefix/boot/firmware/config.txt <<EOF
-dtoverlay=disable-bt
-dtoverlay=disable-wifi
-EOF
-  fi
 else
   sudo cp -r boot/* $prefix/boot/firmware/
   sudocpcontent ./modules $prefix/etc/
@@ -54,6 +48,13 @@ else
   sudo cp dante-server_1.4.2+dfsg-7+b2_arm64.deb $prefix/var/cache/apt/archives/
 fi
 
+if ! grep disable-bt $prefix/boot/firmware/config.txt; then
+  sudo tee -a $prefix/boot/firmware/config.txt <<EOF
+dtoverlay=disable-bt
+dtoverlay=disable-wifi
+EOF
+fi
+
 if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 
   sudosedi "s/ quiet / quiet ipv6.disable=1 /" $prefix/boot/firmware/cmdline.txt
 fi
@@ -67,14 +68,18 @@ sudocpcontent ./sysctl.conf $prefix/etc/
 sudocpcontent ./nftables.conf $prefix/etc/
 
 if grep "#" $prefix/etc/ca-certificates.conf; then 
-  sed -e '/^$/d' -e '/^#/d' $prefix/etc/ca-certificates.conf | xargs -I {} sh -c "openssl x509 -text -in ${prefx}/usr/share/ca-certificates/{}|grep \"C = US,\">/dev/null&&echo {}||echo \!{}" > /tmp/hood-install/ca-certificates.conf
+  sed -e '/^$/d' -e '/^#/d' $prefix/etc/ca-certificates.conf | xargs -I {} sh -c "openssl x509 -text -in $prefix/usr/share/ca-certificates/{}|grep -q \"C = US,\"||echo -n \!;echo {}" > /tmp/hood-install/ca-certificates.conf
   sudosedi "s/^!(.*(Comodo|GlobalSign|Baltimore_CyberTrust).*)/\1/ig" /tmp/hood-install/ca-certificates.conf
   sudosedi "s/^[^\!].*(AffirmTrust|Trustwave).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
   
   sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
-  sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
+  if which update-ca-certificates; then
+    sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
+  else
+    echo "TODO"
+  fi
 fi
-
+ 
 sudo mkdir -p $prefix/etc/pki/nssdb
 sudo cp -r nssdb/* $prefix/etc/pki/nssdb
 sudo chmod 0755 /etc/pki/nssdb/*
