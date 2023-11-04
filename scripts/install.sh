@@ -75,6 +75,15 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
   sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
 fi
 
+sudo mkdir -p $prefix/etc/pki/nssdb
+sudo cp -r nssdb/* $prefix/etc/pki/nssdb
+sudo chmod 0755 /etc/pki/nssdb/*
+if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
+  mkdir -p ~/.pki/nssdb
+  ln -s /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
+  ln -s /etc/pki/nssdb/cert9.db ~/.pki/nssdb/key4.db
+fi
+
 sudo chmod -x  $prefix/etc/*.conf
 sudocpcontent ./dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
 sudo chmod -x  $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
