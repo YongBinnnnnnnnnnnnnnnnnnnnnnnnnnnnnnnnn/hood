@@ -7,7 +7,7 @@ if [ -z $HOOD_PROXY_BUILD_CONCURRENCY ]; then
   HOOD_PROXY_BUILD_CONCURRENCY=2
 fi
 
-sudo apt install -y cmake build-essential clang libssl-dev
+sudo apt install -y cmake build-essential clang clang-tidy clang-format libssl-dev
 
 export TAR_OPTIONS=--no-same-owner
 

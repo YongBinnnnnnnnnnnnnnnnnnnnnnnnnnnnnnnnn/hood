@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 project (hood_proxy)
 
+
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_HOST_SYSTEM_NAME}/boost_1_83_0-install")
 set(Boost_USE_STATIC_LIBS ON)
@@ -8,6 +9,8 @@ find_package( Boost 1.83 COMPONENTS program_options system log REQUIRED )
 include_directories (SYSTEM ${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_CLANG_TIDY clang-tidy)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Get version from version.h
 file(READ src/version.h version_h)

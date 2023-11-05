@@ -17,4 +17,7 @@
         "references": true
     },
     "latex-workshop.latex.autoBuild.run": "never",
+    "clang-tidy.buildPath": "proxy/build",
+    "editor.formatOnSave": true,
+    "clang-format.assumeFilename": "proxy/.clang-format",
 }

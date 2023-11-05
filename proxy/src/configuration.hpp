@@ -1,9 +1,9 @@
 #ifndef HOOD_PROXY_CONFIGURATION_H_
 #define HOOD_PROXY_CONFIGURATION_H_
 
-#include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -27,9 +27,9 @@ class Configuration {
     bpo::options_description commandline_options("Commandline options");
     auto add_commandline_option = commandline_options.add_options();
     add_commandline_option("help", "produce help message");
-    add_commandline_option("config",
-                           bpo::value<string>()->default_value("./hood_proxy.conf"),
-                           "specify config file");
+    add_commandline_option(
+        "config", bpo::value<string>()->default_value("./hood_proxy.conf"),
+        "specify config file");
     bpo::store(bpo::parse_command_line(argc, argv, commandline_options),
                variables_);
     bpo::notify(variables_);
