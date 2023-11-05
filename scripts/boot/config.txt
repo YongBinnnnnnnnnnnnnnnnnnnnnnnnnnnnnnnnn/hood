@@ -7,7 +7,7 @@
 
 # uncomment this if your display has a black border of unused pixels visible
 # and your display can output without overscan
-disable_overscan=1
+#disable_overscan=1
 
 # uncomment the following to adjust overscan. Use positive numbers if console
 # goes off screen, and negative if there is too much border
@@ -54,28 +54,28 @@ disable_overscan=1
 # Additional overlays and parameters are documented /boot/overlays/README
 
 # Enable audio (loads snd_bcm2835)
-dtparam=audio=off
+#dtparam=audio=off
 
 [pi4]
 # Enable DRM VC4 V3D driver on top of the dispmanx display stack
 #dtoverlay=vc4-fkms-v3d
 #start_x=1
-arm_64bit=1
+#arm_64bit=1
 
 [all]
-dtoverlay=vc4-fkms-v3d
+#dtoverlay=vc4-fkms-v3d
 
-dtoverlay=joy-IT-Display-Driver-35a-overlay,rotate=90,swapxy=1
+#dtoverlay=joy-IT-Display-Driver-35a-overlay,rotate=90,swapxy=1
 dtoverlay=gpio-shutdown,gpio_pin=21
 dtoverlay=disable-bt
 dtoverlay=disable-wifi
-dtoverlay=dwc2,dr_mode=peripheral
-max_framebuffers=1
+#dtoverlay=dwc2,dr_mode=peripheral
+#max_framebuffers=1
 #hdmi_force_hotplug=1
-hdmi_ignore_edit=0xa5000080
-hdmi_blanking=1
+#hdmi_ignore_edit=0xa5000080
+#hdmi_blanking=1
 #also act led
-dtparam=pwr_led_trigger=default=on
-dtparam=pwr_led_activelow=off
-arm_boost=0
-disable_splash=1
+#dtparam=pwr_led_trigger=default=on
+#dtparam=pwr_led_activelow=off
+#arm_boost=0
+#disable_splash=1

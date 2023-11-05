@@ -81,11 +81,17 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
 fi
  
 sudo mkdir -p $prefix/etc/pki/nssdb
-sudo cp -r nssdb/* $prefix/etc/pki/nssdb
-sudo chmod 0755 /etc/pki/nssdb/*
+sudocpcontent /etc/pki/nssdb/cert9.db $prefix/etc/pki/nssdb
+sudocpcontent /etc/pki/nssdb/key4.db $prefix/etc/pki/nssdb
+sudocpcontent /etc/pki/nssdb/pkcs11.txt $prefix/etc/pki/nssdb
+sudo chmod 0644 /etc/pki/nssdb/*
+
+sudo mkdir -p $prefix/etc/skel/.pki/
+sudo cp -r $prefix/etc/pki/nssdb $prefix/etc/skel/.pki/
 if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
-  mkdir -p ~/.pki/nssdb
-  ln -s /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
+  mkdir -p ~/.pki/
+  cp -r $prefix/etc/pki/nssdb ~/.pki/
+  sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
   ln -s /etc/pki/nssdb/cert9.db ~/.pki/nssdb/key4.db
 fi
 
