@@ -30,8 +30,9 @@ void Context::Stop() {
   }
 }
 
-void Context::HandleUserMessage(TlsMessageReader::Reason reason,
-                                const uint8_t* data, uint16_t data_size) {
+void Context::HandleUserMessage(
+    TlsMessageReader::Reason reason, const uint8_t* data, uint16_t data_size,
+    const boost::asio::ip::udp::endpoint* udp_endpoint) {
   if (reason != TlsMessageReader::Reason::NEW_MESSAGE) {
     LOG_TRACE("ignore reason:" << static_cast<int>(reason));
     return;
@@ -40,7 +41,7 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
     LOG_ERROR("empty message!");
     return;
   }
-  using ResultType = TlsMessageReader::ResultType;
+  using ResultType = MessageDecoder::ResultType;
   static auto query_timeout_ = std::chrono::milliseconds(
       Configuration::get("query-timeout").as<uint32_t>());
   uint16_t message_length = data_size;

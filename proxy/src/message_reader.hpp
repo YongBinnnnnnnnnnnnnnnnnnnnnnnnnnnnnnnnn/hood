@@ -1,5 +1,5 @@
-#ifndef HOOD_PROXY_SSL_MESSAGE_READER_H_
-#define HOOD_PROXY_SSL_MESSAGE_READER_H_
+#ifndef HOOD_PROXY_MESSAGE_READER_H_
+#define HOOD_PROXY_MESSAGE_READER_H_
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/endian/conversion.hpp>
@@ -196,4 +196,4 @@ class MessageReader {
 };
 
 }  // namespace hood_proxy
-#endif  // HOOD_PROXY_SSL_MESSAGE_READER_H_
+#endif  // HOOD_PROXY_MESSAGE_READER_H_
