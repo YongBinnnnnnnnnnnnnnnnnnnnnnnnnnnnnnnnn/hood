@@ -10,7 +10,7 @@
 
 #include "configuration.hpp"
 #include "message_reader.hpp"
-#include "tls_defination_raw.hpp"
+#include "tls_definition_raw.hpp"
 
 namespace hood_proxy {
 namespace tls {

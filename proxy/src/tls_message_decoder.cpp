@@ -15,23 +15,6 @@ using std::vector;
 namespace hood_proxy {
 namespace tls {
 
-template <typename OutputType>
-static inline constexpr MessageDecoder::ResultType Decode(
-    auto& save_to,
-    std::function<MessageDecoder::ResultType(OutputType&, const uint8_t*,
-                                             size_t, size_t, size_t&)>
-        decoder,
-    const uint8_t* buffer, size_t buffer_size, size_t from_offset,
-    size_t& end_offset) {
-  OutputType decode_output;
-  auto result =
-      decoder(decode_output, buffer, buffer_size, from_offset, end_offset);
-  if (result == MessageDecoder::ResultType::good) {
-    save_to = std::move(decode_output);
-  }
-  return result;
-}
-
 MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
                                                           const uint8_t* buffer,
                                                           size_t buffer_size) {
@@ -51,8 +34,9 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
     return ResultType::bad;
   }
   if (message.type == protocol::ContentType::handshake) {
-    return Decode<handshake::Message>(message.content, DecodeHandshake,
-                                      header->data, message_length, 0, offset);
+    auto& handshake_message = message.content.emplace<handshake::Message>();
+    return DecodeHandshake(handshake_message, header->data, message_length, 0,
+                           offset);
   } else if (message.type == protocol::ContentType::handshake) {
   }
   return ResultType::bad;
@@ -71,9 +55,8 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
     return ResultType::bad;
   }
   if (message.type == protocol::handshake::Type::client_hello) {
-    return Decode<handshake::ClientHello>(message.content, DecodeClientHello,
-                                          header->data, buffer_size, offset,
-                                          offset);
+    return DecodeClientHello(message.content.emplace<handshake::ClientHello>(),
+                             header->data, buffer_size, offset, offset);
   } else if (message.type == protocol::handshake::Type::server_hello) {
   } else if (message.type == protocol::handshake::Type::new_session_ticket) {
   } else if (message.type == protocol::handshake::Type::end_of_early_data) {
@@ -87,6 +70,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
   }
   return ResultType::bad;
 }
+
 enum class VectorLengthMode { ELEMENT_COUNT, BYTE_SIZE };
 template <typename LengthType, typename ValueType, VectorLengthMode Mode>
 static constexpr inline MessageDecoder::ResultType DecodeVector(
@@ -109,7 +93,7 @@ static constexpr inline MessageDecoder::ResultType DecodeVector(
     }
     count = count / sizeof(ValueType);
   }
-  if (buffer_size < offset + count) {
+  if (buffer_size < offset + size) {
     return MessageDecoder::ResultType::bad;
   }
   output.resize(count);
@@ -137,7 +121,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
       buffer + from_offset);
   message.legacy_version = boost::endian::big_to_native(header->legacy_version);
   static_assert(sizeof(message.random) == sizeof(header->random));
-  memcpy(message.random, header->random, sizeof(message.random));
+  memcpy(message.random.data(), header->random, sizeof(message.random));
   offset += offsetof(protocol::handshake::RawClientHello, legacy_session_id);
 
   auto result = DecodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
@@ -152,19 +136,67 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
     return result;
   }
 
-  result = DecodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
+  result = DecodeVector<uint16_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
       message.legacy_compression_methods, buffer, buffer_size, offset, offset);
   if (result == ResultType::bad) {
     return result;
   }
-  return Decode<Extensions>(message.extensions, DecodeExtensions, buffer,
-                            buffer_size, offset, offset);
+  return DecodeExtensions(message.extensions, buffer, buffer_size, offset,
+                          end_offset);
 }
 
 inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
     extension::Extensions& output, const uint8_t* buffer, size_t buffer_size,
-    size_t from_offset, bool follow_offset_label, size_t& max_offset) {
+    size_t from_offset, size_t& end_offset) {
   // TODO
+  auto offset = from_offset;
+  if (buffer_size < offset + sizeof(protocol::extension::Extensions)) {
+    return ResultType::bad;
+  }
+  auto header = reinterpret_cast<const protocol::extension::Extensions*>(
+      buffer + from_offset);
+  offset += sizeof(protocol::extension::Extensions);
+  end_offset = offset + endian::big_to_native(header->length);
+  if (end_offset > buffer_size) {
+    return ResultType::bad;
+  }
+  while (offset < buffer_size) {
+    if (end_offset < offset + sizeof(protocol::extension::Extension)) {
+      return ResultType::bad;
+    }
+    auto header = reinterpret_cast<const protocol::extension::Extension*>(
+        buffer + offset);
+    auto& extension = output.emplace_back();
+    extension.type = endian::big_to_native(header->type);
+    auto length = endian::big_to_native(header->length);
+    offset += sizeof(protocol::extension::Extension);
+    auto end_of_extension = length + offset;
+    if (end_offset < end_of_extension) {
+      return ResultType::bad;
+    }
+    if (extension.type == protocol::extension::Type::server_name) {
+      if (end_of_extension < offset + sizeof(protocol::extension::ServerName)) {
+        return ResultType::bad;
+      }
+      auto server_name_header =
+          reinterpret_cast<const protocol::extension::ServerName*>(buffer +
+                                                                   offset);
+      auto type = server_name_header->name_type;
+      auto server_name_length =
+          endian::big_to_native(server_name_header->length);
+      offset += sizeof(protocol::extension::ServerName);
+      if (end_of_extension != offset + server_name_length) {
+        return ResultType::bad;
+      }
+      if (type != protocol::extension::ServerNameType::host_name) {
+        return ResultType::bad;
+      }
+      auto server_name = extension.content.emplace<extension::ServerName>();
+      server_name.host_name.assign(server_name_header->name,
+                                   server_name_header->length);
+    }
+    offset = end_of_extension;
+  }
   return ResultType::bad;
 }
 

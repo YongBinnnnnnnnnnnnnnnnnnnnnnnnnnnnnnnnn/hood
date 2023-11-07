@@ -8,6 +8,13 @@ namespace tls {
 namespace protocol {
 #pragma pack(push, 1)
 
+struct Version {
+  static constexpr uint16_t TLS_1_0 = 0x301;
+  static constexpr uint16_t TLS_1_1 = 0x302;
+  static constexpr uint16_t TLS_1_2 = 0x303;
+  static constexpr uint16_t TLS_1_3 = 0x304;
+};
+
 struct ContentType {
   static constexpr uint8_t invalid = 0;
   static constexpr uint8_t change_cipher_spec = 20;

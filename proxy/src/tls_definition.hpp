@@ -1,5 +1,6 @@
 #ifndef HOOD_PROXY_TLS_DEFINITION_H_
 #define HOOD_PROXY_TLS_DEFINITION_H_
+#include <array>
 #include <iostream>
 #include <string>
 #include <variant>
@@ -11,9 +12,10 @@ namespace hood_proxy {
 namespace tls {
 
 using SessionID = std::vector<uint8_t>;
-using CipherSuite = uint16_t;
+using CipherSuite = protocol::CipherSuite;
 using CipherSuites = std::vector<CipherSuite>;
-using CompressionMethods = std::vector<uint16_t>;
+using CompressionMethods =
+    std::vector<typeof(protocol::CompressionMethods::data)>;
 namespace extension {
 
 struct ServerName {
@@ -30,7 +32,7 @@ using Extensions = std::vector<Extension>;
 namespace handshake {
 struct ClientHello {
   uint16_t legacy_version;
-  uint8_t random[32];
+  std::array<uint8_t, 32> random;
   SessionID legacy_session_id;
   CipherSuites cipher_suites;
   CompressionMethods legacy_compression_methods;
@@ -39,7 +41,7 @@ struct ClientHello {
 
 struct ServerHello {
   uint16_t legacy_version;
-  uint8_t random[32];
+  std::array<uint8_t, 32> random;
   SessionID legacy_session_id_echo;
   CipherSuite cipher_suite;
   uint8_t legacy_compression_method;

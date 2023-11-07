@@ -1,12 +1,12 @@
-#ifndef DNSTOY_DNS_MESSAGE_ENCODER_H_
-#define DNSTOY_DNS_MESSAGE_ENCODER_H_
+#ifndef HOOD_PROXY_TLS_MESSAGE_ENCODER_H_
+#define HOOD_PROXY_TLS_MESSAGE_ENCODER_H_
 
 #include <unordered_map>
 #include <vector>
 
 #include "dns_definition.hpp"
 
-namespace dnstoy {
+namespace hood_proxy {
 namespace dns {
 
 class MessageEncoderContext;
@@ -30,5 +30,5 @@ class MessageEncoder {
 };
 
 }  // namespace dns
-}  // namespace dnstoy
-#endif  // DNSTOY_DNS_MESSAGE_ENCODER_H_
+}  // namespace hood_proxy
+#endif  // HOOD_PROXY_TLS_MESSAGE_ENCODER_H_
