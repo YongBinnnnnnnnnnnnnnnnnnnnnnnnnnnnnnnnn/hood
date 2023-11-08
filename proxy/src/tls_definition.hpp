@@ -28,7 +28,7 @@ struct Extension {
 };
 using Extensions = std::vector<Extension>;
 
-static constexpr inline std::string_view FindHostName(Extensions& extensions) {
+static inline std::string_view FindHostName(Extensions& extensions) {
   for (auto& extension : extensions) {
     if (extension.type != protocol::extension::Type::server_name) {
       continue;
