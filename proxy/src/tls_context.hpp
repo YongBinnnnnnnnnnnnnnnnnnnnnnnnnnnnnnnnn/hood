@@ -10,7 +10,7 @@
 
 #include "configuration.hpp"
 #include "message_reader.hpp"
-#include "tls_definition_raw.hpp"
+#include "tls_definition.hpp"
 
 namespace hood_proxy {
 namespace tls {
@@ -50,6 +50,13 @@ class Context : public std::enable_shared_from_this<Context> {
     SERVER_HELLO_FORWARDED,
     WRITING,
   } status_ = Status::CLIENT_CONNECTED;
+
+  struct WriteTask {
+    bool to_client;
+    Message message;
+    std::vector<uint8_t> raw_message;
+  };
+  std::queue<std::unique_ptr<WriteTask>> write_task_queue_;
 
   bool writing_ = false;
 

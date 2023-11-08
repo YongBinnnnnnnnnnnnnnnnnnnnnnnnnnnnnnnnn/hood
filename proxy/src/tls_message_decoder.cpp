@@ -17,7 +17,8 @@ namespace tls {
 
 MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
                                                           const uint8_t* buffer,
-                                                          size_t buffer_size) {
+                                                          size_t buffer_size,
+                                                          size_t& end_offset) {
   size_t offset = 0;
   if (buffer_size < offset + sizeof(protocol::TLSPlaintext)) {
     return ResultType::bad;
@@ -35,8 +36,8 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
   }
   if (message.type == protocol::ContentType::handshake) {
     auto& handshake_message = message.content.emplace<handshake::Message>();
-    return DecodeHandshake(handshake_message, header->data, message_length, 0,
-                           offset);
+    return DecodeHandshake(handshake_message, buffer, offset + message_length,
+                           offset, end_offset);
   } else if (message.type == protocol::ContentType::handshake) {
   }
   return ResultType::bad;
@@ -114,15 +115,17 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
     handshake::ClientHello& message, const uint8_t* buffer, size_t buffer_size,
     size_t from_offset, size_t& end_offset) {
   auto offset = from_offset;
-  if (buffer_size < offset + sizeof(protocol::handshake::RawClientHello)) {
+  if (buffer_size <
+      offset + sizeof(protocol::handshake::RawClientHello::FixedLengthHead)) {
     return ResultType::bad;
   }
-  auto header = reinterpret_cast<const protocol::handshake::RawClientHello*>(
-      buffer + from_offset);
+  auto header = reinterpret_cast<
+      const protocol::handshake::RawClientHello::FixedLengthHead*>(buffer +
+                                                                   from_offset);
   message.legacy_version = boost::endian::big_to_native(header->legacy_version);
   static_assert(sizeof(message.random) == sizeof(header->random));
   memcpy(message.random.data(), header->random, sizeof(message.random));
-  offset += offsetof(protocol::handshake::RawClientHello, legacy_session_id);
+  offset += sizeof(protocol::handshake::RawClientHello::FixedLengthHead);
 
   auto result = DecodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
       message.legacy_session_id, buffer, buffer_size, offset, offset);

@@ -3,8 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "src/logging.hpp"
-#include "src/tls_definition_raw.hpp"
+#include "logging.hpp"
 #include "tls_context.hpp"
 #include "tls_message_decoder.hpp"
 
@@ -45,8 +44,10 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
   }
   using ResultType = MessageDecoder::ResultType;
   LOG_TRACE("received query");
-  Message message;
   size_t decoded_message_size = 0;
+  auto write_task_pointer = std::make_unique<WriteTask>();
+  auto& message = write_task_pointer->message;
+
   auto decode_result = MessageDecoder::DecodeMesssage(message, data, data_size,
                                                       decoded_message_size);
   if (decode_result != ResultType::good) {
@@ -71,45 +72,47 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
       }
       auto client_hello_message =
           std::get<handshake::ClientHello>(handshake_message.content);
-    }
-  }
-
-  void Context::DoWrite() {
-    if (writing_) {
-      return;
-    }
-    if (reply_queue_.empty()) {
-      return;
-    }
-    writing_ = true;
-    auto query = std::move(reply_queue_.front());
-    reply_queue_.pop();
-
-    auto& endpoint = query->endpoint;
-    auto write_data = query->raw_message.data();
-    auto write_size = query->raw_message.size();
-
-    auto handler = [this, _ = std::move(query), __ = shared_from_this()](
-                       error_code error, size_t) {
-      if (error) {
-        LOG_ERROR(<< error.message());
-      }
-      writing_ = false;
-      DoWrite();
-    };
-
-    if (std::holds_alternative<udp::socket>(socket_)) {
-      auto& socket = std::get<udp::socket>(socket_);
-      if (!socket.is_open()) {
+      std::string host_name(
+          extension::FindHostName(client_hello_message.extensions));
+      if (host_name.length() == 0) {
+        LOG_INFO("Discard connection due to find no host name");
+        // TODO
         return;
       }
-      write_data += offsetof(dns::RawTcpMessage, message);
-      write_size -= offsetof(dns::RawTcpMessage, message);
-      socket.async_send_to(boost::asio::buffer(write_data, write_size),
-                           std::get<udp::endpoint>(endpoint),
-                           std::move(handler));
-    } else {
-      auto& socket = std::get<tcp::socket>(socket_);
+
+      LOG_INFO("" << host_name);
+    }
+  } else if (message.type == protocol::ContentType::application_data) {
+    // TODO
+  }
+}
+
+void Context::DoWrite() {
+  if (writing_) {
+    return;
+  }
+  if (write_task_queue_.empty()) {
+    return;
+  }
+  writing_ = true;
+  auto task = std::move(write_task_queue_.front());
+  write_task_queue_.pop();
+
+  auto write_data = task->raw_message.data();
+  auto write_size = task->raw_message.size();
+  auto to_client = task->to_client;
+
+  auto handler = [this, _ = std::move(task), __ = shared_from_this()](
+                     error_code error, size_t) {
+    if (error) {
+      LOG_ERROR(<< error.message());
+    }
+    writing_ = false;
+    DoWrite();
+  };
+  if (to_client) {
+    if (std::holds_alternative<tcp::socket>(client_socket_)) {
+      auto& socket = std::get<tcp::socket>(client_socket_);
       if (!socket.is_open()) {
         return;
       }
@@ -117,7 +120,12 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
                   std::move(handler));
     }
   }
+}
 
-  Context::~Context() { message_reader_.Stop(); }
+Context::~Context() {
+  client_message_reader_.Stop();
+  server_message_reader_.Stop();
+}
+
 }  // namespace tls
 }  // namespace hood_proxy

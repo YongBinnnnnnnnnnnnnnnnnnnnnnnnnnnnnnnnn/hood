@@ -30,6 +30,9 @@ struct TLSPlaintext {
   uint16_t mesage_length;
   uint8_t data[];
 };
+
+static constexpr auto MAX_MESSAGE_SIZE = sizeof(TLSPlaintext) + UINT16_MAX;
+
 struct uint24_t {
   uint8_t high;
   uint8_t middle;
@@ -185,21 +188,25 @@ struct RawHandshake {
 };
 
 struct RawClientHello {
-  uint16_t legacy_version;
-  uint8_t random[32];
+  struct FixedLengthHead {
+    uint16_t legacy_version;
+    uint8_t random[32];
+  } fixed_length_head;
   RawSessionID legacy_session_id;
-  CipherSuites cipher_suites;
-  CompressionMethods legacy_compression_methods;
-  extension::Extensions extensions;
+  // CipherSuites cipher_suites;
+  //  CompressionMethods legacy_compression_methods;
+  //  extension::Extensions extensions;
 };
 
 struct RawServerHello {
-  uint16_t legacy_version;
-  uint8_t random[32];
+  struct FixedLengthHead {
+    uint16_t legacy_version;
+    uint8_t random[32];
+  } fixed_length_head;
   RawSessionID legacy_session_id_echo;
-  CipherSuite cipher_suite;
-  uint8_t legacy_compression_method;
-  extension::Extensions extensions;
+  // CipherSuite cipher_suite;
+  // uint8_t legacy_compression_method;
+  // extension::Extensions extensions;
 };
 }  // namespace handshake
 

@@ -15,7 +15,7 @@ class MessageDecoder {
  public:
   enum class ResultType { good, bad, indeterminate };
   static ResultType DecodeMesssage(Message& message, const uint8_t* buffer,
-                                   size_t buffer_size, size_t&);
+                                   size_t buffer_size, size_t& end_offset);
 
  private:
   enum class FieldType {

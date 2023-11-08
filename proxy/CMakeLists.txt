@@ -9,7 +9,6 @@ find_package( Boost 1.83 COMPONENTS program_options system log REQUIRED )
 include_directories (SYSTEM ${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_CLANG_TIDY clang-tidy)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Get version from version.h
@@ -27,7 +26,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
  
 # add the executable
 add_executable(hood_proxy 
-  src/main.cpp src/configuration.cpp src/engine.cpp src/server.cpp src/logging.cpp
+  src/main.cpp src/configuration.cpp src/engine.cpp src/server.cpp src/logging.cpp src/tls_message_decoder.cpp src/tls_context.cpp
 )
 
 if(MSVC)

@@ -15,7 +15,7 @@ using SessionID = std::vector<uint8_t>;
 using CipherSuite = protocol::CipherSuite;
 using CipherSuites = std::vector<CipherSuite>;
 using CompressionMethods =
-    std::vector<typeof(protocol::CompressionMethods::data)>;
+    std::vector<typeof(protocol::CompressionMethods::data[0])>;
 namespace extension {
 
 struct ServerName {
@@ -27,6 +27,18 @@ struct Extension {
   std::variant<std::nullptr_t, std::vector<uint8_t>, ServerName> content;
 };
 using Extensions = std::vector<Extension>;
+
+static constexpr inline std::string_view FindHostName(Extensions& extensions) {
+  for (auto& extension : extensions) {
+    if (extension.type != protocol::extension::Type::server_name) {
+      continue;
+    }
+    auto& server_name = std::get<extension::ServerName>(extension.content);
+    return server_name.host_name;
+  }
+  return {};
+}
+
 }  // namespace extension
 
 namespace handshake {
@@ -58,7 +70,8 @@ struct Message {
 struct Message {
   uint8_t type;  // protocol::ContentType
   uint16_t legacy_record_version;
-  std::variant<std::vector<uint8_t>, handshake::Message> content;
+  std::variant<std::nullptr_t, std::vector<uint8_t>, handshake::Message>
+      content;
 };
 
 }  // namespace tls

@@ -39,10 +39,9 @@ else
     ./bootstrap.sh --prefix="../$(uname -s)/${BOOST_FILE_NAME}-install"
   fi
 
-  BOOST_CXXFLAGS="-I . -std=c++20"
+  BOOST_CXXFLAGS="-std=c++20"
 
   ./b2 link=static cxxflags="${BOOST_CXXFLAGS}" -j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release install
-  ./b2 -j ${HOOD_PROXY_BUILD_CONCURRENCY} --clean-all
 
   # Get rid of  python2 build artifacts completely & do a clean build for python3
   cd -
