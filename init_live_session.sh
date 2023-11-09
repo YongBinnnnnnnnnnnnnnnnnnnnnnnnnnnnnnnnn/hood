@@ -32,7 +32,8 @@ block in quick inet6 all
 block out quick inet6 all
 pass out quick proto tcp to any port {11371, 443, 80, 53} keep state
 pass out log quick proto udp to any port {53} keep state
-pass out log quick proto udp from any port 67 to any port 68 keep state
+pass out log quick proto udp from any port 68 to any port 67
+pass out log quick proto udp from any port 67 to any port 68
 block log  quick all
 EOF
 sudo tee /etc/dhclient.conf <<EOF
@@ -65,16 +66,6 @@ pkg_env: {
 EOF
 fi
 
-prefs_js="$(find ~/.mozilla/firefox/|grep prefs.js)"
-if ! grep socks_port $prefs_js; then
-tee -a $prefs_js<<EOF
-user_pref("network.proxy.socks", "10.0.2.1");
-user_pref("network.proxy.socks_port", 11371);
-user_pref("network.proxy.type", 1);
-EOF
-fi
-exit
-
 if ! ifconfig em0|grep active; then
   sudo ifconfig em0 link random
   cd /tmp
@@ -88,7 +79,17 @@ fi
 sudo service pf start
 sudo service pflog start
 sudo pfctl -f /etc/pf.conf
+
 cp -Rf $script_dir/../v/home/x/.mozilla ~/
+prefs_js="$(find ~/.mozilla/firefox/|grep prefs.js)"
+if ! grep socks_port $prefs_js; then
+tee -a $prefs_js<<EOF
+user_pref("network.proxy.socks", "10.0.2.1");
+user_pref("network.proxy.socks_port", 11371);
+user_pref("network.proxy.type", 1);
+EOF
+fi
+
 git config --global user.name "Yong Bin"
 git config --global user.email yongb@usi.ch
 #sudo mkdir -p /usr/local/texlive/

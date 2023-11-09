@@ -27,7 +27,7 @@ struct ContentType {
 struct TLSPlaintext {
   uint8_t type;
   uint16_t legacy_record_version;
-  uint16_t mesage_length;
+  uint16_t message_length;
   uint8_t data[];
 };
 
@@ -41,7 +41,7 @@ struct uint24_t {
 
 static constexpr uint32_t GetUint24Value(uint24_t data) {
   return uint32_t((uint32_t(data.high) << 16) | (uint32_t(data.middle) << 8) |
-                  uint32_t(data.middle));
+                  uint32_t(data.low));
 }
 static constexpr void SetUint24Value(uint24_t& this_, uint32_t value) {
   this_.high = value >> 16;

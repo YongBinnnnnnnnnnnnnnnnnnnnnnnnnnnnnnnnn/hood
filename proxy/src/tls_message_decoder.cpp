@@ -29,7 +29,7 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
   message.legacy_record_version =
       endian::big_to_native(header->legacy_record_version);
 
-  auto message_length = boost::endian::big_to_native(header->mesage_length);
+  auto message_length = boost::endian::big_to_native(header->message_length);
   offset = sizeof(protocol::TLSPlaintext);
   if (buffer_size < offset + message_length) {
     return ResultType::bad;
@@ -50,14 +50,14 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
       buffer + from_offset);
   message.type = header->msg_type;
   auto message_length = protocol::GetUint24Value(header->length);
-  auto offset = from_offset;
+  auto offset = from_offset + sizeof(protocol::handshake::RawHandshake);
   end_offset = offset + message_length;
   if (end_offset > buffer_size) {
     return ResultType::bad;
   }
   if (message.type == protocol::handshake::Type::client_hello) {
     return DecodeClientHello(message.content.emplace<handshake::ClientHello>(),
-                             header->data, buffer_size, offset, offset);
+                             buffer, buffer_size, offset, offset);
   } else if (message.type == protocol::handshake::Type::server_hello) {
   } else if (message.type == protocol::handshake::Type::new_session_ticket) {
   } else if (message.type == protocol::handshake::Type::end_of_early_data) {
@@ -82,7 +82,8 @@ static constexpr inline MessageDecoder::ResultType DecodeVector(
   if (buffer_size < offset + sizeof(LengthType)) {
     return MessageDecoder::ResultType::bad;
   }
-  auto count = *reinterpret_cast<const LengthType*>(buffer + offset);
+  auto count = endian::big_to_native(
+      *reinterpret_cast<const LengthType*>(buffer + offset));
   size_t size;
   offset += sizeof(LengthType);
   if constexpr (Mode == VectorLengthMode::ELEMENT_COUNT) {
@@ -139,7 +140,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
     return result;
   }
 
-  result = DecodeVector<uint16_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
+  result = DecodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
       message.legacy_compression_methods, buffer, buffer_size, offset, offset);
   if (result == ResultType::bad) {
     return result;
@@ -181,6 +182,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
       if (end_of_extension < offset + sizeof(protocol::extension::ServerName)) {
         return ResultType::bad;
       }
+      offset += sizeof(protocol::extension::Type::server_name);
       auto server_name_header =
           reinterpret_cast<const protocol::extension::ServerName*>(buffer +
                                                                    offset);
@@ -194,13 +196,13 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
       if (type != protocol::extension::ServerNameType::host_name) {
         return ResultType::bad;
       }
-      auto server_name = extension.content.emplace<extension::ServerName>();
+      auto& server_name = extension.content.emplace<extension::ServerName>();
       server_name.host_name.assign(server_name_header->name,
-                                   server_name_header->length);
+                                   server_name_length);
     }
     offset = end_of_extension;
   }
-  return ResultType::bad;
+  return ResultType::good;
 }
 
 }  // namespace tls

@@ -21,7 +21,11 @@ for arg in "$@"; do
 done
 
 echo $harden_only $prefix
-#exit
+
+if ! grep -q dtparam $prefix/boot/firmware/config.txt; then
+  echo "target location unlikely to be a raspberry pi system mount"
+  exit 1
+fi
 
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/hood_harden_only
@@ -81,9 +85,9 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
 fi
  
 sudo mkdir -p $prefix/etc/pki/nssdb
-sudocpcontent /etc/pki/nssdb/cert9.db $prefix/etc/pki/nssdb
-sudocpcontent /etc/pki/nssdb/key4.db $prefix/etc/pki/nssdb
-sudocpcontent /etc/pki/nssdb/pkcs11.txt $prefix/etc/pki/nssdb
+sudocpcontent nssdb/cert9.db $prefix/etc/pki/nssdb
+sudocpcontent nssdb/key4.db $prefix/etc/pki/nssdb
+sudocpcontent nssdb/pkcs11.txt $prefix/etc/pki/nssdb
 sudo chmod 0644 /etc/pki/nssdb/*
 
 sudo mkdir -p $prefix/etc/skel/.pki/

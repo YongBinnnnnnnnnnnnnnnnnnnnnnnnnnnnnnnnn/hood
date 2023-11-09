@@ -91,7 +91,7 @@ class MessageReader {
     auto available_size = buffer_.size() - data_offset_ - data_size_;
     auto read_size = tcp_message_size_ - data_size_;
     if (!read_size) {
-      read_size = sizeof(RawMessageType::message_length);
+      read_size = sizeof(RawMessageType);
     }
     if (available_size < read_size) {
       if (data_offset_ + available_size > read_size) {
@@ -137,7 +137,8 @@ class MessageReader {
           }
           auto tcp_message = reinterpret_cast<const RawMessageType*>(data);
           tcp_message_size_ =
-              sizeof(RawMessageType) +
+              offsetof(RawMessageType, message_length) +
+              sizeof(RawMessageType::message_length) +
               boost::endian::big_to_native(tcp_message->message_length);
         }
         if (data_size_ < tcp_message_size_) {

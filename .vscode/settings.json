@@ -8,6 +8,7 @@
     "files.exclude": {
         "environment": true,
         "download": true,
+        "proxy/.cache": true,
         "proxy/build": true,
         "proxy/libs": true
     },

@@ -1,4 +1,3 @@
-#include "server.hpp"
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
@@ -6,10 +5,14 @@
 #include <csignal>
 #include <iostream>
 #include <string>
+
 #include "configuration.hpp"
 #include "engine.hpp"
 #include "logging.hpp"
+#include "server.hpp"
+#include "tls_context.hpp"
 
+using boost::asio::any_completion_executor;
 using boost::asio::signal_set;
 using boost::asio::ip::make_address;
 using boost::asio::ip::tcp;
@@ -25,12 +28,15 @@ namespace hood_proxy {
 
 Server::Server()
     : io_context_(Engine::get().GetExecutor()),
-      tcp_socket_(io_context_),
-      acceptor_(io_context_),
+      acceptor_(io_context_.get_executor()),
       signals_(io_context_),
       listen_address_(
           make_address(Configuration::get("listen-address").as<string>())),
       listen_port_(Configuration::get("listen-port").as<uint16_t>()),
+      tls_proxy_acceptor_(io_context_),
+      tls_proxy_address_(
+          make_address(Configuration::get("tls-proxy-address").as<string>())),
+      tls_proxy_port_(Configuration::get("tls-proxy-port").as<uint16_t>()),
       stop_(false) {}
 
 void Server::Run() {
@@ -60,6 +66,34 @@ void Server::StartTcp() {
   acceptor_.listen();
   DoAccept();
   LOG_INFO("Listening on " << listen_address_ << ":" << listen_port_ << " TCP");
+}
+
+void Server::StartTls() {
+  auto tls_endpoint = tcp::endpoint(tls_proxy_address_, tls_proxy_port_);
+  tls_proxy_acceptor_.open(tls_endpoint.protocol());
+  tls_proxy_acceptor_.set_option(
+      boost::asio::ip::tcp::acceptor::reuse_address(true));
+  tls_proxy_acceptor_.bind(tls_endpoint);
+  tls_proxy_acceptor_.listen();
+  DoAcceptTls();
+  LOG_INFO("Listening on " << listen_address_ << ":" << tls_proxy_port_
+                           << " TLS TCP");
+}
+
+void Server::DoAcceptTls() {
+  tls_proxy_acceptor_.async_accept(
+      [this](error_code error, tcp::socket socket) {
+        if (stop_) {
+          return;
+        }
+        if (!error) {
+          //
+          auto context = tls::Context::create();
+          context->Start(std::move(socket));
+        }
+
+        DoAccept();
+      });
 }
 
 void Server::DoAccept() {

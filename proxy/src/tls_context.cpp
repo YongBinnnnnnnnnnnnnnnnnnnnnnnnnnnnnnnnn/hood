@@ -72,6 +72,7 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
       }
       auto client_hello_message =
           std::get<handshake::ClientHello>(handshake_message.content);
+
       std::string host_name(
           extension::FindHostName(client_hello_message.extensions));
       if (host_name.length() == 0) {

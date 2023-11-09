@@ -44,6 +44,9 @@ class Configuration {
     add_configuration_option("tls-proxy-port",
                              bpo::value<uint16_t>()->default_value(443),
                              "tls proxy port");
+    add_configuration_option("listen-port",
+                             bpo::value<uint16_t>()->default_value(443),
+                             "dns proxy port");
     add_configuration_option("tls-proxy-address",
                              bpo::value<string>()->default_value("127.0.0.1"),
                              "tls proxy address");

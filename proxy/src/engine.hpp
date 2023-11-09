@@ -12,10 +12,13 @@ class Engine {
     static thread_local Engine object;
     return object;
   }
-
-  inline boost::asio::io_context& GetExecutor() {
-    return raw_object_;
+  static inline void DebugBreak() {
+#ifndef NDEBUG
+    __builtin_trap();
+#endif
   }
+
+  inline boost::asio::io_context& GetExecutor() { return raw_object_; }
 
  private:
   boost::asio::io_context raw_object_;

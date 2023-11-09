@@ -1,5 +1,7 @@
 #include <unistd.h>
+
 #include <iostream>
+
 #include "configuration.hpp"
 #include "logging.hpp"
 #include "server.hpp"
@@ -20,6 +22,7 @@ int main(int argc, const char **argv) {
   }
 
   Server server;
+  server.StartTls();
   server.Run();
   LOG_INFO("Exit.");
 }
