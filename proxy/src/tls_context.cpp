@@ -102,7 +102,7 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
                 // TODO
                 return;
               }
-              OnConnect();
+              OnConnectHost();
             });
       }
     }
@@ -111,7 +111,26 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
   }
 }
 
-void Context::OnConnect() { LOG_INFO("Connecting to " << host_name_); }
+void Context::OnConnectHost() {
+  LOG_INFO("Connecting to " << host_name_);
+  auto& socket =
+      server_socket_.emplace<tcp::socket>(Engine::get().GetExecutor());
+  auto handler = [this, &for_stream = socket](
+                     const boost::system::error_code& error,
+                     const tcp::endpoint& /*endpoint*/) {
+    if (!for_stream.lowest_layer().is_open()) {
+      return;
+    }
+    if (error) {
+      LOG_ERROR(<< host_name_ << " failed to connect: " << error.message());
+      return;
+    }
+  };
+
+  boost::asio::async_connect(socket.lowest_layer(), host_endpoints_,
+                             std::move(handler));
+}
+
 void Context::DoWrite() {
   if (writing_) {
     return;

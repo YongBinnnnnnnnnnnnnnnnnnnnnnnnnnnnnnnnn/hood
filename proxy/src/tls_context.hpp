@@ -70,7 +70,7 @@ class Context : public std::enable_shared_from_this<Context> {
         resolver_(Engine::get().GetExecutor()) {}
   void HandleUserMessage(TlsMessageReader::Reason reason, const uint8_t* data,
                          uint16_t data_size);
-  void OnConnect();
+  void OnConnectHost();
   void HandleServerMessage(TlsMessageReader::Reason reason, const uint8_t* data,
                            uint16_t data_size);
   void DoWrite();

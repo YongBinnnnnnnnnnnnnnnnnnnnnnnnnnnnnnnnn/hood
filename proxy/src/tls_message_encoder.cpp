@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "dns.hpp"
+#include "tls_message_encoder.hpp"
 
 namespace endian = boost::endian;
 using std::string;
@@ -14,21 +14,7 @@ using std::unordered_map;
 using std::vector;
 
 namespace hood_proxy {
-namespace dns {
-
-class MessageEncoderContext {
- public:
-  MessageEncoderContext(std::vector<uint8_t>& arg_buffer, size_t arg_offset)
-      : buffer(arg_buffer), offset(arg_offset) {}
-  std::vector<uint8_t>& buffer;
-  size_t offset;
-  std::unordered_map<std::string, size_t> encoded_labels;
-};
-
-#define WRITE_FLAG(FLAGS_, FLAG_NAME_, VALUE_)                      \
-  (FLAGS_) = ((FLAGS_ & (~RawHeader::Flag::FLAG_NAME_##_mask)) |    \
-              (((VALUE_) << RawHeader::Flag::FLAG_NAME_##_offset) & \
-               RawHeader::Flag::FLAG_NAME_##_mask))
+namespace tls {
 
 #define SAFE_SET_INT(TO_, FROM_)                                      \
   do {                                                                \
@@ -39,73 +25,63 @@ class MessageEncoderContext {
     (TO_) = endian::native_to_big(static_cast<decltype(TO_)>(FROM_)); \
   } while (false)
 
-inline bool EncodeName(MessageEncoderContext& context, const string& name);
+MessageEncoder::ResultType EncodeExtension(const Extension& extension,
+                                           std::vector<uint8_t>& buffer,
+                                           size_t& offset) {
+  return MessageEncoder::ResultType::bad;
+}
 
-inline MessageEncoder::ResultType EncodeResourceRecord(
-    MessageEncoderContext& context, const ResourceRecord& record);
+MessageEncoder::ResultType EncodeClientHello(
+    const handshake::ClientHello& message, std::vector<uint8_t>& buffer,
+    size_t& offset) {
+  buffer.resize(offset +
+                sizeof(protocol::handshake::RawClientHello::FixedLengthHead));
+  auto header = reinterpret_cast<protocol::handshake::FixedLengthHead*>(
+      buffer.data() + offset);
+  header->legacy_version = endian::native_to_big(message.legacy_version);
+  for (const auto& extension : message.extensions) {
+    auto result = EncodeExtension(extension, buffer, offset);
+    if (result != MessageEncoder::ResultType::good) {
+      return result;
+    }
+  }
+}
 
 MessageEncoder::ResultType MessageEncoder::Encode(const Message& message,
                                                   std::vector<uint8_t>& buffer,
                                                   size_t offset) {
-  MessageEncoderContext context(buffer, offset);
-  buffer.reserve(offset + 512);
+  buffer.reserve(offset + 2048);
+  auto start_offset = offset;
 
-  {
-    // encode header
-    context.buffer.resize(context.offset + sizeof(RawHeader), 0);
-    auto& source = message.header;
-    auto destination =
-        reinterpret_cast<RawHeader*>(buffer.data() + context.offset);
-    destination->ID = endian::native_to_big(source.id);
-    WRITE_FLAG(destination->FLAGS, QR, source.is_response ? 1 : 0);
-    WRITE_FLAG(destination->FLAGS, Opcode, source.operation_code);
-    WRITE_FLAG(destination->FLAGS, AA, source.is_authoritative_answer ? 1 : 0);
-    WRITE_FLAG(destination->FLAGS, TC, source.is_truncated ? 1 : 0);
-    WRITE_FLAG(destination->FLAGS, RD, source.is_recursion_desired ? 1 : 0);
-    WRITE_FLAG(destination->FLAGS, RA, source.is_recursion_available ? 1 : 0);
-    WRITE_FLAG(destination->FLAGS, Z, source.z);
-    WRITE_FLAG(destination->FLAGS, RCODE, source.response_code);
-    SAFE_SET_INT(destination->QDCOUNT, message.questions.size());
-    SAFE_SET_INT(destination->ANCOUNT, message.answers.size());
-    SAFE_SET_INT(destination->NSCOUNT, message.authorities.size());
-    SAFE_SET_INT(destination->ARCOUNT, message.additional.size());
+  // encode header
+  buffer.resize(offset + sizeof(protocol::TLSPlaintext));
+  auto tls_header =
+      reinterpret_cast<protocol::TLSPlaintext*>(buffer.data() + offset);
+  tls_header->type = message.type;
+  tls_header->legacy_record_version =
+      endian::native_to_big(message.legacy_record_version);
+  offset += sizeof(protocol::TLSPlaintext);
 
-    context.offset += sizeof(RawHeader);
-  }
-
-  for (auto& question : message.questions) {
-    if (!EncodeName(context, question.name)) {
-      return MessageEncoder::ResultType::bad;
-    }
-    auto field_size = sizeof(RawQuestion) - sizeof(RawQuestion::QNAME);
-    context.buffer.resize(context.offset + field_size);
-    auto raw_question = reinterpret_cast<RawQuestion*>(
-        buffer.data() + context.offset - sizeof(RawQuestion::QNAME));
-    raw_question->QTYPE = endian::native_to_big(question.type);
-    raw_question->QCLASS = endian::native_to_big(question.the_class);
-    context.offset += field_size;
-  }
-
-  for (auto& record : message.answers) {
-    auto result = EncodeResourceRecord(context, record);
-    if (result != ResultType::good) {
+  if (message.type == protocol::handshake::Type::client_hello) {
+    const auto& client_hello_message =
+        std::get<handshake::ClientHello>(message.content);
+    auto result = EncodeClientHello(client_hello_message, buffer, offset);
+    if (result != MessageEncoder::ResultType::good) {
       return result;
     }
-  }
 
-  for (auto& record : message.authorities) {
-    auto result = EncodeResourceRecord(context, record);
-    if (result != ResultType::good) {
-      return result;
-    }
+  } else if (message.type == protocol::handshake::Type::server_hello) {
+  } else if (message.type == protocol::handshake::Type::new_session_ticket) {
+  } else if (message.type == protocol::handshake::Type::end_of_early_data) {
+  } else if (message.type == protocol::handshake::Type::encrypted_extensions) {
+  } else if (message.type == protocol::handshake::Type::certificate) {
+  } else if (message.type == protocol::handshake::Type::certificate_request) {
+  } else if (message.type == protocol::handshake::Type::certificate_verify) {
+  } else if (message.type == protocol::handshake::Type::finished) {
+  } else if (message.type == protocol::handshake::Type::key_update) {
+  } else if (message.type == protocol::handshake::Type::message_hash) {
   }
-
-  for (auto& record : message.additional) {
-    auto result = EncodeResourceRecord(context, record);
-    if (result != ResultType::good) {
-      return result;
-    }
-  }
+  SAFE_SET_INT(tls_header->message_length, buffer.size() - start_offset);
   return ResultType::good;
 }
 
@@ -312,5 +288,5 @@ inline MessageEncoder::ResultType EncodeResourceRecord(
   return MessageEncoder::ResultType::good;
 }
 
-}  // namespace dns
+}  // namespace tls
 }  // namespace hood_proxy
