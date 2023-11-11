@@ -151,6 +151,35 @@ struct ServerNameList {
   ServerName server_name_list[];
 };
 
+struct NamedGroupValue {
+  // RFC 8446 4.2.7
+  /* Elliptic Curve Groups (ECDHE) */
+  static constexpr uint16_t secp256r1 = 0x0017;
+  static constexpr uint16_t secp384r1 = 0x0018;
+  static constexpr uint16_t secp521r1 = 0x0019;
+  static constexpr uint16_t x25519 = 0x001D;
+  static constexpr uint16_t x448 = 0x001E;
+
+  /* Finite Field Groups (DHE) */
+  static constexpr uint16_t ffdhe2048 = 0x0100;
+  static constexpr uint16_t ffdhe3072 = 0x0101;
+  static constexpr uint16_t ffdhe4096 = 0x0102;
+  static constexpr uint16_t ffdhe6144 = 0x0103;
+  static constexpr uint16_t ffdhe8192 = 0x0104;
+
+  /* Reserved Code Points */
+  // ffdhe_private_use(0x01FC..0x01FF),
+  // ecdhe_private_use(0xFE00..0xFEFF),
+  static constexpr uint16_t undefined = 0xFFFF;
+};
+
+using NamedGroup = uint16_t;
+
+struct NamedGroupList {
+  uint16_t length;
+  NamedGroup groups[];
+};
+
 struct Extension {
   uint16_t type;
   uint16_t length;

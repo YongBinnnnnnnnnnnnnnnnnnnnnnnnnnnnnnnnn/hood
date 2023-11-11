@@ -73,21 +73,45 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
       auto client_hello_message =
           std::get<handshake::ClientHello>(handshake_message.content);
 
-      std::string host_name(
-          extension::FindHostName(client_hello_message.extensions));
-      if (host_name.length() == 0) {
+      extension::FindHostName(host_name_, client_hello_message.extensions);
+      if (host_name_.length() == 0) {
         LOG_INFO("Discard connection due to find no host name");
         // TODO
         return;
       }
+      LOG_INFO("Resolving " << host_name_);
+      {
+        tcp::resolver::query name_query(host_name_, "https");
 
-      LOG_INFO("" << host_name);
+        resolver_.async_resolve(
+            name_query, [this, _ = shared_from_this()](
+                            const boost::system::error_code& error,
+                            tcp::resolver::results_type results) {
+              if (error) {
+                LOG_INFO("Discard connection due to error while resolving "
+                         << host_name_ << " " << error.message());
+                return;
+              }
+              typeof(results) end;
+              for (; results != end; results++) {
+                host_endpoints_.emplace_back(results->endpoint());
+              }
+              if (host_endpoints_.size() == 0) {
+                LOG_INFO("Discard connection due to unable to resolve "
+                         << host_name_);
+                // TODO
+                return;
+              }
+              OnConnect();
+            });
+      }
     }
   } else if (message.type == protocol::ContentType::application_data) {
     // TODO
   }
 }
 
+void Context::OnConnect() { LOG_INFO("Connecting to " << host_name_); }
 void Context::DoWrite() {
   if (writing_) {
     return;

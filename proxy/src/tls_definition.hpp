@@ -22,22 +22,27 @@ struct ServerName {
   std::string host_name;
 };
 
+using NamedGroup = protocol::extension::NamedGroup;
+using NamedGroupList = std::vector<NamedGroup>;
+
 struct Extension {
   uint16_t type;
-  std::variant<std::nullptr_t, std::vector<uint8_t>, ServerName> content;
+  std::variant<std::nullptr_t, std::vector<uint8_t>, ServerName, NamedGroupList>
+      content;
 };
 using Extensions = std::vector<Extension>;
 
-static inline const std::string_view FindHostName(
-    const Extensions& extensions) {
+static inline bool FindHostName(std::string& host_name,
+                                const Extensions& extensions) {
   for (auto& extension : extensions) {
     if (extension.type != protocol::extension::Type::server_name) {
       continue;
     }
     auto& server_name = std::get<extension::ServerName>(extension.content);
-    return server_name.host_name;
+    host_name = server_name.host_name;
+    return true;
   }
-  return {};
+  return false;
 }
 
 }  // namespace extension

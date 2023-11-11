@@ -199,6 +199,19 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
       auto& server_name = extension.content.emplace<extension::ServerName>();
       server_name.host_name.assign(server_name_header->name,
                                    server_name_length);
+    } else if (extension.type == protocol::extension::Type::supported_groups) {
+      auto& groups = extension.content.emplace<extension::NamedGroupList>();
+      auto result =
+          DecodeVector<typeof(protocol::extension::NamedGroupList::length),
+                       protocol::extension::NamedGroup,
+                       VectorLengthMode::BYTE_SIZE>(groups, buffer, buffer_size,
+                                                    offset, offset);
+      if (result == ResultType::bad || offset != end_of_extension) {
+        return result;
+      } else {
+        extension.content.emplace<vector<uint8_t>>(buffer + offset,
+                                                   buffer + end_of_extension);
+      }
     }
     offset = end_of_extension;
   }

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "configuration.hpp"
+#include "engine.hpp"
 #include "message_reader.hpp"
 #include "tls_definition.hpp"
 
@@ -42,6 +43,9 @@ class Context : public std::enable_shared_from_this<Context> {
  private:
   std::variant<nullptr_t, boost::asio::ip::tcp::socket> client_socket_;
   TlsMessageReader client_message_reader_;
+  boost::asio::ip::tcp::resolver resolver_;
+  std::string host_name_;
+  std::vector<boost::asio::ip::tcp::endpoint> host_endpoints_;
   std::variant<nullptr_t, boost::asio::ip::tcp::socket> server_socket_;
   TlsMessageReader server_message_reader_;
   enum class Status {
@@ -60,9 +64,13 @@ class Context : public std::enable_shared_from_this<Context> {
 
   bool writing_ = false;
 
-  Context() {}
+  Context()
+      : client_socket_(nullptr),
+        client_message_reader_(),
+        resolver_(Engine::get().GetExecutor()) {}
   void HandleUserMessage(TlsMessageReader::Reason reason, const uint8_t* data,
                          uint16_t data_size);
+  void OnConnect();
   void HandleServerMessage(TlsMessageReader::Reason reason, const uint8_t* data,
                            uint16_t data_size);
   void DoWrite();
