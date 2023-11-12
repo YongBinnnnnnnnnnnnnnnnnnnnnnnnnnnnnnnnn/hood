@@ -134,7 +134,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
     return result;
   }
 
-  result = DecodeVector<uint16_t, uint16_t, VectorLengthMode::BYTE_SIZE>(
+  result = DecodeVector<uint16_t, CipherSuite, VectorLengthMode::BYTE_SIZE>(
       message.cipher_suites, buffer, buffer_size, offset, offset);
   if (result == ResultType::bad) {
     return result;

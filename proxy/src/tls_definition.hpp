@@ -67,7 +67,7 @@ struct ServerHello {
 };
 
 struct Message {
-  uint16_t type;
+  uint8_t type;
   std::variant<std::nullptr_t, std::vector<uint8_t>, ClientHello, ServerHello>
       content;
 };
