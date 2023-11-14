@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "logging.hpp"
+#include "network.hpp"
 #include "tls_context.hpp"
 #include "tls_message_decoder.hpp"
 #include "tls_message_encoder.hpp"
@@ -112,6 +113,13 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
                 // TODO
                 return;
               }
+              network::RemoveV6AndLocalEndpoints(host_endpoints_);
+              if (host_endpoints_.size() == 0) {
+                LOG_INFO("Discard connection to "
+                         << host_name_ << " because endpoints not acceptable");
+                // TODO
+                return;
+              }
               DoConnectHost();
             });
       }
@@ -132,6 +140,7 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
     return;
   }
   LOG_TRACE("received query");
+
   size_t decoded_message_size = 0;
   auto write_task_pointer = std::make_unique<WriteTask>();
   write_task_pointer->to_client = true;
