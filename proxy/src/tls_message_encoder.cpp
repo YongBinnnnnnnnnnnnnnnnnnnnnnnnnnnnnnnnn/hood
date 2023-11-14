@@ -31,23 +31,19 @@ static MessageEncoder::ResultType EncodeVector(
     const std::vector<ValueType>& source, std::vector<uint8_t>& buffer,
     size_t& offset) {
   static_assert(std::is_arithmetic_v<LengthType>);
-  auto start_offset = offset;
-  buffer.resize(sizeof(LengthType) + sizeof(ValueType) * buffer.size());
+  auto count = source.size();
+  auto byte_size = count * sizeof(ValueType);
+  buffer.resize(offset + sizeof(LengthType) + byte_size);
   struct {
     LengthType length;
     ValueType values[];
-  }* header = reinterpret_cast<decltype(header)>(buffer.data());
-  auto length = source.size();
-  auto count = length;
-  if (std::numeric_limits<LengthType>::max() < length) {
-    return MessageEncoder::ResultType::bad;
-  }
-  auto byte_size = length * sizeof(ValueType);
-  if constexpr (Mode == VectorLengthMode::BYTE_SIZE) {
-    length = byte_size;
-  }
+  }* header = reinterpret_cast<decltype(header)>(buffer.data() + offset);
 
-  SAFE_SET_INT(header->length, (buffer.size() - start_offset));
+  if constexpr (Mode == VectorLengthMode::BYTE_SIZE) {
+    SAFE_SET_INT(header->length, byte_size);
+  } else {
+    SAFE_SET_INT(header->length, count);
+  }
 
   if constexpr (std::is_arithmetic_v<ValueType> && sizeof(ValueType) > 1 &&
                 endian::order::native != endian::order::big) {
@@ -90,16 +86,17 @@ MessageEncoder::ResultType EncodeServerName(
 MessageEncoder::ResultType EncodeExtensions(
     const extension::Extensions& extensions, std::vector<uint8_t>& buffer,
     size_t& offset) {
-  auto start_offset = offset;
   buffer.resize(offset + sizeof(protocol::extension::Extensions));
   auto section_header =
-      reinterpret_cast<protocol::extension::Extensions*>(&buffer[start_offset]);
+      reinterpret_cast<protocol::extension::Extensions*>(&buffer[offset]);
   offset += sizeof(protocol::extension::Extensions);
+  auto content_offset = offset;
   for (auto& extension : extensions) {
-    auto extension_start_offset = offset;
     buffer.resize(offset + sizeof(protocol::extension::Extension));
-    auto extension_header = reinterpret_cast<protocol::extension::Extension*>(
-        &buffer[start_offset]);
+    auto extension_header =
+        reinterpret_cast<protocol::extension::Extension*>(&buffer[offset]);
+    offset += sizeof(protocol::extension::Extension);
+    auto extension_content_offset = offset;
     if (extension.type == protocol::extension::Type::server_name) {
       auto result = EncodeServerName(
           std::get<extension::ServerName>(extension.content), buffer, offset);
@@ -117,12 +114,15 @@ MessageEncoder::ResultType EncodeExtensions(
         return result;
       }
     } else {
-      // TODO
+      auto& content = std::get<std::vector<uint8_t>>(extension.content);
+      buffer.insert(buffer.end(), content.begin(), content.end());
+      offset = buffer.size();
     }
+    extension_header->type = endian::native_to_big(extension.type);
     SAFE_SET_INT(extension_header->length,
-                 buffer.size() - extension_start_offset);
+                 buffer.size() - extension_content_offset);
   }
-  SAFE_SET_INT(section_header->length, buffer.size() - start_offset);
+  SAFE_SET_INT(section_header->length, buffer.size() - content_offset);
   offset = buffer.size();
   return MessageEncoder::ResultType::good;
 }
@@ -141,6 +141,7 @@ static MessageEncoder::ResultType EncodeClientHello(
       sizeof(handshake::ClientHello::random) ==
       sizeof(protocol::handshake::RawClientHello::FixedLengthHead::random));
   memcpy(header->random, message.random.data(), message.random.size());
+  offset += sizeof(protocol::handshake::RawClientHello::FixedLengthHead);
 
   auto result = EncodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
       message.legacy_session_id, buffer, offset);
@@ -172,6 +173,7 @@ static MessageEncoder::ResultType EncodeHandshake(
   using ResultType = MessageEncoder::ResultType;
   auto start_offset = offset;
   buffer.resize(offset + sizeof(protocol::handshake::RawHandshake));
+  offset += sizeof(protocol::handshake::RawHandshake);
   auto header = reinterpret_cast<protocol::handshake::RawHandshake*>(
       buffer.data() + offset);
   header->msg_type = message.type;

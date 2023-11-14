@@ -176,6 +176,7 @@ struct NamedGroupValue {
 using NamedGroup = uint16_t;
 
 struct NamedGroupList {
+  uint16_t vector_size;
   uint16_t length;
   NamedGroup groups[];
 };

@@ -208,10 +208,10 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
                                                     offset, offset);
       if (result == ResultType::bad || offset != end_of_extension) {
         return result;
-      } else {
-        extension.content.emplace<vector<uint8_t>>(buffer + offset,
-                                                   buffer + end_of_extension);
       }
+    } else {
+      extension.content.emplace<vector<uint8_t>>(buffer + offset,
+                                                 buffer + end_of_extension);
     }
     offset = end_of_extension;
   }
