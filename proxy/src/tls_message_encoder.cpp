@@ -171,11 +171,11 @@ static MessageEncoder::ResultType EncodeHandshake(
     const handshake::Message& message, std::vector<uint8_t>& buffer,
     size_t& offset) {
   using ResultType = MessageEncoder::ResultType;
-  auto start_offset = offset;
   buffer.resize(offset + sizeof(protocol::handshake::RawHandshake));
-  offset += sizeof(protocol::handshake::RawHandshake);
   auto header = reinterpret_cast<protocol::handshake::RawHandshake*>(
       buffer.data() + offset);
+  offset += sizeof(protocol::handshake::RawHandshake);
+  auto content_offset = offset;
   header->msg_type = message.type;
   if (message.type == protocol::handshake::Type::client_hello) {
     const auto& client_hello_message =
@@ -196,7 +196,7 @@ static MessageEncoder::ResultType EncodeHandshake(
   } else if (message.type == protocol::handshake::Type::message_hash) {
   }
 
-  SetUint24Value(header->length, buffer.size() - start_offset);
+  SetUint24Value(header->length, buffer.size() - content_offset);
   offset = buffer.size();
   return ResultType::good;
 }
@@ -205,7 +205,6 @@ MessageEncoder::ResultType MessageEncoder::Encode(const Message& message,
                                                   std::vector<uint8_t>& buffer,
                                                   size_t offset) {
   buffer.reserve(offset + 2048);
-  auto start_offset = offset;
 
   // encode header
   buffer.resize(offset + sizeof(protocol::TLSPlaintext));
@@ -215,6 +214,7 @@ MessageEncoder::ResultType MessageEncoder::Encode(const Message& message,
   tls_header->legacy_record_version =
       endian::native_to_big(message.legacy_record_version);
   offset += sizeof(protocol::TLSPlaintext);
+  auto content_offset = offset;
 
   if (message.type == protocol::ContentType::handshake) {
     const auto& handshake_message =
@@ -224,7 +224,7 @@ MessageEncoder::ResultType MessageEncoder::Encode(const Message& message,
       return result;
     }
   }
-  SAFE_SET_INT(tls_header->message_length, buffer.size() - start_offset);
+  SAFE_SET_INT(tls_header->message_length, buffer.size() - content_offset);
   return ResultType::good;
 }
 
