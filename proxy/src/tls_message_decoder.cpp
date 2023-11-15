@@ -15,63 +15,6 @@ using std::vector;
 namespace hood_proxy {
 namespace tls {
 
-MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
-                                                          const uint8_t* buffer,
-                                                          size_t buffer_size,
-                                                          size_t& end_offset) {
-  size_t offset = 0;
-  if (buffer_size < offset + sizeof(protocol::TLSPlaintext)) {
-    return ResultType::bad;
-  }
-  // decode header
-  auto header = reinterpret_cast<const protocol::TLSPlaintext*>(buffer);
-  message.type = header->type;
-  message.legacy_record_version =
-      endian::big_to_native(header->legacy_record_version);
-
-  auto message_length = boost::endian::big_to_native(header->message_length);
-  offset = sizeof(protocol::TLSPlaintext);
-  if (buffer_size < offset + message_length) {
-    return ResultType::bad;
-  }
-  if (message.type == protocol::ContentType::handshake) {
-    auto& handshake_message = message.content.emplace<handshake::Message>();
-    return DecodeHandshake(handshake_message, buffer, offset + message_length,
-                           offset, end_offset);
-  } else if (message.type == protocol::ContentType::handshake) {
-  }
-  return ResultType::bad;
-}
-
-inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
-    handshake::Message& message, const uint8_t* buffer, size_t buffer_size,
-    size_t from_offset, size_t& end_offset) {
-  auto header = reinterpret_cast<const protocol::handshake::RawHandshake*>(
-      buffer + from_offset);
-  message.type = header->msg_type;
-  auto message_length = protocol::GetUint24Value(header->length);
-  auto offset = from_offset + sizeof(protocol::handshake::RawHandshake);
-  end_offset = offset + message_length;
-  if (end_offset > buffer_size) {
-    return ResultType::bad;
-  }
-  if (message.type == protocol::handshake::Type::client_hello) {
-    return DecodeClientHello(message.content.emplace<handshake::ClientHello>(),
-                             buffer, buffer_size, offset, offset);
-  } else if (message.type == protocol::handshake::Type::server_hello) {
-  } else if (message.type == protocol::handshake::Type::new_session_ticket) {
-  } else if (message.type == protocol::handshake::Type::end_of_early_data) {
-  } else if (message.type == protocol::handshake::Type::encrypted_extensions) {
-  } else if (message.type == protocol::handshake::Type::certificate) {
-  } else if (message.type == protocol::handshake::Type::certificate_request) {
-  } else if (message.type == protocol::handshake::Type::certificate_verify) {
-  } else if (message.type == protocol::handshake::Type::finished) {
-  } else if (message.type == protocol::handshake::Type::key_update) {
-  } else if (message.type == protocol::handshake::Type::message_hash) {
-  }
-  return ResultType::bad;
-}
-
 enum class VectorLengthMode { ELEMENT_COUNT, BYTE_SIZE };
 template <typename LengthType, typename ValueType, VectorLengthMode Mode>
 static constexpr inline MessageDecoder::ResultType DecodeVector(
@@ -112,21 +55,122 @@ static constexpr inline MessageDecoder::ResultType DecodeVector(
   return MessageDecoder::ResultType::good;
 }
 
+MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
+                                                          const uint8_t* buffer,
+                                                          size_t buffer_size,
+                                                          size_t& end_offset) {
+  size_t offset = 0;
+  if (buffer_size < offset + sizeof(protocol::TLSPlaintext)) {
+    return ResultType::bad;
+  }
+  // decode header
+  auto header = reinterpret_cast<const protocol::TLSPlaintext*>(buffer);
+  message.type = header->type;
+  message.legacy_record_version =
+      endian::big_to_native(header->legacy_record_version);
+
+  auto message_length = boost::endian::big_to_native(header->message_length);
+  offset = sizeof(protocol::TLSPlaintext);
+  if (buffer_size < offset + message_length) {
+    return ResultType::bad;
+  }
+  if (message.type == protocol::ContentType::handshake) {
+    auto& handshake_message = message.content.emplace<handshake::Message>();
+    return DecodeHandshake(handshake_message, buffer, offset + message_length,
+                           offset, end_offset);
+  } else {
+    message.content.emplace<std::vector<uint8_t>>(
+        &buffer[offset], &buffer[offset + message_length]);
+    end_offset = offset + message_length;
+  }
+  return ResultType::bad;
+}
+
+inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
+    handshake::ServerHello& message, const uint8_t* buffer, size_t buffer_size,
+    size_t from_offset, size_t& end_offset) {
+  auto offset = from_offset;
+  if (buffer_size <
+      offset + sizeof(protocol::handshake::RawServerHello::FixedLengthHeader)) {
+    return ResultType::bad;
+  }
+  auto header = reinterpret_cast<
+      const protocol::handshake::RawServerHello::FixedLengthHeader*>(
+      buffer + from_offset);
+  message.legacy_version = boost::endian::big_to_native(header->legacy_version);
+  static_assert(sizeof(message.random) == sizeof(header->random));
+  memcpy(message.random.data(), header->random, sizeof(message.random));
+  offset += sizeof(protocol::handshake::RawServerHello::FixedLengthHeader);
+
+  auto result = DecodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
+      message.legacy_session_id_echo, buffer, buffer_size, offset, offset);
+  if (result == ResultType::bad) {
+    return result;
+  }
+  {
+    message.cipher_suite = boost::endian::big_to_native(
+        *reinterpret_cast<const protocol::CipherSuite*>(buffer + offset));
+    offset += sizeof(protocol::CipherSuite);
+  }
+  {
+    static_assert(sizeof(message.legacy_compression_method) == 1);
+    message.legacy_compression_method =
+        *reinterpret_cast<const int8_t*>(buffer + offset);
+    offset += 1;
+  }
+  return DecodeExtensions(message.extensions, buffer, buffer_size, offset,
+                          end_offset);
+}
+
+inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
+    handshake::Message& message, const uint8_t* buffer, size_t buffer_size,
+    size_t from_offset, size_t& end_offset) {
+  auto header = reinterpret_cast<const protocol::handshake::RawHandshake*>(
+      buffer + from_offset);
+  message.type = header->msg_type;
+  auto message_length = protocol::GetUint24Value(header->length);
+  auto offset = from_offset + sizeof(protocol::handshake::RawHandshake);
+  end_offset = offset + message_length;
+  if (end_offset > buffer_size) {
+    return ResultType::bad;
+  }
+  if (message.type == protocol::handshake::Type::client_hello) {
+    return DecodeClientHello(message.content.emplace<handshake::ClientHello>(),
+                             buffer, buffer_size, offset, offset);
+  } else if (message.type == protocol::handshake::Type::server_hello) {
+    return DecodeServerHello(message.content.emplace<handshake::ServerHello>(),
+                             buffer, buffer_size, offset, offset);
+  } else {
+    message.content.emplace<std::vector<uint8_t>>(
+        header->data, header->data + message_length);
+  } /*else if (message.type == protocol::handshake::Type::new_session_ticket) {
+ } else if (message.type == protocol::handshake::Type::end_of_early_data) {
+ } else if (message.type == protocol::handshake::Type::encrypted_extensions) {
+ } else if (message.type == protocol::handshake::Type::certificate) {
+ } else if (message.type == protocol::handshake::Type::certificate_request) {
+ } else if (message.type == protocol::handshake::Type::certificate_verify) {
+ } else if (message.type == protocol::handshake::Type::finished) {
+ } else if (message.type == protocol::handshake::Type::key_update) {
+ } else if (message.type == protocol::handshake::Type::message_hash) {
+ }*/
+  return ResultType::bad;
+}
+
 inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
     handshake::ClientHello& message, const uint8_t* buffer, size_t buffer_size,
     size_t from_offset, size_t& end_offset) {
   auto offset = from_offset;
   if (buffer_size <
-      offset + sizeof(protocol::handshake::RawClientHello::FixedLengthHead)) {
+      offset + sizeof(protocol::handshake::RawClientHello::FixedLengthHeader)) {
     return ResultType::bad;
   }
   auto header = reinterpret_cast<
-      const protocol::handshake::RawClientHello::FixedLengthHead*>(buffer +
-                                                                   from_offset);
+      const protocol::handshake::RawClientHello::FixedLengthHeader*>(
+      buffer + from_offset);
   message.legacy_version = boost::endian::big_to_native(header->legacy_version);
   static_assert(sizeof(message.random) == sizeof(header->random));
   memcpy(message.random.data(), header->random, sizeof(message.random));
-  offset += sizeof(protocol::handshake::RawClientHello::FixedLengthHead);
+  offset += sizeof(protocol::handshake::RawClientHello::FixedLengthHeader);
 
   auto result = DecodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
       message.legacy_session_id, buffer, buffer_size, offset, offset);

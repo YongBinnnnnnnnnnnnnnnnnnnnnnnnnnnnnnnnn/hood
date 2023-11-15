@@ -1,3 +1,4 @@
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/endian/conversion.hpp>
 #include <chrono>
 #include <iostream>
@@ -10,6 +11,7 @@
 #include "tls_message_encoder.hpp"
 
 namespace endian = boost::endian;
+using boost::algorithm::ends_with;
 using boost::asio::async_write;
 using boost::asio::ip::tcp;
 using boost::asio::ip::udp;
@@ -89,43 +91,54 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
         return;
       }
       write_task_queue_.emplace(std::move(write_task_pointer));
-
-      LOG_INFO("Resolving " << host_name_);
-      {
-        tcp::resolver::query name_query(host_name_, "https");
-
-        resolver_.async_resolve(
-            name_query, [this, _ = shared_from_this()](
-                            const boost::system::error_code& error,
-                            tcp::resolver::results_type results) {
-              if (error) {
-                LOG_INFO("Discard connection due to error while resolving "
-                         << host_name_ << " " << error.message());
-                return;
-              }
-              typeof(results) end;
-              for (; results != end; results++) {
-                host_endpoints_.emplace_back(results->endpoint());
-              }
-              if (host_endpoints_.size() == 0) {
-                LOG_INFO("Discard connection due to unable to resolve "
-                         << host_name_);
-                // TODO
-                return;
-              }
-              network::RemoveV6AndLocalEndpoints(host_endpoints_);
-              if (host_endpoints_.size() == 0) {
-                LOG_INFO("Discard connection to "
-                         << host_name_ << " because endpoints not acceptable");
-                // TODO
-                return;
-              }
-              DoConnectHost();
-            });
-      }
+      DoResolveConnect(host_name_);
+      return;
     }
-  } else if (message.type == protocol::ContentType::application_data) {
-    // TODO
+  }
+  auto& write_buffer = write_task_pointer->raw_message;
+  write_buffer.resize(0);
+  write_buffer.insert(write_buffer.end(), data, data + data_size);
+  write_task_queue_.emplace(std::move(write_task_pointer));
+  DoWrite();
+}
+
+void Context::DoResolveConnect(const std::string& host_name) {
+  LOG_INFO("Resolving " << host_name);
+  {
+    tcp::resolver::query name_query(host_name, "https");
+
+    resolver_.async_resolve(
+        name_query, [this, _ = shared_from_this(), host_name](
+                        const boost::system::error_code& error,
+                        tcp::resolver::results_type results) {
+          if (error) {
+            LOG_INFO("Discard connection due to error while resolving "
+                     << host_name << " " << error.message());
+            return;
+          }
+          typeof(results) end;
+          for (; results != end; results++) {
+            host_endpoints_.emplace_back(results->endpoint());
+          }
+          if (host_endpoints_.size() == 0) {
+            LOG_INFO("Discard connection due to unable to resolve "
+                     << host_name);
+            // TODO
+            return;
+          }
+          network::RemoveV6AndLocalEndpoints(host_endpoints_);
+          if (host_endpoints_.size() == 0) {
+            if (!ends_with(host_name, Configuration::proxy_domain)) {
+              DoResolveConnect(host_name + Configuration::proxy_domain.data());
+              return;
+            }
+            LOG_INFO("Discard connection to "
+                     << host_name << " because endpoints are not acceptable");
+            // TODO
+            return;
+          }
+          DoConnectHost();
+        });
   }
 }
 
@@ -162,21 +175,14 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
       return;
     }
     auto handshake_message = std::get<handshake::Message>(message.content);
-    if (handshake_message.type == protocol::handshake::Type::client_hello) {
-      if (status_ != Status::CLIENT_CONNECTED) {
-        LOG_INFO("Discard connection due to client hello timing");
+    if (handshake_message.type == protocol::handshake::Type::server_hello) {
+      if (status_ != Status::CLIENT_HELLO_FORWARDED) {
+        LOG_INFO("Discard connection due to server hello timing");
         // TODO
         return;
       }
-      auto client_hello_message =
-          std::get<handshake::ClientHello>(handshake_message.content);
-
-      extension::FindHostName(host_name_, client_hello_message.extensions);
-      if (host_name_.length() == 0) {
-        LOG_INFO("Discard connection due to find no host name");
-        // TODO
-        return;
-      }
+      auto server_hello_message =
+          std::get<handshake::ServerHello>(handshake_message.content);
 
       auto encode_result =
           MessageEncoder::Encode(message, write_task_pointer->raw_message, 0);
@@ -185,37 +191,15 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
         return;
       }
       write_task_queue_.emplace(std::move(write_task_pointer));
-
-      LOG_INFO("Resolving " << host_name_);
-      {
-        tcp::resolver::query name_query(host_name_, "https");
-
-        resolver_.async_resolve(
-            name_query, [this, _ = shared_from_this()](
-                            const boost::system::error_code& error,
-                            tcp::resolver::results_type results) {
-              if (error) {
-                LOG_INFO("Discard connection due to error while resolving "
-                         << host_name_ << " " << error.message());
-                return;
-              }
-              typeof(results) end;
-              for (; results != end; results++) {
-                host_endpoints_.emplace_back(results->endpoint());
-              }
-              if (host_endpoints_.size() == 0) {
-                LOG_INFO("Discard connection due to unable to resolve "
-                         << host_name_);
-                // TODO
-                return;
-              }
-              DoConnectHost();
-            });
-      }
+      DoWrite();
+      return;
     }
-  } else if (message.type == protocol::ContentType::application_data) {
-    // TODO
   }
+  auto& write_buffer = write_task_pointer->raw_message;
+  write_buffer.resize(0);
+  write_buffer.insert(write_buffer.end(), data, data + data_size);
+  write_task_queue_.emplace(std::move(write_task_pointer));
+  DoWrite();
 }
 
 void Context::DoConnectHost() {
@@ -232,11 +216,16 @@ void Context::DoConnectHost() {
       LOG_ERROR(<< host_name_ << " failed to connect: " << error.message());
       return;
     }
+    if (status_ != Status::CLIENT_CONNECTED) {
+      LOG_ERROR(<< host_name_ << " status mismatch " << status_);
+      return;
+    }
     auto handler = std::bind(&Context::HandleServerMessage, shared_from_this(),
                              std::placeholders::_1, std::placeholders::_2,
                              std::placeholders::_3);
     server_message_reader_.Start(for_stream, handler);
     DoWrite();
+    status_ = Status::CLIENT_HELLO_FORWARDED;
   };
 
   boost::asio::async_connect(socket.lowest_layer(), host_endpoints_,

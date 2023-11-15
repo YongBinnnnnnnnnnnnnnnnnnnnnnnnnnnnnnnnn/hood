@@ -12,6 +12,8 @@ namespace hood_proxy {
 
 class Configuration {
  public:
+  static constexpr const std::string_view proxy_domain =
+      std::string_view(".hood-proxy");
   static inline const boost::program_options::variable_value& get(
       const std::string& name) {
     return variables_[name];

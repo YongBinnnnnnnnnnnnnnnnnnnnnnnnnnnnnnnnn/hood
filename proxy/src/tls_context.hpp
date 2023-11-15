@@ -2,6 +2,7 @@
 #define HOOD_PROXY_TLS_CONTEXT_H_
 
 #include <boost/asio.hpp>
+#include <cassert>
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -48,12 +49,13 @@ class Context : public std::enable_shared_from_this<Context> {
   std::vector<boost::asio::ip::tcp::endpoint> host_endpoints_;
   std::variant<nullptr_t, boost::asio::ip::tcp::socket> server_socket_;
   TlsMessageReader server_message_reader_;
-  enum class Status {
-    CLIENT_CONNECTED,
-    CLIENT_HELLO_FORWARDED,
-    SERVER_HELLO_FORWARDED,
-    WRITING,
-  } status_ = Status::CLIENT_CONNECTED;
+  struct Status {
+    static constexpr uintptr_t CLIENT_CONNECTED = 0;
+    static constexpr uintptr_t CLIENT_HELLO_FORWARDED = 1;
+    static constexpr uintptr_t SERVER_HELLO_FORWARDED = 2;
+    static constexpr uintptr_t WRITING = 3;
+  };
+  uintptr_t status_ = Status::CLIENT_CONNECTED;
 
   struct WriteTask {
     bool to_client;
@@ -70,6 +72,9 @@ class Context : public std::enable_shared_from_this<Context> {
         resolver_(Engine::get().GetExecutor()) {}
   void HandleUserMessage(TlsMessageReader::Reason reason, const uint8_t* data,
                          uint16_t data_size);
+  void HandleClientHello(TlsMessageReader::Reason reason, const uint8_t* data,
+                         uint16_t data_size);
+  void DoResolveConnect(const std::string& host_name);
   void DoConnectHost();
   void HandleServerMessage(TlsMessageReader::Reason reason, const uint8_t* data,
                            uint16_t data_size);

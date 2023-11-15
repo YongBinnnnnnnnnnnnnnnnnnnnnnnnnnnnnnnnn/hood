@@ -218,10 +218,10 @@ struct RawHandshake {
 };
 
 struct RawClientHello {
-  struct FixedLengthHead {
+  struct FixedLengthHeader {
     uint16_t legacy_version;
     uint8_t random[32];
-  } fixed_length_head;
+  } fixed_length_header;
   RawSessionID legacy_session_id;
   // CipherSuites cipher_suites;
   //  CompressionMethods legacy_compression_methods;
@@ -229,10 +229,10 @@ struct RawClientHello {
 };
 
 struct RawServerHello {
-  struct FixedLengthHead {
+  struct FixedLengthHeader {
     uint16_t legacy_version;
     uint8_t random[32];
-  } fixed_length_head;
+  } fixed_length_header;
   RawSessionID legacy_session_id_echo;
   // CipherSuite cipher_suite;
   // uint8_t legacy_compression_method;

@@ -1,6 +1,3 @@
-#ifndef HOOD_PROXY_NETWORK_H_
-#define HOOD_PROXY_NETWORK_H_
-
 #include <boost/asio.hpp>
 
 #include "engine.hpp"
@@ -48,6 +45,7 @@ static inline bool is_address_in_network(
   return network.address().to_uint() ==
          (address.to_uint() & network.netmask().to_uint());
 }
+
 bool IsLocalAddress(const boost::asio::ip::address_v4& address) {
   return is_address_in_network(local_network_0, address) ||
          is_address_in_network(local_network_10, address) ||
@@ -66,6 +64,6 @@ bool IsLocalAddress(const boost::asio::ip::address_v4& address) {
          is_address_in_network(local_network_240, address) ||
          is_address_in_network(local_network_255255255255, address);
 }
+
 }  // namespace network
 }  // namespace hood_proxy
-#endif  // HOOD_PROXY_NETWORK_H_

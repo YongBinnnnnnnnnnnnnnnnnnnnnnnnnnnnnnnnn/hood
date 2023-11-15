@@ -132,16 +132,16 @@ static MessageEncoder::ResultType EncodeClientHello(
     size_t& offset) {
   using ResultType = MessageEncoder::ResultType;
   buffer.resize(offset +
-                sizeof(protocol::handshake::RawClientHello::FixedLengthHead));
+                sizeof(protocol::handshake::RawClientHello::FixedLengthHeader));
   auto header =
-      reinterpret_cast<protocol::handshake::RawClientHello::FixedLengthHead*>(
+      reinterpret_cast<protocol::handshake::RawClientHello::FixedLengthHeader*>(
           buffer.data() + offset);
   header->legacy_version = endian::native_to_big(message.legacy_version);
   static_assert(
       sizeof(handshake::ClientHello::random) ==
-      sizeof(protocol::handshake::RawClientHello::FixedLengthHead::random));
+      sizeof(protocol::handshake::RawClientHello::FixedLengthHeader::random));
   memcpy(header->random, message.random.data(), message.random.size());
-  offset += sizeof(protocol::handshake::RawClientHello::FixedLengthHead);
+  offset += sizeof(protocol::handshake::RawClientHello::FixedLengthHeader);
 
   auto result = EncodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
       message.legacy_session_id, buffer, offset);
@@ -158,6 +158,50 @@ static MessageEncoder::ResultType EncodeClientHello(
       message.legacy_compression_methods, buffer, offset);
   if (result == ResultType::bad) {
     return result;
+  }
+  result = EncodeExtensions(message.extensions, buffer, offset);
+  if (result != ResultType::good) {
+    return result;
+  }
+  offset = buffer.size();
+  return ResultType::good;
+}
+
+static MessageEncoder::ResultType EncodeServerHello(
+    const handshake::ServerHello& message, std::vector<uint8_t>& buffer,
+    size_t& offset) {
+  using ResultType = MessageEncoder::ResultType;
+  buffer.resize(offset +
+                sizeof(protocol::handshake::RawServerHello::FixedLengthHeader));
+  auto header =
+      reinterpret_cast<protocol::handshake::RawServerHello::FixedLengthHeader*>(
+          buffer.data() + offset);
+  header->legacy_version = endian::native_to_big(message.legacy_version);
+  static_assert(
+      sizeof(handshake::ServerHello::random) ==
+      sizeof(protocol::handshake::RawServerHello::FixedLengthHeader::random));
+  memcpy(header->random, message.random.data(), message.random.size());
+  offset += sizeof(protocol::handshake::RawServerHello::FixedLengthHeader);
+
+  auto result = EncodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
+      message.legacy_session_id_echo, buffer, offset);
+  if (result == ResultType::bad) {
+    return result;
+  }
+
+  {
+    buffer.resize(offset + sizeof(protocol::CipherSuite));
+    *reinterpret_cast<protocol::CipherSuite*>(&buffer[offset]) =
+        boost::endian::native_to_big(message.cipher_suite);
+    offset += sizeof(protocol::CipherSuite);
+  }
+  {
+    buffer.resize(offset + 1);
+    static_assert(sizeof(message.legacy_compression_method) == 1);
+
+    *reinterpret_cast<int8_t*>(&buffer[offset]) =
+        message.legacy_compression_method;
+    offset += 1;
   }
   result = EncodeExtensions(message.extensions, buffer, offset);
   if (result != ResultType::good) {
@@ -185,7 +229,18 @@ static MessageEncoder::ResultType EncodeHandshake(
       return result;
     }
   } else if (message.type == protocol::handshake::Type::server_hello) {
-  } else if (message.type == protocol::handshake::Type::new_session_ticket) {
+    const auto& server_hello_message =
+        std::get<handshake::ServerHello>(message.content);
+    auto result = EncodeServerHello(server_hello_message, buffer, offset);
+    if (result != MessageEncoder::ResultType::good) {
+      return result;
+    }
+  } else {
+    auto& content = std::get<std::vector<uint8_t>>(message.content);
+    buffer.insert(buffer.end(), content.begin(), content.end());
+    offset = buffer.size();
+  }
+  /*else if (message.type == protocol::handshake::Type::new_session_ticket) {
   } else if (message.type == protocol::handshake::Type::end_of_early_data) {
   } else if (message.type == protocol::handshake::Type::encrypted_extensions) {
   } else if (message.type == protocol::handshake::Type::certificate) {
@@ -194,7 +249,7 @@ static MessageEncoder::ResultType EncodeHandshake(
   } else if (message.type == protocol::handshake::Type::finished) {
   } else if (message.type == protocol::handshake::Type::key_update) {
   } else if (message.type == protocol::handshake::Type::message_hash) {
-  }
+  }*/
 
   SetUint24Value(header->length, buffer.size() - content_offset);
   offset = buffer.size();

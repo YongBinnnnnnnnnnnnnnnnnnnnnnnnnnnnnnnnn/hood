@@ -2,13 +2,14 @@
 #define HOOD_PROXY_LOGGING_H_
 
 #include <boost/log/trivial.hpp>
+#include <cassert>
 
 namespace hood_proxy {
 void InitLogging();
 }  // namespace hood_proxy
 
 #define HOOD_PROXY_LOG_TRIVIAL2(severity, color, line) \
-  BOOST_LOG_TRIVIAL(severity)                      \
+  BOOST_LOG_TRIVIAL(severity)                          \
       << color __FILE__ ":" #line " " << __FUNCTION__ << ": "
 
 #define HOOD_PROXY_LOG_TRIVIAL(severity, color, line) \
