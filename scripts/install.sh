@@ -114,6 +114,7 @@ sudosedi "s|http://archive.raspberrypi..../|https://archive.raspberrypi.com/|g" 
 # use less Mike Thompson key
 sudosedi "s|contrib non-free||g" $prefix/etc/apt/sources.list
 # todo: find a safer source, both init7 and rasp are not safe
+# what can I do if the signing key of the apt source no more trustworthy?
 
 sudosedi "s|http://deb.debian.org/debian|https://deb.debian.org/debian|g" $prefix/etc/apt/sources.list
 sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
