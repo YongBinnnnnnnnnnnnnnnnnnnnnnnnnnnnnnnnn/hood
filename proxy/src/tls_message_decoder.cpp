@@ -23,6 +23,7 @@ static constexpr inline MessageDecoder::ResultType DecodeVector(
   static_assert(std::is_arithmetic_v<LengthType>);
   auto offset = from_offset;
   if (buffer_size < offset + sizeof(LengthType)) {
+    LOG_DEBUG();
     return MessageDecoder::ResultType::bad;
   }
   auto count = endian::big_to_native(
@@ -34,11 +35,13 @@ static constexpr inline MessageDecoder::ResultType DecodeVector(
   } else {
     size = count;
     if (count % sizeof(ValueType)) {
+      LOG_DEBUG();
       return MessageDecoder::ResultType::bad;
     }
     count = count / sizeof(ValueType);
   }
   if (buffer_size < offset + size) {
+    LOG_DEBUG();
     return MessageDecoder::ResultType::bad;
   }
   output.resize(count);
@@ -61,6 +64,7 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
                                                           size_t& end_offset) {
   size_t offset = 0;
   if (buffer_size < offset + sizeof(protocol::TLSPlaintext)) {
+    LOG_DEBUG();
     return ResultType::bad;
   }
   // decode header
@@ -72,6 +76,7 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
   auto message_length = boost::endian::big_to_native(header->message_length);
   offset = sizeof(protocol::TLSPlaintext);
   if (buffer_size < offset + message_length) {
+    LOG_DEBUG();
     return ResultType::bad;
   }
   if (message.type == protocol::ContentType::handshake) {
@@ -83,6 +88,7 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
         &buffer[offset], &buffer[offset + message_length]);
     end_offset = offset + message_length;
   }
+  LOG_DEBUG();
   return ResultType::bad;
 }
 
@@ -92,6 +98,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
   auto offset = from_offset;
   if (buffer_size <
       offset + sizeof(protocol::handshake::RawServerHello::FixedLengthHeader)) {
+    LOG_DEBUG();
     return ResultType::bad;
   }
   auto header = reinterpret_cast<
@@ -132,6 +139,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
   auto offset = from_offset + sizeof(protocol::handshake::RawHandshake);
   end_offset = offset + message_length;
   if (end_offset > buffer_size) {
+    LOG_DEBUG();
     return ResultType::bad;
   }
   if (message.type == protocol::handshake::Type::client_hello) {
@@ -153,6 +161,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
  } else if (message.type == protocol::handshake::Type::key_update) {
  } else if (message.type == protocol::handshake::Type::message_hash) {
  }*/
+  LOG_DEBUG();
   return ResultType::bad;
 }
 
@@ -162,6 +171,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
   auto offset = from_offset;
   if (buffer_size <
       offset + sizeof(protocol::handshake::RawClientHello::FixedLengthHeader)) {
+    LOG_DEBUG();
     return ResultType::bad;
   }
   auto header = reinterpret_cast<
@@ -199,6 +209,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
   // TODO
   auto offset = from_offset;
   if (buffer_size < offset + sizeof(protocol::extension::Extensions)) {
+    LOG_DEBUG();
     return ResultType::bad;
   }
   auto header = reinterpret_cast<const protocol::extension::Extensions*>(
@@ -206,10 +217,12 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
   offset += sizeof(protocol::extension::Extensions);
   end_offset = offset + endian::big_to_native(header->length);
   if (end_offset > buffer_size) {
+    LOG_DEBUG();
     return ResultType::bad;
   }
   while (offset < buffer_size) {
     if (end_offset < offset + sizeof(protocol::extension::Extension)) {
+      LOG_DEBUG();
       return ResultType::bad;
     }
     auto header = reinterpret_cast<const protocol::extension::Extension*>(
@@ -220,10 +233,12 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
     offset += sizeof(protocol::extension::Extension);
     auto end_of_extension = length + offset;
     if (end_offset < end_of_extension) {
+      LOG_DEBUG();
       return ResultType::bad;
     }
     if (extension.type == protocol::extension::Type::server_name) {
       if (end_of_extension < offset + sizeof(protocol::extension::ServerName)) {
+        LOG_DEBUG();
         return ResultType::bad;
       }
       offset += sizeof(protocol::extension::Type::server_name);
@@ -235,9 +250,11 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
           endian::big_to_native(server_name_header->length);
       offset += sizeof(protocol::extension::ServerName);
       if (end_of_extension != offset + server_name_length) {
+        LOG_DEBUG();
         return ResultType::bad;
       }
       if (type != protocol::extension::ServerNameType::host_name) {
+        LOG_DEBUG();
         return ResultType::bad;
       }
       auto& server_name = extension.content.emplace<extension::ServerName>();
