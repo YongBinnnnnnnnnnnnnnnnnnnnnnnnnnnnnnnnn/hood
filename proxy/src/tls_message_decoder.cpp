@@ -101,7 +101,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
     return ResultType::bad;
   }
   auto header = reinterpret_cast<
-      const protocol::handshake::RawServerHello::FixedLen  LOG_DEBUG();
+      const protocol::handshake::RawServerHello::FixedLengthHeader*>(buffer + from_offset);
 
   message.legacy_version = boost::endian::big_to_native(header->legacy_version);
   static_assert(sizeof(message.random) == sizeof(header->random));

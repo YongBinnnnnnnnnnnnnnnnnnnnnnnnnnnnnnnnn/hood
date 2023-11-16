@@ -1,7 +1,7 @@
 #!/bin/sh
 script_dir=$(readlink -f $(dirname "$0"))
 echo $script_dir
-sudo apt -y autoremove --purge bluez bluez-firmware
+sudo apt -y autoremove --purge bluez bluez-firmware avahi-daemon
 sudo apt -y install firefox chromium-browser vlc linux-compiler-gcc-12-arm --upgrade 
 
 if ! grep -q .hood-proxy /etc/hosts; then

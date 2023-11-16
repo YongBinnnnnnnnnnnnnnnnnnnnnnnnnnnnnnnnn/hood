@@ -60,11 +60,11 @@ static MessageEncoder::ResultType EncodeVector(
 MessageEncoder::ResultType EncodeServerName(
     const extension::ServerName& extension, std::vector<uint8_t>& buffer,
     size_t& offset) {
-  auto start_offset = offset;
   buffer.resize(offset + sizeof(protocol::extension::ServerNameList));
   auto list_header =
       reinterpret_cast<protocol::extension::ServerNameList*>(&buffer[offset]);
   offset += sizeof(protocol::extension::ServerNameList);
+  auto content_offset = offset;
   if (extension.host_name.length()) {
     buffer.resize(offset + sizeof(protocol::extension::ServerName));
     auto name_header =
@@ -80,7 +80,7 @@ MessageEncoder::ResultType EncodeServerName(
   } else {
     return MessageEncoder::ResultType::bad;
   }
-  SAFE_SET_INT(list_header->length, buffer.size() - start_offset);
+  SAFE_SET_INT(list_header->length, buffer.size() - content_offset);
   return MessageEncoder::ResultType::good;
 }
 MessageEncoder::ResultType EncodeExtensions(

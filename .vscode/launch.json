@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "by-gdb",
+            "request": "launch",
+            "name": "Debug Program (by-gdb)",
+            "program": "${workspaceFolder}/proxy/build/debug/hood_proxy",
+            "cwd": "${workspaceFolder}/proxy/"
+        },
+        {
             "type": "gdb",
             "request": "launch",
             "name": "Debug Program",
