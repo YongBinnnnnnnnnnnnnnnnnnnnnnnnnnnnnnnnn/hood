@@ -88,8 +88,7 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
         &buffer[offset], &buffer[offset + message_length]);
     end_offset = offset + message_length;
   }
-  LOG_DEBUG();
-  return ResultType::bad;
+  return ResultType::good;
 }
 
 inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
@@ -102,8 +101,8 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
     return ResultType::bad;
   }
   auto header = reinterpret_cast<
-      const protocol::handshake::RawServerHello::FixedLengthHeader*>(
-      buffer + from_offset);
+      const protocol::handshake::RawServerHello::FixedLen  LOG_DEBUG();
+
   message.legacy_version = boost::endian::big_to_native(header->legacy_version);
   static_assert(sizeof(message.random) == sizeof(header->random));
   memcpy(message.random.data(), header->random, sizeof(message.random));

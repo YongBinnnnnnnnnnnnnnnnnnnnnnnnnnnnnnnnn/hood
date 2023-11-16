@@ -110,8 +110,12 @@ sudo chmod -x $prefix/etc/systemd/timesyncd.conf
 #sudosedi "s|http://archive.raspberrypi..../debian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list.d/raspi.list
 sudosedi "s|http://archive.raspberrypi..../|https://archive.raspberrypi.com/|g" $prefix/etc/apt/sources.list.d/raspi.list
 #sudosedi "s|deb http://deb.debian.org|#deb http://deb.debian.org|g" $prefix/etc/apt/sources.list
-sudosedi "s|http://raspbian.raspberrypi.com/raspbian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list
-sudosedi "s|http://deb.debian.org/debian|https://mirror.init7.net/debian|g" $prefix/etc/apt/sources.list
+#sudosedi "s|http://raspbian.raspberrypi.com/raspbian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list
+# use less Mike Thompson key
+sudosedi "s|contrib non-free||g" $prefix/etc/apt/sources.list
+# todo: find a safer source, both init7 and rasp are not safe
+
+sudosedi "s|http://deb.debian.org/debian|https://deb.debian.org/debian|g" $prefix/etc/apt/sources.list
 sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
 
 sudocpcontent ./before-network.service $prefix/usr/lib/systemd/system/
