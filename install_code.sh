@@ -1,4 +1,14 @@
-wget -qO - https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/vscodium-archive-keyring.gpg | sha256sum
-echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' | sudo tee /etc/apt/sources.list.d/vscodium.list
-sudo apt-get update
-sudo apt-get install -y codium
+#wget -qO - https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/vscodium-archive-keyring.gpg | sha256sum
+#echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' | sudo tee /etc/apt/sources.list.d/vscodium.list
+#sudo apt-get update
+#sudo apt-get install -y codium
+user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+
+cd download
+rm vscode.deb
+curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-armhf/stable -o vscode.deb
+if curl https://code.visualstudio.com/sha|grep -q $(sha256sum vscode.deb |sed "s/ .*//"); then
+  sudo apt install ./vscode.deb 
+else
+  echo hash mismatch
+fi
