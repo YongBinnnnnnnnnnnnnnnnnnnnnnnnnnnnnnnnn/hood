@@ -110,7 +110,9 @@ sudo chmod -x $prefix/etc/systemd/timesyncd.conf
 #sudosedi "s|http://archive.raspberrypi..../debian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list.d/raspi.list
 sudosedi "s|http://archive.raspberrypi..../|https://archive.raspberrypi.com/|g" $prefix/etc/apt/sources.list.d/raspi.list
 #sudosedi "s|deb http://deb.debian.org|#deb http://deb.debian.org|g" $prefix/etc/apt/sources.list
-#sudosedi "s|http://raspbian.raspberrypi.com/raspbian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list
+# never use http mirror and lets encrypt https mirror
+sudosedi "s|http://raspbian.raspberrypi.com/raspbian/|https://mirror.yer.az/raspbian/raspbian/|g" $prefix/etc/apt/sources.list
+# when using apt command, the connection to http://raspbian.raspberrypi.com redirected to https://mirror.init7.net for suspicious unknown reason
 # use less Mike Thompson key
 sudosedi "s|contrib non-free||g" $prefix/etc/apt/sources.list
 # todo: find a safer source, both init7 and rasp are not safe
