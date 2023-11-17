@@ -269,6 +269,16 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
       if (result == ResultType::bad || offset != end_of_extension) {
         return result;
       }
+    } else if (extension.type == protocol::extension::Type::supported_versions) {
+      auto& groups = extension.content.emplace<extension::SupportedVersions>();
+      auto result =
+          DecodeVector<typeof(protocol::extension::SupportedVersionList::length),
+                       protocol::VersionType,
+                       VectorLengthMode::BYTE_SIZE>(groups, buffer, buffer_size,
+                                                    offset, offset);
+      if (result == ResultType::bad || offset != end_of_extension) {
+        return result;
+      }
     } else {
       extension.content.emplace<vector<uint8_t>>(buffer + offset,
                                                  buffer + end_of_extension);

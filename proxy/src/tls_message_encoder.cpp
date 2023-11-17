@@ -113,6 +113,16 @@ MessageEncoder::ResultType EncodeExtensions(
       if (result == MessageEncoder::ResultType::bad) {
         return result;
       }
+    } else if (extension.type ==
+               protocol::extension::Type::supported_versions) {
+      auto result = EncodeVector<
+          decltype(protocol::extension::SupportedVersionList::length),
+          protocol::VersionType, VectorLengthMode::BYTE_SIZE>(
+          std::get<extension::SupportedVersions>(extension.content), buffer,
+          offset);
+      if (result == MessageEncoder::ResultType::bad) {
+        return result;
+      }
     } else {
       auto& content = std::get<std::vector<uint8_t>>(extension.content);
       buffer.insert(buffer.end(), content.begin(), content.end());

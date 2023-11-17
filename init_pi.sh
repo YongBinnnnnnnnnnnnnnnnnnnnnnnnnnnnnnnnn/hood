@@ -1,6 +1,9 @@
 #!/bin/sh
 script_dir=$(readlink -f $(dirname "$0"))
 echo $script_dir
+git config --global user.name "Yong Bin"
+git config --global user.email yongb@usi.ch
+
 sudo apt -y autoremove --purge bluez bluez-firmware avahi-daemon
 sudo apt -y install firefox chromium-browser vlc linux-compiler-gcc-12-arm --upgrade 
 

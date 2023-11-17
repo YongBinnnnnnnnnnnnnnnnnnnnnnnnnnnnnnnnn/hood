@@ -9,6 +9,7 @@
 #include "tls_context.hpp"
 #include "tls_message_decoder.hpp"
 #include "tls_message_encoder.hpp"
+#include "tls_security_policy.hpp"
 
 namespace endian = boost::endian;
 using boost::algorithm::ends_with;
@@ -77,6 +78,12 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
       auto client_hello_message =
           std::get<handshake::ClientHello>(handshake_message.content);
 
+      if (!SecurityPolicy::HardenVersions(handshake_message)) {
+        LOG_INFO("Discard connection due to protocol version"
+                 << message.legacy_record_version);
+        // TODO
+        return;
+      }
       extension::FindHostName(host_name_, client_hello_message.extensions);
       if (host_name_.length() == 0) {
         LOG_INFO("Discard connection due to find no host name");

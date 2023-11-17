@@ -14,6 +14,7 @@ namespace tls {
 using SessionID = std::vector<uint8_t>;
 using CipherSuite = protocol::CipherSuite;
 using CipherSuites = std::vector<CipherSuite>;
+using VersionType = protocol::VersionType;
 using CompressionMethods =
     std::vector<typeof(protocol::CompressionMethods::data[0])>;
 namespace extension {
@@ -24,10 +25,12 @@ struct ServerName {
 
 using NamedGroup = protocol::extension::NamedGroup;
 using NamedGroupList = std::vector<NamedGroup>;
+using SupportedVersions = std::vector<VersionType>;
 
 struct Extension {
   uint16_t type;
-  std::variant<std::nullptr_t, std::vector<uint8_t>, ServerName, NamedGroupList>
+  std::variant<std::nullptr_t, std::vector<uint8_t>, std::vector<uint16_t>,
+               ServerName>
       content;
 };
 using Extensions = std::vector<Extension>;

@@ -14,6 +14,7 @@ struct Version {
   static constexpr uint16_t TLS_1_2 = 0x303;
   static constexpr uint16_t TLS_1_3 = 0x304;
 };
+using VersionType = uint16_t;
 
 struct ContentType {
   static constexpr uint8_t invalid = 0;
@@ -176,9 +177,13 @@ struct NamedGroupValue {
 using NamedGroup = uint16_t;
 
 struct NamedGroupList {
-  uint16_t vector_size;
   uint16_t length;
   NamedGroup groups[];
+};
+
+struct SupportedVersionList {
+  uint16_t length;// byte size 
+  VersionType versions[];
 };
 
 struct Extension {
