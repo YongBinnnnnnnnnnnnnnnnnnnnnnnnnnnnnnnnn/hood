@@ -101,7 +101,8 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
     return ResultType::bad;
   }
   auto header = reinterpret_cast<
-      const protocol::handshake::RawServerHello::FixedLengthHeader*>(buffer + from_offset);
+      const protocol::handshake::RawServerHello::FixedLengthHeader*>(
+      buffer + from_offset);
 
   message.legacy_version = boost::endian::big_to_native(header->legacy_version);
   static_assert(sizeof(message.random) == sizeof(header->random));
@@ -269,15 +270,26 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
       if (result == ResultType::bad || offset != end_of_extension) {
         return result;
       }
-    } else if (extension.type == protocol::extension::Type::supported_versions) {
-      auto& groups = extension.content.emplace<extension::SupportedVersions>();
-      auto result =
-          DecodeVector<typeof(protocol::extension::SupportedVersionList::length),
-                       protocol::VersionType,
-                       VectorLengthMode::BYTE_SIZE>(groups, buffer, buffer_size,
-                                                    offset, offset);
-      if (result == ResultType::bad || offset != end_of_extension) {
-        return result;
+    } else if (extension.type ==
+               protocol::extension::Type::supported_versions) {
+      auto& versions =
+          extension.content.emplace<extension::SupportedVersions>();
+      if (length == sizeof(protocol::VersionType)) {
+        auto version =
+            reinterpret_cast<const protocol::VersionType*>(&buffer[offset]);
+        versions.emplace_back(endian::big_to_native(*version));
+        offset += length;
+      } else if (length > sizeof(protocol::VersionType)) {
+        auto result = DecodeVector<
+            typeof(protocol::extension::SupportedVersionList::length),
+            protocol::VersionType, VectorLengthMode::BYTE_SIZE>(
+            versions, buffer, buffer_size, offset, offset);
+        if (result == ResultType::bad || offset != end_of_extension) {
+          return result;
+        }
+      } else {
+        LOG_DEBUG();
+        return ResultType::bad;
       }
     } else {
       extension.content.emplace<vector<uint8_t>>(buffer + offset,

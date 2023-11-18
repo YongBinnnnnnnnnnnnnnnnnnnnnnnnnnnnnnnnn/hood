@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "logging.hpp"
 #include "tls_message_encoder.hpp"
 
 namespace endian = boost::endian;
@@ -34,10 +35,13 @@ static MessageEncoder::ResultType EncodeVector(
   auto count = source.size();
   auto byte_size = count * sizeof(ValueType);
   buffer.resize(offset + sizeof(LengthType) + byte_size);
+
+#pragma pack(push, 1)
   struct {
     LengthType length;
     ValueType values[];
   }* header = reinterpret_cast<decltype(header)>(buffer.data() + offset);
+#pragma pack(pop)
 
   if constexpr (Mode == VectorLengthMode::BYTE_SIZE) {
     SAFE_SET_INT(header->length, byte_size);
@@ -115,13 +119,26 @@ MessageEncoder::ResultType EncodeExtensions(
       }
     } else if (extension.type ==
                protocol::extension::Type::supported_versions) {
-      auto result = EncodeVector<
-          decltype(protocol::extension::SupportedVersionList::length),
-          protocol::VersionType, VectorLengthMode::BYTE_SIZE>(
-          std::get<extension::SupportedVersions>(extension.content), buffer,
-          offset);
-      if (result == MessageEncoder::ResultType::bad) {
-        return result;
+      auto& versions =
+          std::get<extension::SupportedVersions>(extension.content);
+      if (versions.size() == 1) {
+        buffer.resize(offset + sizeof(protocol::VersionType));
+        auto version =
+            reinterpret_cast<protocol::VersionType*>(&buffer[offset]);
+        *version = endian::native_to_big(versions[0]);
+        offset += sizeof(protocol::VersionType);
+      } else if (versions.size() > 1) {
+        auto result = EncodeVector<
+            decltype(protocol::extension::SupportedVersionList::length),
+            protocol::VersionType, VectorLengthMode::BYTE_SIZE>(versions,
+                                                                buffer, offset);
+        if (result == MessageEncoder::ResultType::bad) {
+          LOG_DEBUG();
+          return result;
+        }
+      } else {
+        LOG_DEBUG();
+        return MessageEncoder::ResultType::bad;
       }
     } else {
       auto& content = std::get<std::vector<uint8_t>>(extension.content);

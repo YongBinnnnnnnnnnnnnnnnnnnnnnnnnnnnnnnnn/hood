@@ -182,7 +182,7 @@ struct NamedGroupList {
 };
 
 struct SupportedVersionList {
-  uint16_t length;// byte size 
+  uint8_t length;// byte size 
   VersionType versions[];
 };
 
