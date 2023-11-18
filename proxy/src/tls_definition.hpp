@@ -60,9 +60,18 @@ struct ClientHello {
   extension::Extensions extensions;
 };
 
+struct HelloRetryType {
+  static constexpr const uintptr_t NOT_RETRY = 0;
+  static constexpr const uintptr_t FOR_TLS_1_1 = 1;
+  static constexpr const uintptr_t FOR_TLS_1_2 = 2;
+  static constexpr const uintptr_t FOR_TLS_1_3 = 3;
+  static constexpr const uintptr_t FOR_UNKNOWN = 4;
+};
+
 struct ServerHello {
   uint16_t legacy_version;
   std::array<uint8_t, 32> random;
+  uintptr_t hello_retry_type;
   SessionID legacy_session_id_echo;
   CipherSuite cipher_suite;
   uint8_t legacy_compression_method;

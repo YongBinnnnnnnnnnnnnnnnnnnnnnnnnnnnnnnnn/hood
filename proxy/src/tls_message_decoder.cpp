@@ -107,6 +107,27 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
   message.legacy_version = boost::endian::big_to_native(header->legacy_version);
   static_assert(sizeof(message.random) == sizeof(header->random));
   memcpy(message.random.data(), header->random, sizeof(message.random));
+
+  using HelloRetryRequestSpecialValue =
+      protocol::handshake::HelloRetryRequestSpecialValue;
+  if (memcmp(header->random, HelloRetryRequestSpecialValue::head.data(),
+             HelloRetryRequestSpecialValue::head.size()) == 0) {
+    auto tail = &header->random[HelloRetryRequestSpecialValue::head.size()];
+    if (memcmp(tail, HelloRetryRequestSpecialValue::tail_1_3.data(),
+               HelloRetryRequestSpecialValue::tail_1_3.size()) == 0) {
+      message.hello_retry_type = handshake::HelloRetryType::FOR_TLS_1_3;
+    } else if (memcmp(tail, HelloRetryRequestSpecialValue::tail_1_2.data(),
+                      HelloRetryRequestSpecialValue::tail_1_2.size()) == 0) {
+      message.hello_retry_type = handshake::HelloRetryType::FOR_TLS_1_2;
+    } else if (memcmp(tail, HelloRetryRequestSpecialValue::tail_1_1.data(),
+                      HelloRetryRequestSpecialValue::tail_1_1.size()) == 0) {
+      message.hello_retry_type = handshake::HelloRetryType::FOR_TLS_1_1;
+    } else {
+      message.hello_retry_type = handshake::HelloRetryType::FOR_UNKNOWN;
+    }
+  } else {
+    message.hello_retry_type = handshake::HelloRetryType::NOT_RETRY;
+  }
   offset += sizeof(protocol::handshake::RawServerHello::FixedLengthHeader);
 
   auto result = DecodeVector<uint8_t, uint8_t, VectorLengthMode::ELEMENT_COUNT>(
