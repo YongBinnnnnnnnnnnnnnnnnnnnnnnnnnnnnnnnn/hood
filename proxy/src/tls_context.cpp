@@ -70,7 +70,7 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
     }
     auto handshake_message = std::get<handshake::Message>(message.content);
     if (handshake_message.type == protocol::handshake::Type::client_hello) {
-      if (status_ != Status::CLIENT_CONNECTED) {
+      if (status_ > Status::CLIENT_HELLO_FORWARDED) {
         LOG_INFO("Discard connection due to client hello timing");
         // TODO
         return;
@@ -223,7 +223,7 @@ void Context::DoConnectHost() {
       LOG_ERROR(<< host_name_ << " failed to connect: " << error.message());
       return;
     }
-    if (status_ != Status::CLIENT_CONNECTED) {
+    if (status_ > Status::CLIENT_HELLO_FORWARDED) {
       LOG_ERROR(<< host_name_ << " status mismatch " << status_);
       return;
     }

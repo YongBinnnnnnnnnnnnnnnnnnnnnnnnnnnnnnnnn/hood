@@ -182,7 +182,7 @@ struct NamedGroupList {
 };
 
 struct SupportedVersionList {
-  uint8_t length;// byte size 
+  uint8_t length;  // byte size
   VersionType versions[];
 };
 
@@ -214,6 +214,20 @@ struct Type {
   static constexpr uint8_t key_update = 24;
   static constexpr uint8_t message_hash = 254;
   static constexpr uint8_t undefined = 255;
+};
+
+class HelloRetryRequestSpecialValue {
+  static constexpr const std::array<uint8_t, 24> head = {
+      0xCF, 0x21, 0xAD, 0x74, 0xE5, 0x9A, 0x61, 0x11, 0xBE, 0x1D, 0x8C, 0x02,
+      0x1E, 0x65, 0xB8, 0x91, 0xC2, 0xA2, 0x11, 0x16, 0x7A, 0xBB, 0x8C, 0x5E};
+  static constexpr const uintptr_t tail_offset = sizeof(head);
+
+  static constexpr const std::array<uint8_t, 8> tail_1_3 = {
+      0x07, 0x9E, 0x09, 0xE2, 0xC8, 0xA8, 0x33, 0x9C};
+  static constexpr const std::array<uint8_t, 8> tail_1_2 = {
+      0x07, 0x9E, 0x09, 0xE2, 0xC8, 0xA8, 0x33, 0x9C};
+  static constexpr const std::array<uint8_t, 8> tail_other = {
+      0x07, 0x9E, 0x09, 0xE2, 0xC8, 0xA8, 0x33, 0x9C};
 };
 
 struct RawHandshake {
