@@ -190,17 +190,29 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
       }
       auto server_hello_message =
           std::get<handshake::ServerHello>(handshake_message.content);
-
-      auto encode_result =
-          MessageEncoder::Encode(message, write_task_pointer->raw_message, 0);
-      if (encode_result != decltype(encode_result)::good) {
-        LOG_ERROR("encode failed!");
+      if (server_hello_message.hello_retry_type ==
+              handshake::HelloRetryType::FOR_TLS_1_1 ||
+          server_hello_message.hello_retry_type ==
+              handshake::HelloRetryType::FOR_UNKNOWN) {
+        LOG_INFO("Discard connection due to protocol version"
+                 << message.legacy_record_version);
+        // TODO
         return;
+      } else if (server_hello_message.hello_retry_type ==
+                 handshake::HelloRetryType::NOT_RETRY) {
+        status_ = Status::SERVER_HELLO_FORWARDED;
       }
-      write_task_queue_.emplace(std::move(write_task_pointer));
-      DoWrite();
+    }
+
+    auto encode_result =
+        MessageEncoder::Encode(message, write_task_pointer->raw_message, 0);
+    if (encode_result != decltype(encode_result)::good) {
+      LOG_ERROR("encode failed!");
       return;
     }
+    write_task_queue_.emplace(std::move(write_task_pointer));
+    DoWrite();
+    return;
   }
   auto& write_buffer = write_task_pointer->raw_message;
   write_buffer.resize(0);

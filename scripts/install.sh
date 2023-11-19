@@ -107,8 +107,14 @@ sudocpcontent ./NetworkManager.conf $prefix/etc/NetworkManager/NetworkManager.co
 sudo cp firewall $prefix/etc/init.d/
 sudocpcontent ./timesyncd.conf $prefix/etc/systemd/
 sudo chmod -x $prefix/etc/systemd/timesyncd.conf
-#sudosedi "s|http://archive.raspberrypi..../debian/|https://mirror.init7.net/raspbian/raspbian/|g" $prefix/etc/apt/sources.list.d/raspi.list
-sudosedi "s|http://archive.raspberrypi..../|https://archive.raspberrypi.com/|g" $prefix/etc/apt/sources.list.d/raspi.list
+#https://mirrors.ircam.fr/pub/raspbian/raspbian
+#https://mirror.ps.kz/raspbian/raspbian
+#https://goddess-gate.com/archive.raspberrypi.com/raspbian
+#https://ftp.crifo.org/raspbian/raspbian/
+#https://mirrors.gigenet.com/raspbian/raspbian/
+#https://mirrors.ocf.berkeley.edu/raspbian/raspbian/
+sudosedi "s|http://archive.raspberrypi..../debian/|https://mirrors.ustc.edu.cn/archive.raspberrypi.org/debian/|g" $prefix/etc/apt/sources.list.d/raspi.list
+#sudosedi "s|http://archive.raspberrypi..../|https://archive.raspberrypi.com/|g" $prefix/etc/apt/sources.list.d/raspi.list
 #sudosedi "s|deb http://deb.debian.org|#deb http://deb.debian.org|g" $prefix/etc/apt/sources.list
 # never use http mirror and lets encrypt https mirror
 sudosedi "s|http://raspbian.raspberrypi.com/raspbian/|https://mirror.bardia.tech/raspbian/raspbian/|g" $prefix/etc/apt/sources.list
