@@ -3,8 +3,8 @@
 
 #include <cassert>
 #include <chrono>
-#include <functional>
 #include <memory>
+#include <set>
 
 #include "configuration.hpp"
 #include "engine.hpp"
@@ -17,6 +17,18 @@ class SecurityPolicy {
  public:
   static constexpr VersionType lowest_allowed_version =
       protocol::Version::TLS_1_2;  // RFC9325
+  static const std::set<CipherSuite> allowed_cipher_suites;
+
+  static constexpr inline bool CheckCipherSuites(
+      const CipherSuites& cipher_suites) {
+    for (auto& cipher_suite : cipher_suites) {
+      if (SecurityPolicy::allowed_cipher_suites.contains(cipher_suite)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   static constexpr inline bool HardenVersions(handshake::Message& handshake) {
     if (handshake.type == protocol::handshake::Type::client_hello) {
       auto message = std::get<handshake::ClientHello>(handshake.content);

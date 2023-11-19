@@ -68,19 +68,26 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
       // TODO
       return;
     }
-    auto handshake_message = std::get<handshake::Message>(message.content);
+    auto& handshake_message = std::get<handshake::Message>(message.content);
     if (handshake_message.type == protocol::handshake::Type::client_hello) {
       if (status_ > Status::CLIENT_HELLO_FORWARDED) {
         LOG_INFO("Discard connection due to client hello timing");
         // TODO
         return;
       }
-      auto client_hello_message =
+      auto& client_hello_message =
           std::get<handshake::ClientHello>(handshake_message.content);
 
       if (!SecurityPolicy::HardenVersions(handshake_message)) {
         LOG_INFO("Discard connection due to protocol version"
                  << message.legacy_record_version);
+        // TODO
+        return;
+      }
+      if (!SecurityPolicy::CheckCipherSuites(
+              client_hello_message.cipher_suites)) {
+        LOG_INFO("Discard connection due to unsafe cipher suites "
+                 << host_name_);
         // TODO
         return;
       }
@@ -186,14 +193,14 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
       // TODO
       return;
     }
-    auto handshake_message = std::get<handshake::Message>(message.content);
+    auto& handshake_message = std::get<handshake::Message>(message.content);
     if (handshake_message.type == protocol::handshake::Type::server_hello) {
       if (status_ != Status::CLIENT_HELLO_FORWARDED) {
         LOG_INFO("Discard connection due to server hello timing");
         // TODO
         return;
       }
-      auto server_hello_message =
+      auto& server_hello_message =
           std::get<handshake::ServerHello>(handshake_message.content);
       if (server_hello_message.hello_retry_type ==
               handshake::HelloRetryType::FOR_TLS_1_1 ||
@@ -206,6 +213,12 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
       } else if (server_hello_message.hello_retry_type ==
                  handshake::HelloRetryType::NOT_RETRY) {
         status_ = Status::SERVER_HELLO_FORWARDED;
+      }
+
+      if (!SecurityPolicy::allowed_cipher_suites.contains(
+              server_hello_message.cipher_suite)) {
+        LOG_INFO("Discard connection due to unsafe cipher suite"
+                 << server_hello_message.cipher_suite);
       }
     }
 
