@@ -84,12 +84,6 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
         // TODO
         return;
       }
-      extension::FindHostName(host_name_, client_hello_message.extensions);
-      if (host_name_.length() == 0) {
-        LOG_INFO("Discard connection due to find no host name");
-        // TODO
-        return;
-      }
 
       auto encode_result =
           MessageEncoder::Encode(message, write_task_pointer->raw_message, 0);
@@ -98,7 +92,18 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
         return;
       }
       write_task_queue_.emplace(std::move(write_task_pointer));
-      DoResolveConnect(host_name_);
+      if (status_ == Status::CLIENT_CONNECTED) {
+        extension::FindHostName(host_name_, client_hello_message.extensions);
+        if (host_name_.length() == 0) {
+          LOG_INFO("Discard connection due to find no host name");
+          // TODO
+          return;
+        }
+
+        DoResolveConnect(host_name_);
+      } else {
+        DoWrite();
+      }
       return;
     }
   }
