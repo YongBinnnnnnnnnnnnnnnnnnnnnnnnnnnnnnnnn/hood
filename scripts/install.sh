@@ -63,6 +63,12 @@ if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then
   sudosedi "s/ quiet / quiet ipv6.disable=1 /" $prefix/boot/firmware/cmdline.txt
 fi
 
+
+sudo tee /etc/modprobe.d/bin-y-blacklist.conf <<EOF
+blacklist ipv6
+#blacklist bluetooth
+EOF
+
 sudo cp 99-fbturbo.conf $prefix/usr/share/X11/xorg.conf.d/
 sudo cp 99-calibration.conf $prefix/usr/share/X11/xorg.conf.d/
 
