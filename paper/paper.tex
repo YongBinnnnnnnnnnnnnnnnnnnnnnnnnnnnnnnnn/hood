@@ -103,7 +103,7 @@ Due to its security-focused nature, OpenBSD would be a great choice when buiding
 
 \section{SSL Proxy}
 
-The proxy will only work on SSL handshake packets. It will remove all weak algorithms from ClientHello and if the negotiation result is to use a weak algorithm, the connection will be blocked.
+The proxy will only work on SSL handshake packets. It will check weak algorithms from ClientHello and ServerHello if the negotiation result could not use a strong algorithm, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets are being used for encryption. The key share extension also make the certificate invisible to the proxy. Thus, in order to do certificate filtering, the proxy will negotiate with remote server with a sepearate connection to check the certificate being used by the remote host.
 
 \section{Disguise and randomizatoin}
 
