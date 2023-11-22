@@ -1,7 +1,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/endian/conversion.hpp>
 #include <chrono>
-#include <unordered_map>
+#include <map>
+#include <set>
 
 #include "configuration.hpp"
 #include "engine.hpp"
@@ -25,7 +26,10 @@ using steady_clock = std::chrono::steady_clock;
 namespace hood_proxy {
 namespace tls {
 
+// TODO use hash as key to prevent privacy leak
+
 static const seconds cache_lifespan_(300);
+static const size_t cache_size_limit_(4096);
 static thread_local boost::asio::ip::tcp::resolver resolver_(
     Engine::get().GetExecutor());
 
@@ -34,21 +38,38 @@ struct ResultCache {
   steady_clock::time_point creation_time;
 };
 
-static thread_local std::unordered_map<std::string, ResultCache>
-    cached_results_;
+static thread_local std::map<std::string, ResultCache> cached_results_;
 
-static thread_local std::unordered_map<
-    std::string, std::vector<CheckCertificateResultHandler>>
+static thread_local std::map<std::string,
+                             std::vector<CheckCertificateResultHandler>>
     pending_handlers_;
 
 void WorkerResultHandler(const std::string& host_name,
                          boost::asio::ip::tcp::endpoint& endpoint,
                          uintptr_t flags) {
   if (flags & CertificateCheckWorker::Flags::good) {
-    auto& cache = cached_results_[host_name];
-    cache.creation_time = steady_clock::now();
-    cache.trusted_endpoints.emplace_back(endpoint);
-    if (cache.trusted_endpoints.size() >= 4) {
+    const auto now = steady_clock::now();
+    auto pair = cached_results_.find(host_name);
+    if (pair == cached_results_.end() &&
+        cached_results_.size() > cache_size_limit_) {
+      auto released_amount =
+          std::erase_if(cached_results_, [now](const auto& item) {
+            auto age = now - item.second.creation_time;
+            return age > cache_lifespan_;
+          });
+      if (released_amount == 0) {
+        cached_results_.erase(cached_results_.begin());
+      }
+    }
+    ResultCache* cache;
+    if (pair == cached_results_.end()) {
+      cache = &pair->second;
+    } else {
+      cache = &cached_results_[host_name];
+    }
+    cache->creation_time = now;
+    cache->trusted_endpoints.emplace_back(endpoint);
+    if (cache->trusted_endpoints.size() >= 4) {
       auto pair = pending_handlers_.find(host_name);
       if (pair == pending_handlers_.end()) {
         return;
@@ -56,7 +77,7 @@ void WorkerResultHandler(const std::string& host_name,
 
       auto& handlers = pair->second;
       for (auto& handler : handlers) {
-        handler(cache.trusted_endpoints);
+        handler(cache->trusted_endpoints);
       }
       pending_handlers_.erase(pair);
       return;
@@ -134,7 +155,7 @@ void CheckCertificateOf(const std::string& host_name,
       if (age < cache_lifespan_) {
         handler(pair->second.trusted_endpoints);
       } else {
-        pair->second.trusted_endpoints.clear();
+        cached_results_.erase(pair);
       }
     }
   }
