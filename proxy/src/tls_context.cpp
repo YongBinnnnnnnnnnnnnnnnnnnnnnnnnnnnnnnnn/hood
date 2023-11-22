@@ -6,6 +6,7 @@
 
 #include "logging.hpp"
 #include "network.hpp"
+#include "tls_check_certificate.hpp"
 #include "tls_context.hpp"
 #include "tls_message_decoder.hpp"
 #include "tls_message_encoder.hpp"
@@ -107,7 +108,17 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
           return;
         }
 
-        DoResolveConnect(host_name_);
+        CheckCertificateOf(
+            host_name_, [this, _ = shared_from_this()](
+                            const std::vector<boost::asio::ip::tcp::endpoint>&
+                                trusted_endpoints) {
+              if (trusted_endpoints.empty()) {
+                LOG_ERROR("Secure connection failed " << host_name_);
+                return;
+              }
+              host_endpoints_ = trusted_endpoints;
+              DoConnectHost();
+            });
       } else {
         DoWrite();
       }
@@ -119,46 +130,6 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
   write_buffer.insert(write_buffer.end(), data, data + data_size);
   write_task_queue_.emplace(std::move(write_task_pointer));
   DoWrite();
-}
-
-void Context::DoResolveConnect(const std::string& host_name) {
-  LOG_INFO("Resolving " << host_name);
-  {
-    tcp::resolver::query name_query(host_name, "https");
-
-    resolver_.async_resolve(
-        name_query, [this, _ = shared_from_this(), host_name](
-                        const boost::system::error_code& error,
-                        tcp::resolver::results_type results) {
-          if (error) {
-            LOG_INFO("Discard connection due to error while resolving "
-                     << host_name << " " << error.message());
-            return;
-          }
-          typeof(results) end;
-          for (; results != end; results++) {
-            host_endpoints_.emplace_back(results->endpoint());
-          }
-          if (host_endpoints_.size() == 0) {
-            LOG_INFO("Discard connection due to unable to resolve "
-                     << host_name);
-            // TODO
-            return;
-          }
-          network::RemoveV6AndLocalEndpoints(host_endpoints_);
-          if (host_endpoints_.size() == 0) {
-            if (!ends_with(host_name, Configuration::proxy_domain)) {
-              DoResolveConnect(host_name + Configuration::proxy_domain.data());
-              return;
-            }
-            LOG_INFO("Discard connection to "
-                     << host_name << " because endpoints are not acceptable");
-            // TODO
-            return;
-          }
-          DoConnectHost();
-        });
-  }
 }
 
 void Context::HandleServerMessage(TlsMessageReader::Reason reason,

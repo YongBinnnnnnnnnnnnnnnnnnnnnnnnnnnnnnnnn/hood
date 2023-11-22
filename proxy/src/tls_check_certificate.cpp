@@ -79,7 +79,7 @@ void WorkerResultHandler(const std::string& host_name,
   }
 }
 
-void DoResolve(const std::string& host_name) {
+static void DoResolve(std::string host_name) {
   LOG_INFO("Resolving " << host_name);
   tcp::resolver::query name_query(host_name, "https");
 
@@ -112,6 +112,13 @@ void DoResolve(const std::string& host_name) {
           return;
         }
 
+        if (ends_with(host_name, Configuration::proxy_domain)) {
+          auto tls_host_name = host_name.substr(
+              host_name.length() - Configuration::proxy_domain.length());
+          auto worker = CertificateCheckWorker::create(tls_host_name, endpoints,
+                                                       WorkerResultHandler);
+          worker->Start();
+        }
         auto worker = CertificateCheckWorker::create(host_name, endpoints,
                                                      WorkerResultHandler);
         worker->Start();

@@ -32,8 +32,6 @@ class CertificateCheckWorker
   }
   void Start();
 
-  ~CertificateCheckWorker();
-
  private:
   CertificateCheckWorker(const std::string& host_name,
                          const tcp_endpoints_type& endpoints,
