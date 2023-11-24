@@ -18,10 +18,10 @@ function internet_access_on(){
   echo "internet access on " $1 | tee -a $logfile >  /dev/tty1
   nft insert rule ip filter output index 3 oif $1 tcp dport {53, 80, 443} accept
   nft insert rule ip filter output index 3 oif $1 udp dport {53} log prefix \"[HOOD A]\" flags all accept
-  nft insert rule ip filter input index 3 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept notrack
-  nft insert rule ip filter output index 3 oif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept notrack
-  nft insert rule arp filter input index 0 iif $1 log prefix \"[HOOD A]\" flags all accept notrack
-  nft insert rule arp filter output index 0 oif $1 log prefix \"[HOOD A]\" flags all accept notrack
+  nft insert rule ip filter input index 3 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept
+  nft insert rule ip filter output index 3 oif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
+  nft insert rule arp filter input index 0 iif $1 log prefix \"[HOOD A]\" flags all accept
+  nft insert rule arp filter output index 0 oif $1 log prefix \"[HOOD A]\" flags all accept
 }
 
 function revoke_dhcp_client_access_on(){

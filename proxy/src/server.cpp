@@ -76,7 +76,7 @@ void Server::StartTls() {
   tls_proxy_acceptor_.bind(tls_endpoint);
   tls_proxy_acceptor_.listen();
   DoAcceptTls();
-  LOG_INFO("Listening on " << listen_address_ << ":" << tls_proxy_port_
+  LOG_INFO("Listening on " << tls_proxy_address_ << ":" << tls_proxy_port_
                            << " TLS TCP");
 }
 

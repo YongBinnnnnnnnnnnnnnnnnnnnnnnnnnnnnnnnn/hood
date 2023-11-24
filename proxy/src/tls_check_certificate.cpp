@@ -89,11 +89,17 @@ void WorkerResultHandler(const std::string& host_name,
     if (pair == pending_handlers_.end()) {
       return;
     }
-
-    auto& handlers = pair->second;
     std::vector<tcp::endpoint> empty_vector;
+    auto endpoints = &empty_vector;
+    {
+      auto pair = cached_results_.find(host_name);
+      if (pair != cached_results_.end()) {
+        endpoints = &pair->second.trusted_endpoints;
+      }
+    }
+    auto& handlers = pair->second;
     for (auto& handler : handlers) {
-      handler(empty_vector);
+      handler(*endpoints);
     }
     pending_handlers_.erase(pair);
     return;
