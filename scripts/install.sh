@@ -12,15 +12,18 @@ elif [ $machine = "Linux" ]; then
 fi
 
 harden_only=0
+rfkill=1
+
 prefix=""
 for arg in "$@"; do
   case $arg in 
     harden_only) harden_only=1;;
+    no_rfkill) rfkill=0;;
     prefix=*) prefix=$(echo $arg|sed "s/.*=//g");;
   esac
 done
 
-echo $harden_only $prefix
+echo $harden_only $rfkill $prefix
 
 if ! grep -q dtparam $prefix/boot/firmware/config.txt; then
   echo "target location unlikely to be a raspberry pi system mount"
@@ -52,26 +55,44 @@ else
   sudo cp dante-server_1.4.2+dfsg-7+b2_arm64.deb $prefix/var/cache/apt/archives/
 fi
 
-#if ! grep disable-bt $prefix/boot/firmware/config.txt; then
-#  sudo tee -a $prefix/boot/firmware/config.txt <<EOF
-#dtoverlay=disable-bt
-#dtoverlay=disable-wifi
-#EOF
-#fi
+
 
 if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 
   sudosedi "s/ quiet / quiet ipv6.disable=1 /" $prefix/boot/firmware/cmdline.txt
 fi
 
-
 sudo tee /etc/modprobe.d/bin-y-blacklist.conf <<EOF
 blacklist ipv6
+blacklist hci_uart
+blacklist i2c_brcmstb
+blacklist i2c_dev
+EOF
+
+if ! grep -q enable_uart=0 $prefix/boot/firmware/config.txt; then
+    sudo tee -a $prefix/boot/firmware/config.txt <<EOF
+enable_uart=0
+EOF
+
+if [ $rfkill -eq 1 ]; then
+  if ! grep -q disable-bt $prefix/boot/firmware/config.txt; then
+    sudo tee -a $prefix/boot/firmware/config.txt <<EOF
+dtoverlay=disable-bt
+dtoverlay=disable-wifi
+EOF
+  fi
+  sudo tee -a $prefix/etc/modprobe.d/bin-y-blacklist.conf <<EOF
 blacklist bluetooth
 blacklist btbcm
 blacklist hci_uart
 blacklist i2c_brcmstb
 blacklist i2c_dev
+blacklist brcmfmac
+blacklist brcmutil
+blacklist cfg80211
 EOF
+  sudo rm $prefix/lib/firmware/brcm/*
+fi
+
 
 find $prefix/usr/lib/modules/ -name bluetooth |xargs -I {} find {} -type f|xargs sudo rm
 
