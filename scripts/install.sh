@@ -73,6 +73,8 @@ blacklist i2c_brcmstb
 blacklist i2c_dev
 EOF
 
+find $prefix/usr/lib/modules/ -name bluetooth |xargs -I {} find {} -type f|xargs sudo rm
+
 sudo cp 99-fbturbo.conf $prefix/usr/share/X11/xorg.conf.d/
 sudo cp 99-calibration.conf $prefix/usr/share/X11/xorg.conf.d/
 
