@@ -1,0 +1,8 @@
+use dtoverlay=vc4-fkms-v3d for buggy new kernel
+
+todo:
+enable_uart=0
+gpu_mem=256
+dtparam=disable-bt
+dtparam=disable-wifi
+otg_mode=0
