@@ -72,6 +72,7 @@ if ! grep -q enable_uart=0 $prefix/boot/firmware/config.txt; then
     sudo tee -a $prefix/boot/firmware/config.txt <<EOF
 enable_uart=0
 EOF
+fi
 
 if [ $rfkill -eq 1 ]; then
   if ! grep -q disable-bt $prefix/boot/firmware/config.txt; then
@@ -168,6 +169,10 @@ sudo ln -s /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/system
 sudo ln -s /lib/systemd/system/NetworkManager-wait-online.service $prefix/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
 sudo ln -s /lib/systemd/system/NetworkManager-dispatcher.service $prefix/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service
 
+sudo rm $prefix/etc/systemd/system/multi-user.target.wants/avahi-daemon.service
+sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.path
+sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.service
+sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups-browsed.service
 sudo rm $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
 sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
 
