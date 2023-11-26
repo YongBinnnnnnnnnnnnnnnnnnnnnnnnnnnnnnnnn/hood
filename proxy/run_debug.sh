@@ -6,12 +6,10 @@ if [ "$1" = "stage1" ]; then
   echo "" > /tmp/hood_proxy/empty_file
   sudo mount -o bind $script_dir/empty_file /etc/hosts
   cat /etc/resolv.conf
-  cp $script_dir/build/debug/hood_proxy /tmp/hood_proxy/hood_proxy
-  sudo -u nobody /tmp/hood_proxy/hood_proxy
-
+  sudo -u $2 $script_dir/build/debug/hood_proxy
   exit
 fi
 
 mkdir -p /tmp/hood_proxy
 cat /etc/resolv.conf
-sudo unshare -m $0 stage1
+sudo unshare -m $0 stage1 $(whoami)
