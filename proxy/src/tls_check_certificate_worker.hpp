@@ -22,8 +22,8 @@ class CertificateCheckWorker
 
   using tcp_endpoints_type = std::vector<boost::asio::ip::tcp::endpoint>;
   using ResultHandler = std::function<void(
-      const std::string& host_name, boost::asio::ip::tcp::endpoint& endpoint,
-      uintptr_t flags)>;
+      const std::string& host_name,
+      const boost::asio::ip::tcp::endpoint& endpoint, uintptr_t flags)>;
   static pointer create(const std::string& host_name,
                         const tcp_endpoints_type& endpoints,
                         ResultHandler handler) {
@@ -38,7 +38,8 @@ class CertificateCheckWorker
                          ResultHandler handler);
 
   void CheckEndpoint(boost::asio::ip::tcp::endpoint& endpoint);
-  void CallHandler(boost::asio::ip::tcp::endpoint& endpoint, uintptr_t flags);
+  void CallHandler(const boost::asio::ip::tcp::endpoint& endpoint,
+                   uintptr_t flags);
   std::string host_name_;
   tcp_endpoints_type endpoints_;
   std::atomic<size_t> callback_countdown_;

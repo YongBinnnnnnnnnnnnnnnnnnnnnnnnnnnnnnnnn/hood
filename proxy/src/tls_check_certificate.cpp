@@ -45,7 +45,7 @@ static thread_local std::map<std::string,
     pending_handlers_;
 
 void WorkerResultHandler(const std::string& host_name,
-                         boost::asio::ip::tcp::endpoint& endpoint,
+                         const boost::asio::ip::tcp::endpoint& endpoint,
                          uintptr_t flags) {
   if (flags & CertificateCheckWorker::Flags::good) {
     const auto now = steady_clock::now();
@@ -63,12 +63,13 @@ void WorkerResultHandler(const std::string& host_name,
     }
     ResultCache* cache;
     if (pair == cached_results_.end()) {
-      cache = &pair->second;
-    } else {
       cache = &cached_results_[host_name];
+    } else {
+      cache = &pair->second;
     }
     cache->creation_time = now;
-    cache->trusted_endpoints.emplace_back(endpoint);
+
+    cache->trusted_endpoints.push_back(endpoint);
     if (cache->trusted_endpoints.size() >= 4) {
       auto pair = pending_handlers_.find(host_name);
       if (pair == pending_handlers_.end()) {

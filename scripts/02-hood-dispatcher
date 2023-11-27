@@ -69,7 +69,7 @@ function wait_internet_access(){
 
 function http_ntp(){
   wait_internet_access
-  curl --silent --compressed http://www.bing.com/ -H "User-Agent: ${user_agent}" --dump-header - |grep "^[Dd]ate"|sed "s/[Dd]ate: //"|xargs -I {} date -s {}
+  curl --silent --compressed http://1.1.1.1/ -H "User-Agent: ${user_agent}" --dump-header - |grep "^[Dd]ate"|sed "s/[Dd]ate: //"|xargs -I {} date -s {}
 }
 
 if [ "$2" = "before-network-service" ]; then

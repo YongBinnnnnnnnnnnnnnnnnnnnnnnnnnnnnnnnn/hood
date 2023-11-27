@@ -94,9 +94,9 @@ void CertificateCheckWorker::CheckEndpoint(
       });
 
   auto connect_handler = [this, _ = shared_from_this(),
-                          context = context.release(), &endpoint = endpoint](
-                             const boost::system::error_code& error,
-                             const tcp::endpoint& /*endpoint*/) {
+                          context = context.release(),
+                          &endpoint](const boost::system::error_code& error,
+                                     const tcp::endpoint& /*endpoint*/) {
     std::unique_ptr<Context> context_unque_ptr(context);
     if (!context->socket.lowest_layer().is_open()) {
       CallHandler(endpoint, Flags::error);
@@ -111,7 +111,7 @@ void CertificateCheckWorker::CheckEndpoint(
     context->socket.async_handshake(
         boost::asio::ssl::stream_base::client,
         [this, _ = shared_from_this(), context = context_unque_ptr.release(),
-         &endpoint = endpoint](const boost::system::error_code& error) {
+         &endpoint](const boost::system::error_code& error) {
           std::unique_ptr<Context> context_unque_ptr(context);
           if (!context->socket.lowest_layer().is_open()) {
             CallHandler(endpoint, Flags::error);
@@ -138,7 +138,7 @@ void CertificateCheckWorker::Start() {
   }
 }
 void CertificateCheckWorker::CallHandler(
-    boost::asio::ip::tcp::endpoint& endpoint, uintptr_t flags) {
+    const boost::asio::ip::tcp::endpoint& endpoint, uintptr_t flags) {
   auto countdown = --callback_countdown_;
   if (countdown == 0) {
     flags |= Flags::finished;
