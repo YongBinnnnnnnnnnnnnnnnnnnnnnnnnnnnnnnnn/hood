@@ -214,7 +214,7 @@ void Context::DoConnectHost() {
   LOG_INFO("Connecting to " << host_name_);
   auto& socket =
       server_socket_.emplace<tcp::socket>(Engine::get().GetExecutor());
-  auto handler = [this, &for_stream = socket](
+  auto handler = [this, _ = shared_from_this(), &for_stream = socket](
                      const boost::system::error_code& error,
                      const tcp::endpoint& /*endpoint*/) {
     if (!for_stream.lowest_layer().is_open()) {

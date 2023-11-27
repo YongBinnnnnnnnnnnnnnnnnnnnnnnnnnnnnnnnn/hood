@@ -12,3 +12,13 @@ if curl https://code.visualstudio.com/sha|grep -q $(sha256sum vscode.deb |sed "s
 else
   echo hash mismatch
 fi
+
+tee ~/.config/Code/User/settings.json <<EOF
+{
+    "extensions.autoCheckUpdates": false,
+    "extensions.autoUpdate": false,
+    "update.showReleaseNotes": false,
+    "update.mode": "none",
+    "telemetry.telemetryLevel": "off"
+}
+EOF

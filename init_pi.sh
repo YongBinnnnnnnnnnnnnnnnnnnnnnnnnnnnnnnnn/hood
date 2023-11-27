@@ -17,6 +17,7 @@ cp -Rf $script_dir/../v/home/x/.mozilla ~/
 
 sudo sed -i "s/dtoverlay=vc4-kms-v3d/dtoverlay=vc4-fkms-v3d/g" /boot/firmware/config.txt
 sudo sed -i "s/.*udp dport {6.*//g" /etc/NetworkManager/dispatcher.d/02-hood-dispatcher
+
 exit
 
 sudo tee /etc/modprobe.d/bin-y-blacklist.conf <<EOF

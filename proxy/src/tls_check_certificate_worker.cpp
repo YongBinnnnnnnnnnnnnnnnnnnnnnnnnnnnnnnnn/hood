@@ -21,7 +21,7 @@ namespace tls {
 
 // thread-unsafe, designed for thread_local use
 
-struct Context {
+struct CertificateVerificationContext {
   using stream_type = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
   boost::asio::ssl::context ssl_context;
   SSL_SESSION* ssl_session = nullptr;
@@ -35,10 +35,10 @@ struct Context {
     socket.lowest_layer().cancel();
     socket.lowest_layer().close();
   }
-  Context(boost::asio::ssl::context&& ssl_context)
+  CertificateVerificationContext(boost::asio::ssl::context&& ssl_context)
       : ssl_context(ssl::context::tls_client),
         socket(Engine::get().GetExecutor(), ssl_context) {}
-  ~Context() {
+  ~CertificateVerificationContext() {
     Close();
     SSL_SESSION_free(ssl_session);
   }
@@ -68,7 +68,8 @@ static inline boost::asio::ssl::context BuildSSLContext() {
 void CertificateCheckWorker::CheckEndpoint(
     boost::asio::ip::tcp::endpoint& endpoint) {
   LOG_INFO(<< host_name_);
-  auto context = std::make_unique<Context>(BuildSSLContext());
+  auto context =
+      std::make_unique<CertificateVerificationContext>(BuildSSLContext());
 
   auto& socket = context->socket;
 
@@ -97,7 +98,7 @@ void CertificateCheckWorker::CheckEndpoint(
                           context = context.release(),
                           &endpoint](const boost::system::error_code& error,
                                      const tcp::endpoint& /*endpoint*/) {
-    std::unique_ptr<Context> context_unque_ptr(context);
+    std::unique_ptr<CertificateVerificationContext> context_unque_ptr(context);
     if (!context->socket.lowest_layer().is_open()) {
       CallHandler(endpoint, Flags::error);
       return;
@@ -112,7 +113,8 @@ void CertificateCheckWorker::CheckEndpoint(
         boost::asio::ssl::stream_base::client,
         [this, _ = shared_from_this(), context = context_unque_ptr.release(),
          &endpoint](const boost::system::error_code& error) {
-          std::unique_ptr<Context> context_unque_ptr(context);
+          std::unique_ptr<CertificateVerificationContext> context_unque_ptr(
+              context);
           if (!context->socket.lowest_layer().is_open()) {
             CallHandler(endpoint, Flags::error);
             return;
