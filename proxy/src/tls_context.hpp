@@ -53,9 +53,14 @@ class Context : public std::enable_shared_from_this<Context> {
     static constexpr uintptr_t CLIENT_CONNECTED = 0;
     static constexpr uintptr_t CLIENT_HELLO_FORWARDED = 1;
     static constexpr uintptr_t SERVER_HELLO_FORWARDED = 2;
-    static constexpr uintptr_t WRITING = 3;
   };
   uintptr_t status_ = Status::CLIENT_CONNECTED;
+
+  struct Flags {
+    static constexpr uintptr_t CLIENT_ENABLED_ENCRYPTION = 0b0001;
+    static constexpr uintptr_t SERVER_ENABLED_ENCRYPTION = 0b0010;
+  };
+  uintptr_t flags_ = 0;
 
   struct WriteTask {
     bool to_client;

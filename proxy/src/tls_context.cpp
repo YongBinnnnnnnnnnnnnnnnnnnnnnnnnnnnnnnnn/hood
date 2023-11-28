@@ -56,6 +56,12 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
   write_task_pointer->raw_message.insert(write_task_pointer->raw_message.end(),
                                          data, data + data_size);
 
+  if (flags_ & Flags::CLIENT_ENABLED_ENCRYPTION) {
+    write_task_queue_.emplace(std::move(write_task_pointer));
+    DoWrite();
+    return;
+  }
+
   auto decode_result = MessageDecoder::DecodeMesssage(message, data, data_size,
                                                       decoded_message_size);
   if (decode_result != MessageDecoder::ResultType::good) {
@@ -121,6 +127,8 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
         }
       }
     }
+  } else if (message.type == protocol::ContentType::change_cipher_spec) {
+    flags_ |= Flags::CLIENT_ENABLED_ENCRYPTION;
   }
   write_task_queue_.emplace(std::move(write_task_pointer));
   DoWrite();
@@ -146,6 +154,12 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
   auto& message = write_task_pointer->message;
   write_task_pointer->raw_message.insert(write_task_pointer->raw_message.end(),
                                          data, data + data_size);
+
+  if (flags_ & Flags::SERVER_ENABLED_ENCRYPTION) {
+    write_task_queue_.emplace(std::move(write_task_pointer));
+    DoWrite();
+    return;
+  }
 
   auto decode_result = MessageDecoder::DecodeMesssage(message, data, data_size,
                                                       decoded_message_size);
@@ -198,6 +212,8 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
     write_task_queue_.emplace(std::move(write_task_pointer));
     DoWrite();
     return;
+  } else if (message.type == protocol::ContentType::change_cipher_spec) {
+    flags_ |= Flags::SERVER_ENABLED_ENCRYPTION;
   }
   auto& write_buffer = write_task_pointer->raw_message;
   write_buffer.resize(0);
