@@ -96,7 +96,7 @@ void CertificateCheckWorker::CheckEndpoint(
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
         X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
         LOG_INFO(" verifying " << host_name << " :" << subject_name);
-        return preverified;
+        return ssl::host_name_verification(host_name)(preverified, ctx);
       });
 
   auto connect_handler = [this, _ = shared_from_this(),
