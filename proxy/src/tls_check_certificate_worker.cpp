@@ -84,6 +84,11 @@ void CertificateCheckWorker::CheckEndpoint(
     X509_VERIFY_PARAM_set1_host(param, host_name_.data(), host_name_.length());
   }
 
+  {
+    // Add Server Name Indication SNI
+    SSL_set_tlsext_host_name(socket.native_handle(), host_name_.data());
+  }
+
   socket.set_verify_callback(
       [host_name = host_name_](bool preverified,
                                boost::asio::ssl::verify_context& ctx) {
