@@ -53,11 +53,14 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
   auto write_task_pointer = std::make_unique<WriteTask>();
   write_task_pointer->to_client = false;
   auto& message = write_task_pointer->message;
+  write_task_pointer->raw_message.insert(write_task_pointer->raw_message.end(),
+                                         data, data + data_size);
 
   auto decode_result = MessageDecoder::DecodeMesssage(message, data, data_size,
                                                       decoded_message_size);
   if (decode_result != MessageDecoder::ResultType::good) {
     LOG_ERROR("decode failed!");
+    Stop();
     return;
   }
 
@@ -66,68 +69,59 @@ void Context::HandleUserMessage(TlsMessageReader::Reason reason,
     if (message.legacy_record_version < protocol::Version::TLS_1_0) {
       LOG_INFO("Discard connection due to protocol version"
                << message.legacy_record_version);
-      // TODO
+      Stop();
       return;
     }
-    auto& handshake_message = std::get<handshake::Message>(message.content);
-    if (handshake_message.type == protocol::handshake::Type::client_hello) {
-      if (status_ > Status::CLIENT_HELLO_FORWARDED) {
-        LOG_INFO("Discard connection due to client hello timing");
-        // TODO
-        return;
-      }
-      auto& client_hello_message =
-          std::get<handshake::ClientHello>(handshake_message.content);
-
-      if (!SecurityPolicy::HardenVersions(handshake_message)) {
-        LOG_INFO("Discard connection due to protocol version"
-                 << message.legacy_record_version);
-        // TODO
-        return;
-      }
-      if (!SecurityPolicy::CheckCipherSuites(
-              client_hello_message.cipher_suites)) {
-        LOG_INFO("Discard connection due to unsafe cipher suites "
-                 << host_name_);
-        // TODO
-        return;
-      }
-
-      auto encode_result =
-          MessageEncoder::Encode(message, write_task_pointer->raw_message, 0);
-      if (encode_result != decltype(encode_result)::good) {
-        LOG_ERROR("encode failed!");
-        return;
-      }
-      write_task_queue_.emplace(std::move(write_task_pointer));
-      if (status_ == Status::CLIENT_CONNECTED) {
-        extension::FindHostName(host_name_, client_hello_message.extensions);
-        if (host_name_.length() == 0) {
-          LOG_INFO("Discard connection due to find no host name");
-          // TODO
+    auto& handshake_messages = std::get<handshake::Messages>(message.content);
+    for (auto& handshake_message : handshake_messages) {
+      if (handshake_message.type == protocol::handshake::Type::client_hello) {
+        if (status_ > Status::CLIENT_HELLO_FORWARDED) {
+          LOG_INFO("Discard connection due to client hello timing");
+          Stop();
           return;
         }
+        auto& client_hello_message =
+            std::get<handshake::ClientHello>(handshake_message.content);
 
-        CheckCertificateOf(
-            host_name_, [this, _ = shared_from_this()](
-                            const std::vector<boost::asio::ip::tcp::endpoint>&
-                                trusted_endpoints) {
-              if (trusted_endpoints.empty()) {
-                LOG_ERROR("Secure connection failed " << host_name_);
-                return;
-              }
-              host_endpoints_ = trusted_endpoints;
-              DoConnectHost();
-            });
-      } else {
-        DoWrite();
+        if (!SecurityPolicy::HardenVersions(handshake_message)) {
+          LOG_INFO("Discard connection due to protocol version"
+                   << message.legacy_record_version);
+          Stop();
+          return;
+        }
+        if (!SecurityPolicy::CheckCipherSuites(
+                client_hello_message.cipher_suites)) {
+          LOG_INFO("Discard connection due to unsafe cipher suites "
+                   << host_name_);
+          // TODO
+          Stop();
+          return;
+        }
+        if (status_ == Status::CLIENT_CONNECTED) {
+          extension::FindHostName(host_name_, client_hello_message.extensions);
+          if (host_name_.length() == 0) {
+            LOG_INFO("Discard connection due to lack of host name");
+            Stop();
+            return;
+          }
+
+          write_task_queue_.emplace(std::move(write_task_pointer));
+          CheckCertificateOf(
+              host_name_, [this, _ = shared_from_this()](
+                              const std::vector<boost::asio::ip::tcp::endpoint>&
+                                  trusted_endpoints) {
+                if (trusted_endpoints.empty()) {
+                  LOG_ERROR("Secure connection failed " << host_name_);
+                  return;
+                }
+                host_endpoints_ = trusted_endpoints;
+                DoConnectHost();
+              });
+          return;
+        }
       }
-      return;
     }
   }
-  auto& write_buffer = write_task_pointer->raw_message;
-  write_buffer.resize(0);
-  write_buffer.insert(write_buffer.end(), data, data + data_size);
   write_task_queue_.emplace(std::move(write_task_pointer));
   DoWrite();
 }
@@ -136,10 +130,12 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
                                   const uint8_t* data, uint16_t data_size) {
   if (reason != TlsMessageReader::Reason::NEW_MESSAGE) {
     LOG_TRACE("ignore reason:" << static_cast<int>(reason));
+    Stop();
     return;
   }
   if (!data || !data_size) {
     LOG_ERROR("empty message!");
+    Stop();
     return;
   }
   LOG_TRACE("received query");
@@ -148,11 +144,14 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
   auto write_task_pointer = std::make_unique<WriteTask>();
   write_task_pointer->to_client = true;
   auto& message = write_task_pointer->message;
+  write_task_pointer->raw_message.insert(write_task_pointer->raw_message.end(),
+                                         data, data + data_size);
 
   auto decode_result = MessageDecoder::DecodeMesssage(message, data, data_size,
                                                       decoded_message_size);
   if (decode_result != MessageDecoder::ResultType::good) {
     LOG_ERROR("decode failed!");
+    Stop();
     return;
   }
 
@@ -161,44 +160,41 @@ void Context::HandleServerMessage(TlsMessageReader::Reason reason,
     if (message.legacy_record_version < protocol::Version::TLS_1_0) {
       LOG_INFO("Discard connection due to protocol version"
                << message.legacy_record_version);
-      // TODO
+      Stop();
       return;
     }
-    auto& handshake_message = std::get<handshake::Message>(message.content);
-    if (handshake_message.type == protocol::handshake::Type::server_hello) {
-      if (status_ != Status::CLIENT_HELLO_FORWARDED) {
-        LOG_INFO("Discard connection due to server hello timing");
-        // TODO
-        return;
-      }
-      auto& server_hello_message =
-          std::get<handshake::ServerHello>(handshake_message.content);
-      if (server_hello_message.hello_retry_type ==
-              handshake::HelloRetryType::FOR_TLS_1_1 ||
-          server_hello_message.hello_retry_type ==
-              handshake::HelloRetryType::FOR_UNKNOWN) {
-        LOG_INFO("Discard connection due to protocol version"
-                 << message.legacy_record_version);
-        // TODO
-        return;
-      } else if (server_hello_message.hello_retry_type ==
-                 handshake::HelloRetryType::NOT_RETRY) {
-        status_ = Status::SERVER_HELLO_FORWARDED;
-      }
+    auto& handshake_messages = std::get<handshake::Messages>(message.content);
+    for (auto& handshake_message : handshake_messages) {
+      if (handshake_message.type == protocol::handshake::Type::server_hello) {
+        if (status_ != Status::CLIENT_HELLO_FORWARDED) {
+          LOG_INFO("Discard connection due to server hello timing");
+          Stop();
+          return;
+        }
+        auto& server_hello_message =
+            std::get<handshake::ServerHello>(handshake_message.content);
+        if (server_hello_message.hello_retry_type ==
+                handshake::HelloRetryType::FOR_TLS_1_1 ||
+            server_hello_message.hello_retry_type ==
+                handshake::HelloRetryType::FOR_UNKNOWN) {
+          LOG_INFO("Discard connection due to protocol version"
+                   << message.legacy_record_version);
+          Stop();
+          return;
+        } else if (server_hello_message.hello_retry_type ==
+                   handshake::HelloRetryType::NOT_RETRY) {
+          status_ = Status::SERVER_HELLO_FORWARDED;
+        }
 
-      if (!SecurityPolicy::allowed_cipher_suites.contains(
-              server_hello_message.cipher_suite)) {
-        LOG_INFO("Discard connection due to unsafe cipher suite"
-                 << server_hello_message.cipher_suite);
+        if (!SecurityPolicy::allowed_cipher_suites.contains(
+                server_hello_message.cipher_suite)) {
+          LOG_INFO("Discard connection due to unsafe cipher suite"
+                   << server_hello_message.cipher_suite);
+        }
+        break;
       }
     }
 
-    auto encode_result =
-        MessageEncoder::Encode(message, write_task_pointer->raw_message, 0);
-    if (encode_result != decltype(encode_result)::good) {
-      LOG_ERROR("encode failed!");
-      return;
-    }
     write_task_queue_.emplace(std::move(write_task_pointer));
     DoWrite();
     return;
@@ -218,14 +214,17 @@ void Context::DoConnectHost() {
                      const boost::system::error_code& error,
                      const tcp::endpoint& /*endpoint*/) {
     if (!for_stream.lowest_layer().is_open()) {
+      Stop();
       return;
     }
     if (error) {
       LOG_ERROR(<< host_name_ << " failed to connect: " << error.message());
+      Stop();
       return;
     }
     if (status_ > Status::CLIENT_HELLO_FORWARDED) {
       LOG_ERROR(<< host_name_ << " status mismatch " << status_);
+      Stop();
       return;
     }
     auto handler = std::bind(&Context::HandleServerMessage, shared_from_this(),

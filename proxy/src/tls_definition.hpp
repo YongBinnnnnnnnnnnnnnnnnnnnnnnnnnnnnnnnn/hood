@@ -83,12 +83,15 @@ struct Message {
   std::variant<std::nullptr_t, std::vector<uint8_t>, ClientHello, ServerHello>
       content;
 };
+
+using Messages = std::vector<Message>;
+
 }  // namespace handshake
 
 struct Message {
   uint8_t type;  // protocol::ContentType
   uint16_t legacy_record_version;
-  std::variant<std::nullptr_t, std::vector<uint8_t>, handshake::Message>
+  std::variant<std::nullptr_t, std::vector<uint8_t>, handshake::Messages>
       content;
 };
 

@@ -885,6 +885,7 @@ struct Type {
   static constexpr uint8_t encrypted_extensions = 8;
   static constexpr uint8_t certificate = 11;
   static constexpr uint8_t certificate_request = 13;
+  static constexpr uint8_t server_hello_done = 14;
   static constexpr uint8_t certificate_verify = 15;
   static constexpr uint8_t finished = 20;
   static constexpr uint8_t key_update = 24;

@@ -80,8 +80,8 @@ MessageDecoder::ResultType MessageDecoder::DecodeMesssage(Message& message,
     return ResultType::bad;
   }
   if (message.type == protocol::ContentType::handshake) {
-    auto& handshake_message = message.content.emplace<handshake::Message>();
-    return DecodeHandshake(handshake_message, buffer, offset + message_length,
+    auto& handshake_messages = message.content.emplace<handshake::Messages>();
+    return DecodeHandshake(handshake_messages, buffer, offset + message_length,
                            offset, end_offset);
   } else {
     message.content.emplace<std::vector<uint8_t>>(
@@ -151,39 +151,49 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeServerHello(
 }
 
 inline MessageDecoder::ResultType MessageDecoder::DecodeHandshake(
-    handshake::Message& message, const uint8_t* buffer, size_t buffer_size,
-    size_t from_offset, size_t& end_offset) {
-  auto header = reinterpret_cast<const protocol::handshake::RawHandshake*>(
-      buffer + from_offset);
-  message.type = header->msg_type;
-  auto message_length = protocol::GetUint24Value(header->length);
-  auto offset = from_offset + sizeof(protocol::handshake::RawHandshake);
-  end_offset = offset + message_length;
-  if (end_offset > buffer_size) {
-    LOG_DEBUG();
-    return ResultType::bad;
+    handshake::Messages& the_messages, const uint8_t* buffer,
+    size_t buffer_size, size_t from_offset, size_t& end_offset) {
+  while (from_offset < buffer_size) {
+    auto header = reinterpret_cast<const protocol::handshake::RawHandshake*>(
+        buffer + from_offset);
+    auto& message = the_messages.emplace_back();
+    message.type = header->msg_type;
+    auto message_length = protocol::GetUint24Value(header->length);
+    auto offset = from_offset + sizeof(protocol::handshake::RawHandshake);
+    end_offset = offset + message_length;
+    if (end_offset > buffer_size) {
+      LOG_DEBUG();
+      return ResultType::bad;
+    }
+    if (message.type == protocol::handshake::Type::client_hello) {
+      auto result =
+          DecodeClientHello(message.content.emplace<handshake::ClientHello>(),
+                            buffer, buffer_size, offset, offset);
+      if (result == ResultType::bad) {
+        LOG_DEBUG();
+        return result;
+      }
+    } else if (message.type == protocol::handshake::Type::server_hello) {
+      auto result =
+          DecodeServerHello(message.content.emplace<handshake::ServerHello>(),
+                            buffer, buffer_size, offset, offset);
+      if (result == ResultType::bad) {
+        LOG_DEBUG();
+        return result;
+      }
+    } else {
+      message.content.emplace<std::vector<uint8_t>>(
+          header->data, header->data + message_length);
+    } /* TODO
+    else if (message.type == protocol::handshake::Type::certificate) {
+    }
+    else if (message.type == protocol::handshake::Type::certificate_request) {
+    }
+    else if (message.type == protocol::handshake::Type::certificate_verify) {
+    } */
+    from_offset = end_offset;
   }
-  if (message.type == protocol::handshake::Type::client_hello) {
-    return DecodeClientHello(message.content.emplace<handshake::ClientHello>(),
-                             buffer, buffer_size, offset, offset);
-  } else if (message.type == protocol::handshake::Type::server_hello) {
-    return DecodeServerHello(message.content.emplace<handshake::ServerHello>(),
-                             buffer, buffer_size, offset, offset);
-  } else {
-    message.content.emplace<std::vector<uint8_t>>(
-        header->data, header->data + message_length);
-  } /*else if (message.type == protocol::handshake::Type::new_session_ticket) {
- } else if (message.type == protocol::handshake::Type::end_of_early_data) {
- } else if (message.type == protocol::handshake::Type::encrypted_extensions) {
- } else if (message.type == protocol::handshake::Type::certificate) {
- } else if (message.type == protocol::handshake::Type::certificate_request) {
- } else if (message.type == protocol::handshake::Type::certificate_verify) {
- } else if (message.type == protocol::handshake::Type::finished) {
- } else if (message.type == protocol::handshake::Type::key_update) {
- } else if (message.type == protocol::handshake::Type::message_hash) {
- }*/
-  LOG_DEBUG();
-  return ResultType::bad;
+  return ResultType::good;
 }
 
 inline MessageDecoder::ResultType MessageDecoder::DecodeClientHello(
@@ -241,7 +251,7 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
     LOG_DEBUG();
     return ResultType::bad;
   }
-  while (offset < buffer_size) {
+  while (offset < end_offset) {
     if (end_offset < offset + sizeof(protocol::extension::Extension)) {
       LOG_DEBUG();
       return ResultType::bad;

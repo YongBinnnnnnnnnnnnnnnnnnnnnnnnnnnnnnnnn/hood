@@ -24,7 +24,7 @@ class MessageDecoder {
     RDATA,
   } waiting_field_ = FieldType::NAME;
 
-  static ResultType DecodeHandshake(handshake::Message& message,
+  static ResultType DecodeHandshake(handshake::Messages& the_messages,
                                     const uint8_t* buffer, size_t buffer_size,
                                     size_t from_offset, size_t& end_offset);
   static ResultType DecodeClientHello(handshake::ClientHello& message,

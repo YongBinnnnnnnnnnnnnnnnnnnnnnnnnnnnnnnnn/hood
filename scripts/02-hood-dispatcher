@@ -57,7 +57,7 @@ function alter_shared_forward_rules() {
 }
 
 function wait_internet_access(){
-  url="http://www.bing.com/"
+  url="http://1.1.1.1/"
   if [ $1 ]; then
     url=$1
   fi
