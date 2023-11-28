@@ -49,16 +49,11 @@ class Context : public std::enable_shared_from_this<Context> {
   std::vector<boost::asio::ip::tcp::endpoint> host_endpoints_;
   std::variant<nullptr_t, boost::asio::ip::tcp::socket> server_socket_;
   TlsMessageReader server_message_reader_;
-  struct Status {
-    static constexpr uintptr_t CLIENT_CONNECTED = 0;
-    static constexpr uintptr_t CLIENT_HELLO_FORWARDED = 1;
-    static constexpr uintptr_t SERVER_HELLO_FORWARDED = 2;
-  };
-  uintptr_t status_ = Status::CLIENT_CONNECTED;
 
   struct Flags {
-    static constexpr uintptr_t CLIENT_ENABLED_ENCRYPTION = 0b0001;
-    static constexpr uintptr_t SERVER_ENABLED_ENCRYPTION = 0b0010;
+    static constexpr uintptr_t CONNECTED_TO_HOST = 0b0001;
+    static constexpr uintptr_t CLIENT_ENABLED_ENCRYPTION = 0b0010;
+    static constexpr uintptr_t SERVER_ENABLED_ENCRYPTION = 0b0100;
   };
   uintptr_t flags_ = 0;
 
@@ -75,14 +70,13 @@ class Context : public std::enable_shared_from_this<Context> {
       : client_socket_(nullptr),
         client_message_reader_(),
         resolver_(Engine::get().GetExecutor()) {}
-  void HandleUserMessage(TlsMessageReader::Reason reason, const uint8_t* data,
-                         uint16_t data_size);
-  void HandleClientHello(TlsMessageReader::Reason reason, const uint8_t* data,
-                         uint16_t data_size);
+  TlsMessageReader::NextStep HandleUserMessage(TlsMessageReader::Reason reason,
+                                               const uint8_t* data,
+                                               uint16_t data_size);
   void DoResolveConnect(const std::string& host_name);
   void DoConnectHost();
-  void HandleServerMessage(TlsMessageReader::Reason reason, const uint8_t* data,
-                           uint16_t data_size);
+  TlsMessageReader::NextStep HandleServerMessage(
+      TlsMessageReader::Reason reason, const uint8_t* data, uint16_t data_size);
   void DoWrite();
 };
 

@@ -16,12 +16,18 @@ class MessageReader {
   enum class Reason {
     NEW_MESSAGE,
     IO_ERROR,
-    MANUAL_STOPPED,
+    MANUALLY_STOPPED,
+  };
+
+  enum class NextStep {
+    Read,
+    Pause,
+    Stop,
   };
 
   using StreamHandlerTypeExample =
-      std::function<void(Reason, const uint8_t*, uint16_t)>;
-  using UdpHandlerTypeExample = std::function<void(
+      std::function<NextStep(Reason, const uint8_t*, uint16_t)>;
+  using UdpHandlerTypeExample = std::function<NextStep(
       Reason, const uint8_t*, uint16_t, boost::asio::ip::udp::endpoint*)>;
 
   void resize_buffer(size_t size) { buffer_.resize(size); }
@@ -74,17 +80,47 @@ class MessageReader {
   template <typename StreamPointerType, typename HandlerType>
   void DoReadStream(StreamPointerType stream_pointer, HandlerType&& handler) {
     if (status_ == Status::STOP) {
-      handler(Reason::MANUAL_STOPPED, nullptr, 0);
+      handler(Reason::MANUALLY_STOPPED, nullptr, 0);
       status_ = Status::STOP;
       LOG_TRACE("manual stopped");
       return;
     }
     if (!stream_pointer->lowest_layer().is_open()) {
-      handler(Reason::MANUAL_STOPPED, nullptr, 0);
+      handler(Reason::MANUALLY_STOPPED, nullptr, 0);
       status_ = Status::STOP;
       LOG_TRACE("connection closed");
       return;
     }
+
+    do {
+      auto data = buffer_.data() + data_offset_;
+      if (tcp_message_size_ == 0) {
+        if (data_size_ < sizeof(RawMessageType)) {
+          break;
+        }
+        auto tcp_message = reinterpret_cast<const RawMessageType*>(data);
+        tcp_message_size_ =
+            offsetof(RawMessageType, message_length) +
+            sizeof(RawMessageType::message_length) +
+            boost::endian::big_to_native(tcp_message->message_length);
+      }
+      if (data_size_ < tcp_message_size_) {
+        LOG_DEBUG("Message " << data_size_ << "/" << tcp_message_size_);
+        break;
+      }
+      auto next = handler(Reason::NEW_MESSAGE, data, tcp_message_size_);
+      data_size_ -= tcp_message_size_;
+      data_offset_ += tcp_message_size_;
+      tcp_message_size_ = 0;
+
+      if (next == NextStep::Pause) {
+        return;
+      } else if (next == NextStep::Stop) {
+        Stop();
+        return;
+      }
+    } while (data_size_ >= tcp_message_size_);
+
     if (data_size_ == 0) {
       data_offset_ = 0;
     }
@@ -103,6 +139,7 @@ class MessageReader {
         available_size = read_size;
       }
     }
+
     auto read_buffer = buffer_.data() + data_offset_ + data_size_;
 
     LOG_TRACE("start async_read " << read_size);
@@ -129,27 +166,7 @@ class MessageReader {
 
       LOG_TRACE("Income data " << new_data_size);
       data_size_ += new_data_size;
-      do {
-        auto data = buffer_.data() + data_offset_;
-        if (tcp_message_size_ == 0) {
-          if (data_size_ < sizeof(RawMessageType)) {
-            break;
-          }
-          auto tcp_message = reinterpret_cast<const RawMessageType*>(data);
-          tcp_message_size_ =
-              offsetof(RawMessageType, message_length) +
-              sizeof(RawMessageType::message_length) +
-              boost::endian::big_to_native(tcp_message->message_length);
-        }
-        if (data_size_ < tcp_message_size_) {
-          LOG_DEBUG("Message " << data_size_ << "/" << tcp_message_size_);
-          break;
-        }
-        handler(Reason::NEW_MESSAGE, data, tcp_message_size_);
-        data_size_ -= tcp_message_size_;
-        data_offset_ += tcp_message_size_;
-        tcp_message_size_ = 0;
-      } while (data_size_ >= tcp_message_size_);
+
       DoReadStream(stream_pointer, std::move(handler));
     };
 
@@ -161,13 +178,13 @@ class MessageReader {
   template <typename HandlerType>
   void DoReadUdp(boost::asio::ip::udp::socket& socket, HandlerType&& handler) {
     if (status_ == Status::STOP) {
-      handler(Reason::MANUAL_STOPPED, nullptr, 0, nullptr);
+      handler(Reason::MANUALLY_STOPPED, nullptr, 0, nullptr);
       status_ = Status::STOP;
       LOG_TRACE("manual stopped");
       return;
     }
     if (!socket.is_open()) {
-      handler(Reason::MANUAL_STOPPED, nullptr, 0, nullptr);
+      handler(Reason::MANUALLY_STOPPED, nullptr, 0, nullptr);
       status_ = Status::STOP;
       LOG_TRACE("connection closed");
       return;
@@ -189,9 +206,13 @@ class MessageReader {
             status_ = Status::STOP;
             return;
           }
-          handler(Reason::NEW_MESSAGE, buffer_.data(), data_size,
-                  &udp_endpoint_);
-          DoReadUdp(socket, std::move(handler));
+          auto next = handler(Reason::NEW_MESSAGE, buffer_.data(), data_size,
+                              &udp_endpoint_);
+          if (next == NextStep::Read) {
+            DoReadUdp(socket, std::move(handler));
+          } else if (next == NextStep::Stop) {
+            Stop();
+          }
         });
   }
 };
