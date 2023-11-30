@@ -92,10 +92,11 @@ blacklist brcmutil
 blacklist cfg80211
 EOF
   sudo rm $prefix/lib/firmware/brcm/*
+  find /lib/linux-image*/broadcom -type f|xargs sudo rm
+  find $prefix/usr/lib/modules/ -name bluetooth |xargs -I {} find {} -type f|xargs sudo rm
 fi
 
 
-find $prefix/usr/lib/modules/ -name bluetooth |xargs -I {} find {} -type f|xargs sudo rm
 
 sudo cp 99-fbturbo.conf $prefix/usr/share/X11/xorg.conf.d/
 sudo cp 99-calibration.conf $prefix/usr/share/X11/xorg.conf.d/

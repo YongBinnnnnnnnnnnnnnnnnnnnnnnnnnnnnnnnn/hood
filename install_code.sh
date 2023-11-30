@@ -6,7 +6,11 @@ user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 
 cd download
 rm vscode.deb
-curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-armhf/stable -o vscode.deb
+if uname  -a| grep "aarch64"; then
+  curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-arm64/stable -o vscode.deb
+else
+  curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-armhf/stable -o vscode.deb
+fi
 if curl https://code.visualstudio.com/sha|grep -q $(sha256sum vscode.deb |sed "s/ .*//"); then
   sudo apt install ./vscode.deb 
 else
