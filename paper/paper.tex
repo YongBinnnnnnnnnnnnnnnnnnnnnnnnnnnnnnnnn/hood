@@ -103,7 +103,8 @@ Due to its security-focused nature, OpenBSD would be a great choice when buiding
 
 \section{SSL Proxy}
 
-The proxy will only work on SSL handshake packets. It will check weak algorithms from ClientHello and ServerHello if the negotiation result could not use a strong algorithm, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets is being used for encryption. The key_share extension also makes the certificate invisible to the proxy. Thus, in order to do certificate filtering, the proxy will negotiate with remote server with a sepearate connection to check the certificate being used by the remote host.
+The proxy will not decrypt SSL sessions so that when the firewall itself is hacked will not cause a disasteer to the user because the certificate verification s still working on the devices behind this firewall. If I give the proxy the ability to decrypt SSL sessions, when the firewall is hacked, the hacker can easily modify the encrypted data transfered over TLS while the devices behind the firewall will still consider the modified data are coming from a trusted connecting. To do this, the proxy will parse handshake packets. It will check algorithms provided by ClientHello and ServerHello, if the negotiation result could not be using a strong encryption, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets is being used for encryption. The key_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to filter the certificate being used by the remote host.\par
+
 
 \section{Disguise and randomizatoin}
 
