@@ -70,22 +70,10 @@ void WorkerResultHandler(const std::string& host_name,
     cache->creation_time = now;
 
     cache->trusted_endpoints.push_back(endpoint);
-    if (cache->trusted_endpoints.size() >= 4) {
-      auto pair = pending_handlers_.find(host_name);
-      if (pair == pending_handlers_.end()) {
-        return;
-      }
-
-      auto& handlers = pair->second;
-      for (auto& handler : handlers) {
-        handler(cache->trusted_endpoints);
-      }
-      pending_handlers_.erase(pair);
-      return;
-    }
   }
 
-  if (flags & CertificateCheckWorker::Flags::finished) {
+  if (flags & (CertificateCheckWorker::Flags::good |
+               CertificateCheckWorker::Flags::finished)) {
     auto pair = pending_handlers_.find(host_name);
     if (pair == pending_handlers_.end()) {
       return;
