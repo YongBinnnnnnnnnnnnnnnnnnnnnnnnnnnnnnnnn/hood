@@ -6,7 +6,7 @@ git config --global user.email yongb@usi.ch
 
 sudo apt -y autoremove --purge bluez bluez-firmware avahi-daemon cups
 sudo apt -y install firefox chromium-browser vlc linux-compiler-gcc-12-arm --upgrade 
-sudo apt -y install x11-xserver-utils
+sudo apt -y install x11-xserver-utils texlive latexmk texlive-fonts-extra texlive-extra-utils
 
 if ! grep -q .hood-proxy /etc/hosts; then
   sudo tee -a /etc/hosts <<EOF

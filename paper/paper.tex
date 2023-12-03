@@ -40,12 +40,12 @@ morecomment=[l]{//s},
 
 \begin{abstract}
   Design and implementation of a firewall device based on Raspberry Pi.
-  The firewall will use a new method to harden the SSL protocol. It is 
-  designed for someone who would like to sacrifice some compatibility 
-  to pursue better security but still wants some balance between 
-  security and convenience. A sensitive target, like an investigative 
+  The firewall will use a new method to harden the SSL protocol. It is
+  designed for someone who would like to sacrifice some compatibility
+  to pursue better security but still wants some balance between
+  security and convenience. A sensitive target, like an investigative
   journalist, could be a potential user of this device. The new method
-  to enhance SSL security introduced in this article is widely 
+  to enhance SSL security introduced in this article is widely
   applicable to firewall designs.
 
 \end{abstract}
@@ -54,30 +54,26 @@ morecomment=[l]{//s},
   This document is a draft version of a working thesis of Bin Yong.
 \end{acknowledgements}
 
-\tableofcontents 
+\tableofcontents
 \listoffigures %optional
 \listoftables %optional
 
 \mainmatter
 
 \chapter{Introduction}
-The goal of this work is to increase the chance of survival of the user 
-from hacking, evasdropping, and digital fingerprinting. The device will 
-work as a strict firewall which limits network activities and will also
-apply privacy enhancing technologies to reduce the attack surface of 
-digital fingerprinting and it will also apply emerging technologies to 
-increase the difficulty of eavesdropping. The device will run a SSL proxy 
-to harden SSL protocol. It will use a screen to display selected real-time 
+The goal of this work is to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device will work as a strict firewall which limits network activities and will also apply privacy enhancing technologies to reduce the attack surface of digital fingerprinting and it will also apply emerging technologies to
+increase the difficulty of eavesdropping. The device will run a SSL proxy
+to harden SSL protocol. It will use a screen to display selected real-time
 internet activities.\par
-Using a hardware as a firewall has several advantages. Firstly, hardware 
-firewall can provide complete isolation between highly unsafe code, 
-like a browser, and firewall software (fun fact: I was hacked repeatedly 
-through personally harddened latest version of firefox while writing this 
-thesis). This could also work as a mitigation of CPU/BIOS level threats: 
-Firmware malwares, bootkits, and doubtable proprietray technologies like 
-Intel ME and the AMD PSP. Second, it will also provide convenience to the 
-user: the configuration of this portable device will be applied to protect 
-everything behind it, so people do not need to do the time consuming 
+Using a hardware as a firewall has several advantages. Firstly, hardware
+firewall can provide complete isolation between highly unsafe code,
+like a browser, and firewall software (fun fact: I was hacked repeatedly
+through personally harddened latest version of firefox while writing this
+thesis). This could also work as a mitigation of CPU/BIOS level threats:
+Firmware malwares, bootkits, and doubtable proprietray technologies like
+Intel ME and the AMD PSP. Second, it will also provide convenience to the
+user: the configuration of this portable device will be applied to protect
+everything behind it, so people do not need to do the time consuming
 configuration work on different softwares and operating systems one by one. \par
 Even things that could not be configured will be under the restriction of the firewall. In example, people cannot untrust a built-in trusted root certificate from iPhone via Settings app.
 
@@ -85,14 +81,14 @@ Even things that could not be configured will be under the restriction of the fi
 
 \chapter{Comparsion to existing works}
 \section{Commercial hardware}
-Commercial firewalls are expensive. In switzerland, the price of a entry 
+Commercial firewalls are expensive. In switzerland, the price of a entry
 level firewall is more than twice of a raspberry pi. Raspberry Pi being
-used in this work could be replaced with some cheaper alternatives, making 
-the cost will be even lower. Commercial firewalls also do not provide a 
+used in this work could be replaced with some cheaper alternatives, making
+the cost will be even lower. Commercial firewalls also do not provide a
 screen to display network activities in real-time.
 
 \section{SSL proxy}
-Unlike traditional MITM SSL proxy, the proxy used in this device will work 
+Unlike traditional MITM SSL proxy, the proxy used in this device will work
 in non-intrusive way which means it will not decrypt SSL sessions.
 
 \chapter[Design]{Design}
@@ -103,18 +99,20 @@ Due to its security-focused nature, OpenBSD would be a great choice when buiding
 
 \section{SSL Proxy}
 
-The proxy will not decrypt SSL sessions so that when the firewall itself is hacked will not cause a disasteer to the user because the certificate verification s still working on the devices behind this firewall. If I give the proxy the ability to decrypt SSL sessions, when the firewall is hacked, the hacker can easily modify the encrypted data transfered over TLS while the devices behind the firewall will still consider the modified data are coming from a trusted connecting. To do this, the proxy will parse handshake packets. It will check algorithms provided by ClientHello and ServerHello, if the negotiation result could not be using a strong encryption, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets is being used for encryption. The key_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to filter the certificate being used by the remote host.\par
-
+There are benefits from using a proxy than forwarding packets like a router. Firstly, a proxy can run under user level while NAT packets forwarding run on kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure netfilter well. When the rule is not strict enough, like allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually represent the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a dns proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations.\par
+The proxy will not decrypt SSL sessions, so that when the firewall itself is hacked will not cause a disasteer to the user because the certificate verification s still working on the devices behind this firewall. If I give the proxy the ability to decrypt SSL sessions, when the firewall is hacked, the hacker can easily modify the encrypted data transfered over TLS while the devices behind the firewall will still consider the modified data are coming from a trusted connecting. To do this, the proxy will parse handshake packets. It will check algorithms provided by ClientHello and ServerHello, if the negotiation result could not be using strong encryptions, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets is used for encryption. The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by TLS handshakes used for certification check from proxy.\par
 
 \section{Disguise and randomizatoin}
 
-The device disguises itself as other common devices. It will generate random hostname and MAC address on startup so when local network administrators check their the DHCP server they will always see different device information being recorded.
+The device disguises itself as other common devices. It will generate random hostname and MAC address on startup so when local network administrators check their the DHCP server they will always see different device information.
 
 \chapter{Defense strategies when using the firewall}
 
 \section{Untrust certificates}
 
 Even if CAs (certificate authorities) do not want to do evil, their private key could still have been stolen. Thus, none of them are trustworthy. However, whole SSL is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without SSL. When trying to decide which certificates to untrust, people could at first consider the CAs of the place you living in, the CAs of the place you come from, and their enemies and allies. SSL-pinning can prevent MITM attacks from a trusted CA when the user know the remote endpoint should use the certificate from another authority. However, configuring SSL-pinning to all the websites they use is hard and time consuming to average users and if they do not have a basic trusted environment, they cannot be certain whether they are doing it correctly. Even if they have done it correctly, it is still not strange for a website to switch to another CA. Thus, this can only be used in very limited circumstances. SSL-pinning can be configured to the proxy when needed.
+
+\chapter{Improvements to be done in the future}
 
 \chapter{The attacks that I have encountered during the time I was working on this thesis}
 
@@ -132,26 +130,26 @@ Another attack that can bypass a rfkilled computer is to use AI / ML to identify
 
 \section{The first section}
 
- \section{The second, math section}
+\section{The second, math section}
 
 \textbf{Theorem 1 (Residue Theorem).}
 Let $f$ be analytic in the region $G$ except for the isolated singularities $a_1,a_2,\ldots,a_m$. If $\gamma$ is a closed rectifiable curve in $G$ which does not pass through any of the points $a_k$ and if $\gamma\approx 0$ in $G$ then
 \[
-\frac{1}{2\pi i}\int_\gamma f = \sum_{k=1}^m n(\gamma;a_k) \text{Res}(f;a_k).
+  \frac{1}{2\pi i}\int_\gamma f = \sum_{k=1}^m n(\gamma;a_k) \text{Res}(f;a_k).
 \]
 \textbf{Theorem 2 (Maximum Modulus).}
 \emph{Let $G$ be a bounded open set in $\mathbb{C}$ and suppose that $f$ is a continuous function on $G^-$ which is analytic in $G$. Then}
 \[
-\max\{|f(z)|:z\in G^-\}=\max \{|f(z)|:z\in \partial G \}.
+  \max\{|f(z)|:z\in G^-\}=\max \{|f(z)|:z\in \partial G \}.
 \]
 
 \section[third]{A very very long section, titled ``The third section'', with
   a rather  short text alternative (third)}
 
-  \texttt{Some Test}
+\texttt{Some Test}
 \lstset{language=algebra,linewidth=0.95\linewidth,breaklines=true,numbers=left,
-basicstyle=\ttfamily,numberstyle=\tiny,escapeinside={//*}{\^^M},
-mathescape=true}
+  basicstyle=\ttfamily,numberstyle=\tiny,escapeinside={//*}{\^^M},
+  mathescape=true}
 \begin{lstlisting}
 import IntSpec, ItemSpec;
 
@@ -198,7 +196,7 @@ define something weird based on the BPEL specification
 
 %\cleardoublepage
 %\theindex %optional, use only if you have an index, must use
-	  %\makeindex in the preamble
+%\makeindex in the preamble
 %\lipsum
 1
 \end{document}
