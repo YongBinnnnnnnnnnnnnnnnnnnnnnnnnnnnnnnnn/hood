@@ -55,6 +55,15 @@ else
   sudo cp dante-server_1.4.2+dfsg-7+b2_arm64.deb $prefix/var/cache/apt/archives/
 fi
 
+sudo mkdir -p $prefix/etc/apache2/modules
+sudocpcontent apache2/apache2.conf $prefix/etc/apache2/apache2.conf
+sudo ln -sf /usr/lib/apache2/modules/mod_proxy.so $prefix/etc/apache2/modules/mod_proxy.so
+sudo ln -sf /usr/lib/apache2/modules/mod_proxy_connect.so $prefix/etc/apache2/modules/mod_proxy_connect.so
+sudo ln -sf /usr/lib/apache2/modules/mod_proxy_http.so $prefix/etc/apache2/modules/mod_proxy_http.so
+sudo ln -sf /usr/lib/apache2/modules/mod_ssl.so $prefix/etc/apache2/modules/mod_ssl.so
+sudo ln -sf /usr/lib/apache2/modules/mod_mpm_event.so $prefix/etc/apache2/modules/mod_mpm_event.so
+sudo mkdir -p $prefix/etc/apache2/logs
+sudo chown nobody:nogroup $prefix/etc/apache2/logs/
 
 
 if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 
