@@ -102,9 +102,14 @@ static void DoResolve(std::string host_name) {
   resolver_.async_resolve(
       name_query, [host_name](const boost::system::error_code& error,
                               tcp::resolver::results_type results) {
+        tcp::endpoint dummy_endpoint;
+        constexpr const uintptr_t error_finish_flags =
+            (CertificateCheckWorker::Flags::error |
+             CertificateCheckWorker::Flags::finished);
         if (error) {
           LOG_INFO("Error while resolving " << host_name << " "
                                             << error.message());
+          WorkerResultHandler(host_name, dummy_endpoint, error_finish_flags);
           return;
         }
         std::vector<tcp::endpoint> endpoints;
@@ -114,7 +119,7 @@ static void DoResolve(std::string host_name) {
         }
         if (endpoints.size() == 0) {
           LOG_INFO("Unable to resolve " << host_name);
-          // TODO
+          WorkerResultHandler(host_name, dummy_endpoint, error_finish_flags);
           return;
         }
         network::RemoveV6AndLocalEndpoints(endpoints);
@@ -124,7 +129,7 @@ static void DoResolve(std::string host_name) {
             return;
           }
           LOG_INFO(<< host_name << " endpoints are not acceptable");
-          // TODO
+          WorkerResultHandler(host_name, dummy_endpoint, error_finish_flags);
           return;
         }
 
