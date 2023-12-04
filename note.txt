@@ -1,6 +1,8 @@
 use dtoverlay=vc4-fkms-v3d for buggy new kernel
 
 todo:
+apparmor
+seccomp
 enable_uart=0
 gpu_mem=256
 dtparam=disable-bt
