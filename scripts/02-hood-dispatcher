@@ -44,12 +44,19 @@ function revoke_internet_access_on(){
 
 #dhcp server 67 client 68
 function initial_firewall_rules(){
+  sysctl net.netfilter.nf_conntrack_udp_timeout=10
+  sysctl net.netfilter.nf_conntrack_udp_timeout_stream=10
+}
+
+function start_hood_services(){
   nohup dmesg --color=never -w -e |grep "\[HOOD " | tee -a /var/log/hood-firewal.log &
   disown
   nohup dmesg --color=never -w -e |grep "\[HOOD " | sed -r "s/.*IN=(\w+?) OUT=(\w+?) SRC=([^ ]+) DST=([^ ]+) .* PROTO=(\w+) SPT=(\w+) DPT=(\w+) (.*)/\2->\1 \5 \3:\6 -> \4:\7/g" |xargs -I {} date +"%Y-%m-%d %H:%M:%S "{} | tee -a /var/log/hood-firewal-readable.log > /dev/tty1 &
   disown
-  sysctl net.netfilter.nf_conntrack_udp_timeout=10
-  sysctl net.netfilter.nf_conntrack_udp_timeout_stream=10
+  nohup /usr/local/bin/hood_http_handler.py | tee -a /var/log/hood_http_handler.log &
+  disown
+  nohup /usr/local/bin/hood_name_service.py | tee -a /var/log/hood_name_service.log &
+  disown
 }
 
 function alter_shared_forward_rules() {
@@ -74,6 +81,7 @@ function http_ntp(){
 
 if [ "$2" = "before-network-service" ]; then
   initial_firewall_rules
+  start_hood_services
 elif [ "$2" = "pre-up" ]; then
   echo xxf | tee -a $logfile
   ifconfig $1 link random

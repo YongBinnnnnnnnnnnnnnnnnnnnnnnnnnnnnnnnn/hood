@@ -5,7 +5,7 @@ import ssl
 buffer_size_ = 4096
 forward_to_hood_proxy_ = true
 
-ocsp_or_crl = Set([
+ocsp_or_crl_hosts = Set([
   "status.geotrust.com",
   "status.rapidssl.com",
   "crl.identrust.com",
@@ -45,10 +45,11 @@ ocsp_or_crl = Set([
 
 async def handle_connection(client_reader, client_writer):
   try:
-    headers = ""
+    headers = bytes()
     host = ""
     while True:
       line = await client_reader.readline()
+      headers += line
       line = line.decode()
       if line.startswith("host:") or line.startswith("Host:"):
         if host:
@@ -56,7 +57,6 @@ async def handle_connection(client_reader, client_writer):
           return
 
         host = line[5:].strip()
-      headers += line
       if line == '\r\n':
         break;
     if not host:
@@ -64,18 +64,20 @@ async def handle_connection(client_reader, client_writer):
       return
     #print(host)
 
-    headers = headers.encode()
-
-    ssl_context = ssl.create_default_context()
-    ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-    host_reader, host_writer = await asyncio.open_connection(host, 443, ssl=ssl_context)
+    port = 80
+    ssl_context = None
+    if host not in ocsp_or_crl_hosts:
+      ssl_context = ssl.create_default_context()
+      ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+      port = 443
+    host_reader, host_writer = await asyncio.open_connection(host, port, ssl=ssl_context)
     print(headers)
     host_writer.write(headers)
     await host_writer.drain()
     
     async def forward_client_to_server():
       try:
-        while client_reader.at_eof():
+        while True:
           buffer = await client_reader.read(buffer_size_)
           if not buffer:
             break

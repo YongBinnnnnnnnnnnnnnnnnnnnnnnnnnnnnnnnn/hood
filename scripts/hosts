@@ -6,6 +6,7 @@
 #94.140.15.15 dns.adguard.com
 146.112.41.2 doh.opendns.com
 104.16.132.229 dns.cloudflare.com
+104.16.248.249 cloudflare-dns.com
 130.59.31.248 dns.switch.ch
 92.223.65.71 dns.comss.one
 193.17.47.1 odvr.nic.cz
