@@ -1,0 +1,17 @@
+[Unit]
+Description=hood-network-services
+DefaultDependencies=no
+After=network-pre.target
+Before=network.target
+Wants=network.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+TimeoutSec=180
+RemainAfterExit=yes
+EnvironmentFile=
+ExecStart=/etc/NetworkManager/dispatcher.d/02-hood-dispatcher xyz start-hood-network-services
+
+[Install]
+WantedBy=multi-user.target

@@ -55,12 +55,12 @@ else
   sudo cp dante-server_1.4.2+dfsg-7+b2_arm64.deb $prefix/var/cache/apt/archives/
 fi
 
-sudo cp hood_http_handler.py $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood_http_handler.py
-sudo cp hood_name_service.py $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood_name_service.py
-sudo cp hood_http_handler.py $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood_http_handler.py
+sudo cp hood-http-handler.py $prefix/usr/local/bin/
+sudo chmod 0755 $prefix/usr/local/bin/hood-http-handler.py
+sudo cp hood-name-service.py $prefix/usr/local/bin/
+sudo chmod 0755 $prefix/usr/local/bin/hood-name-service.py
+sudo cp hood-resolve.py $prefix/usr/local/bin/
+sudo chmod 0755 $prefix/usr/local/bin/hood-resolve.py
 
 
 if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 
@@ -170,7 +170,9 @@ sudosedi "s|http://deb.debian.org/debian|https://deb.debian.org/debian|g" $prefi
 sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
 
 sudocpcontent ./before-network.service $prefix/usr/lib/systemd/system/
+sudocpcontent ./hood-network-services.service $prefix/usr/lib/systemd/system/
 sudo ln -s /lib/systemd/system/before-network.service $prefix/etc/systemd/system/multi-user.target.wants/before-network.service
+sudo ln -s /lib/systemd/system/hood-network-services.service $prefix/etc/systemd/system/multi-user.target.wants/hood-network-services.service
 sudo ln -s /lib/systemd/system/nftables.service $prefix/etc/systemd/system/sysinit.target.wants/nftables.service
 sudo ln -s /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/system/multi-user.target.wants/NetworkManager.service
 sudo ln -s /lib/systemd/system/NetworkManager-wait-online.service $prefix/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
