@@ -28,3 +28,34 @@ tee ~/.config/Code/User/settings.json <<EOF
     "telemetry.telemetryLevel": "off"
 }
 EOF
+
+sudo tee /etc/apparmor.d/vscode-yongb <<EOF
+# vim:syntax=apparmor
+#include <tunables/global>
+
+/usr/share/code/code {
+  #include <abstractions/base>
+
+  network inet dgram,
+  owner /** rwm,
+  /usr/share/code/** rmix,
+  /proc/sys/fs/inotify/** r,
+  /proc/ r,
+  /sys/devices/system/cpu/** r,
+  /etc/fonts/** r,
+  /usr/share/** r,
+  /usr/local/share/fonts/** r,
+  ptrace,
+  signal,
+  unix,
+  capability sys_admin,
+  capability sys_chroot,
+  @{PROC}/[0-9]*/ r,                 # sandbox wants these
+  @{PROC}/[0-9]*/fd/ r,              # sandbox wants these
+  @{PROC}/[0-9]*/statm r,            # sandbox wants these
+  @{PROC}/[0-9]*/task/[0-9]*/stat r, # sandbox wants these
+}
+
+EOF
+
+sudo apparmor_parser -r /etc/apparmor.d/vscode-yongb

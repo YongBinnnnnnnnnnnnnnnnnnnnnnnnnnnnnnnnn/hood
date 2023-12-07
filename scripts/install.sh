@@ -65,8 +65,8 @@ sudo cp hood-network-services-runner.sh $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-network-services-runner.sh
 
 
-if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 
-  sudosedi "s/ quiet / quiet ipv6.disable=1 /" $prefix/boot/firmware/cmdline.txt
+if ! grep "apparmor" $prefix/boot/firmware/cmdline.txt; then 
+  sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" $prefix/boot/firmware/cmdline.txt
 fi
 
 sudo tee /etc/modprobe.d/bin-y-blacklist.conf <<EOF
