@@ -52,13 +52,6 @@ function initial_firewall_rules(){
   disown
 }
 
-function start_hood_services(){
-  nohup /usr/local/bin/hood-http-handler.py | tee -a /var/log/hood-http-handler.log &
-  disown
-  nohup /usr/local/bin/hood-name-service.py | tee -a /var/log/hood-name-service.log &
-  disown
-}
-
 function alter_shared_forward_rules() {
   true
 }
@@ -81,8 +74,6 @@ function http_ntp(){
 
 if [ "$2" = "before-network-service" ]; then
   initial_firewall_rules
-elif [ "$2" = "start-hood-network-services" ]; then
-  start_hood_services
 elif [ "$2" = "pre-up" ]; then
   echo xxf | tee -a $logfile
   ifconfig $1 link random
@@ -165,6 +156,4 @@ fi
 
 echo $1 $2 end > /dev/tty1
 
-
-nft flush table ip firewall
 exit 0

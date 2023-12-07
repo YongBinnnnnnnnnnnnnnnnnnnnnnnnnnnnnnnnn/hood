@@ -61,6 +61,8 @@ sudo cp hood-name-service.py $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-name-service.py
 sudo cp hood-resolve.py $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-resolve.py
+sudo cp hood-network-services-runner.sh $prefix/usr/local/bin/
+sudo chmod 0755 $prefix/usr/local/bin/hood-network-services-runner.sh
 
 
 if ! grep "ipv6" $prefix/boot/firmware/cmdline.txt; then 

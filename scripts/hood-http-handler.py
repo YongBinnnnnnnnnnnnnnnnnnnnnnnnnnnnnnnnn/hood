@@ -1,11 +1,23 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -B
 import asyncio
 import ssl
 
-buffer_size_ = 4096
-forward_to_hood_proxy_ = true
+def load_hood_name_service():
+  import importlib.util
+  import os
+  import sys
+  spec = importlib.util.spec_from_file_location("hood-name-service.py",  os.path.dirname(os.path.realpath(__file__)) + "/hood-name-service.py")
+  module = importlib.util.module_from_spec(spec)
+  sys.modules["hood_name_service"] = module
+  spec.loader.exec_module(module)
+  return module
 
-ocsp_or_crl_hosts = Set([
+HoodResolve = load_hood_name_service().HoodResolve
+
+buffer_size_ = 4096
+forward_to_hood_proxy_ = True
+
+ocsp_or_crl_hosts = set([
   "status.geotrust.com",
   "status.rapidssl.com",
   "crl.identrust.com",
@@ -66,11 +78,26 @@ async def handle_connection(client_reader, client_writer):
 
     port = 80
     ssl_context = None
+    server_hostname = None
     if host not in ocsp_or_crl_hosts:
       ssl_context = ssl.create_default_context()
       ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+      server_hostname = host
+      if forward_to_hood_proxy_:
+        host = "127.0.0.1"
       port = 443
-    host_reader, host_writer = await asyncio.open_connection(host, port, ssl=ssl_context)
+    else:
+      host_addresses = await HoodResolve(host)
+      if not host_addresses:
+        print("Unable to resolve", host)
+        return
+      host = host_addresses[0]
+    host_reader, host_writer = await asyncio.open_connection(
+      host,
+      port,
+      ssl=ssl_context,
+      server_hostname=server_hostname
+    )
     print(headers)
     host_writer.write(headers)
     await host_writer.drain()
@@ -107,7 +134,7 @@ async def handle_connection(client_reader, client_writer):
     await host_writer.wait_closed()
     await client_writer.wait_closed()
   except Exception as e:
-    print(e.message, e.args)
+    print(e, e.args)
 
 
 async def run_server():

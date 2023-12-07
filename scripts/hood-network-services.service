@@ -7,11 +7,10 @@ Wants=network.target
 Conflicts=shutdown.target
 
 [Service]
-Type=oneshot
-TimeoutSec=180
-RemainAfterExit=yes
+Type=simple
+RemainAfterExit=no
 EnvironmentFile=
-ExecStart=/etc/NetworkManager/dispatcher.d/02-hood-dispatcher xyz start-hood-network-services
+ExecStart=/usr/local/bin/hood-network-services-runner.sh
 
 [Install]
 WantedBy=multi-user.target
