@@ -1,6 +1,27 @@
 use dtoverlay=vc4-fkms-v3d for buggy new kernel
 
-todo:
+https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/2023-12-05-raspios-bookworm-arm64.img.xz
+https://downloads.raspberrypi.com/raspios_armhf/images/raspios_armhf-2023-12-06/2023-12-05-raspios-bookworm-armhf.img.xz
+
+https://dnsnl.alekberg.net/dns-query{?dns}
+https://doh.xfinity.com/dns-query{?dns}
+https://doh.opendns.com/dns-query{?dns}
+https://doh.familyshield.opendns.com/dns-query{?dns}
+https://doh-02.spectrum.com/dns-query{?dns}
+https://doh-01.spectrum.com/dns-query{?dns}
+https://doh.quickline.ch/dns-query{?dns}
+https://dns.google/dns-query{?dns}
+https://dns64.dns.google/dns-query{?dns}
+https://doh.dns.sb/dns-query{?dns}
+https://doh.cox.net/dns-query
+https://dns.quad9.net/dns-query
+https://dns11.quad9.net/dns-query
+https://dns10.quad9.net/dns-query
+https://public.dns.iij.jp/dns-query
+https://chrome.cloudflare-dns.com/dns-query
+
+sed -i "s|...../dns-query|123456.nxdomain|g" code
+
 apparmor
 seccomp
 enable_uart=0
