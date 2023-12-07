@@ -4,12 +4,13 @@
 #sudo apt-get install -y codium
 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 
+mkdir -p download
 cd download
 rm vscode.deb
-if uname  -a| grep "aarch64"; then
-  curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-arm64/stable -o vscode.deb
-else
+if file /usr/bin/ls| grep -q "armhf"; then
   curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-armhf/stable -o vscode.deb
+else
+  curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-arm64/stable -o vscode.deb
 fi
 if curl https://code.visualstudio.com/sha|grep -q $(sha256sum vscode.deb |sed "s/ .*//"); then
   sudo apt install ./vscode.deb 
@@ -17,6 +18,7 @@ else
   echo hash mismatch
 fi
 
+mkdir -p ~/.config/Code/User
 tee ~/.config/Code/User/settings.json <<EOF
 {
     "extensions.autoCheckUpdates": false,

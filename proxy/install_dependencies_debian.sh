@@ -4,7 +4,7 @@ mkdir -p libs/$(uname -s)
 cd libs/
 
 if [ -z $HOOD_PROXY_BUILD_CONCURRENCY ]; then
-  HOOD_PROXY_BUILD_CONCURRENCY=2
+  HOOD_PROXY_BUILD_CONCURRENCY=4
 fi
 
 sudo apt install -y cmake build-essential clang clang-tidy clang-format libssl-dev
