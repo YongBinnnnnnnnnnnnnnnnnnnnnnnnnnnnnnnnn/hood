@@ -155,6 +155,7 @@ void CheckCertificateOf(const std::string& host_name,
       auto age = steady_clock::now() - pair->second.creation_time;
       if (age < cache_lifespan_) {
         handler(pair->second.trusted_endpoints);
+        return;
       } else {
         cached_results_.erase(pair);
       }
