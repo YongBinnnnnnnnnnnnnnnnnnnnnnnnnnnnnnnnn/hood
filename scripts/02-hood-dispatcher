@@ -16,6 +16,18 @@ function proxy_access_on(){
 
 function internet_access_on(){
   echo "internet access on " $1 | tee -a $logfile >  /dev/tty1
+  if ! sudo nft list ruleset netdev | grep -q "\b${1}\b"; then
+    nft add chain netdev filter ${1}ingress { type filter hook ingress device $1 priority filter\; policy drop\;}
+    nft add chain netdev filter ${1}egress { type filter hook egress device $1 priority filter\; policy drop\;}
+    #nft add rule netdev filter ${1}ingress meta protocol ip6 drop
+    #nft add rule netdev filter ${1}ingress meta protocol 8021q drop
+    #nft add rule netdev filter ${1}ingress meta protocol 8021ad drop
+    #nft add rule netdev filter ${1}ingress meta protocol vlan drop
+    nft add rule netdev filter ${1}ingress meta protocol arp accept
+    nft add rule netdev filter ${1}ingress meta protocol ip accept
+    nft add rule netdev filter ${1}egress meta protocol arp accept
+    nft add rule netdev filter ${1}egress meta protocol ip accept
+  fi
   nft insert rule ip filter output index 5 oif $1 tcp dport {53, 80, 443} accept
   nft insert rule ip filter output index 5 oif $1 udp dport {53} log prefix \"[HOOD A]\" flags all accept
   nft insert rule ip filter input index 5 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept
@@ -26,6 +38,7 @@ function internet_access_on(){
 
 function revoke_dhcp_client_access_on(){
   echo "revoke dhcp access on " $1 | tee -a $logfile >  /dev/tty1
+  #sudo nft delete chain netdev filter eth0ingress
   nft delete rule ip filter input iif $1 udp dport {67} udp sport {68} accept notrack
   nft delete rule ip filter output iif $1 udp sport {68} udp dport {67} accept notrack
   nft delete rule arp filter input iif $1 log prefix \"[HOOD A]\" flags all accept notrack
