@@ -1,11 +1,18 @@
+#!/bin/bash
 #wget -qO - https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/vscodium-archive-keyring.gpg | sha256sum
 #echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' | sudo tee /etc/apt/sources.list.d/vscodium.list
 #sudo apt-get update
 #sudo apt-get install -y codium
 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 
-mkdir -p download
-cd download
+cd ~/Download
+../download-vsx.sh xaver/clang-format
+../download-vsx.sh ms-python/python
+../download-vsx.sh James-Yu/latex-workshop
+
+if test -f /usr/share/code/code; then
+  exit
+fi
 rm vscode.deb
 if file /usr/bin/ls| grep -q "armhf"; then
   curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-armhf/stable -o vscode.deb
