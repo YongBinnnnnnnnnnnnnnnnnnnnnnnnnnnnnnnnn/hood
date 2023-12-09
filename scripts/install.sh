@@ -13,6 +13,7 @@ fi
 
 harden_only=0
 rfkill=1
+target_instrument_set="arm64"
 
 prefix=""
 for arg in "$@"; do
@@ -23,7 +24,13 @@ for arg in "$@"; do
   esac
 done
 
-echo $harden_only $rfkill $prefix
+
+if file $prefix/usr/bin/ls| grep -q "armhf"; then
+  target_instrument_set="armhf"
+fi
+
+
+echo $harden_only $rfkill $prefix $target_armhf
 
 if ! grep -q dtparam $prefix/boot/firmware/config.txt; then
   echo "target location unlikely to be a raspberry pi system mount"
@@ -63,6 +70,8 @@ sudo cp hood-resolve.py $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-resolve.py
 sudo cp hood-network-services-runner.sh $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-network-services-runner.sh
+sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/bin/hood-tls-proxy
+sudo chmod 0755 $prefix/usr/local/bin/hood-tls-proxy
 
 
 if ! grep "apparmor" $prefix/boot/firmware/cmdline.txt; then 

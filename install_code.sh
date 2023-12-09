@@ -5,10 +5,13 @@
 #sudo apt-get install -y codium
 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 
-cd ~/Download
-../download-vsx.sh xaver/clang-format
-../download-vsx.sh ms-python/python
-../download-vsx.sh James-Yu/latex-workshop
+script_dir=$(readlink -f $(dirname "$0"))
+
+cd ~/Downloads
+$script_dir/download-vsx.sh xaver/clang-format
+$script_dir/download-vsx.sh ms-python/python
+$script_dir/download-vsx.sh James-Yu/latex-workshop
+$script_dir/download-vsx.sh webfreak/debug
 
 if test -f /usr/share/code/code; then
   exit
