@@ -14,6 +14,7 @@ class Configuration {
  public:
   static constexpr const std::string_view proxy_domain =
       std::string_view(".hood-proxy");
+  static constexpr const uintptr_t max_length_of_a_domain = 253;
   static inline const boost::program_options::variable_value& get(
       const std::string& name) {
     return variables_[name];

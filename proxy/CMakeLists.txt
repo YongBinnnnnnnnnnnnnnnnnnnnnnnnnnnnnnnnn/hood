@@ -28,6 +28,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 add_executable(hood_proxy 
   src/main.cpp src/configuration.cpp src/engine.cpp src/server.cpp src/logging.cpp src/tls_message_decoder.cpp src/tls_context.cpp
   src/network.cpp src/tls_security_policy.cpp src/tls_check_certificate.cpp src/tls_check_certificate_worker.cpp
+  src/name_service_client.cpp
 )
 
 if(MSVC)

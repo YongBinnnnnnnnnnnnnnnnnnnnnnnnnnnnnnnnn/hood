@@ -7,6 +7,7 @@
 #include "configuration.hpp"
 #include "engine.hpp"
 #include "logging.hpp"
+#include "name_service_client.hpp"
 #include "network.hpp"
 #include "tls_check_certificate.hpp"
 #include "tls_check_certificate_worker.hpp"
@@ -30,8 +31,6 @@ namespace tls {
 
 static const seconds cache_lifespan_(300);
 static const size_t cache_size_limit_(4096);
-static thread_local boost::asio::ip::tcp::resolver resolver_(
-    Engine::get().GetExecutor());
 
 struct ResultCache {
   std::vector<tcp::endpoint> trusted_endpoints;
@@ -97,11 +96,10 @@ void WorkerResultHandler(const std::string& host_name,
 
 static void DoResolve(std::string host_name) {
   LOG_INFO("Resolving " << host_name);
-  tcp::resolver::query name_query(host_name, "https");
-
-  resolver_.async_resolve(
-      name_query, [host_name](const boost::system::error_code& error,
-                              tcp::resolver::results_type results) {
+  hood::name_service::Resolve(
+      host_name,
+      [host_name](const boost::system::error_code& error,
+                  const std::vector<boost::asio::ip::address>& results) {
         tcp::endpoint dummy_endpoint;
         constexpr const uintptr_t error_finish_flags =
             (CertificateCheckWorker::Flags::error |
@@ -113,9 +111,8 @@ static void DoResolve(std::string host_name) {
           return;
         }
         std::vector<tcp::endpoint> endpoints;
-        typeof(results) end;
-        for (; results != end; results++) {
-          endpoints.emplace_back(results->endpoint());
+        for (const auto& result : results) {
+          endpoints.emplace_back(tcp::endpoint(result, 443));
         }
         if (endpoints.size() == 0) {
           LOG_INFO("Unable to resolve " << host_name);
