@@ -72,6 +72,7 @@ sudo cp hood-network-services-runner.sh $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-network-services-runner.sh
 sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/bin/hood-tls-proxy
 sudo chmod 0755 $prefix/usr/local/bin/hood-tls-proxy
+sudocpcontent ./hood_proxy.conf $prefix/etc/
 
 
 if ! grep "apparmor" $prefix/boot/firmware/cmdline.txt; then 

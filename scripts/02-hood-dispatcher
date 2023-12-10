@@ -1,7 +1,7 @@
 #!/bin/bash
 
 logfile=/var/log/hood-dispatcher.log
-echo $1 $2 start | tee -a $logfile >  /dev/tty1
+echo $1 $2 $3 start | tee -a $logfile >  /dev/tty1
 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 
 if [ "$1" = "lo" ]; then
@@ -74,13 +74,20 @@ function wait_internet_access(){
   if [ $1 ]; then
     url=$1
   fi
-  while ! curl --compressed $url -H "User-Agent: ${user_agent}" 2>&1 |grep html > /dev/tty1; do
+  while ! curl --compressed $url -H "User-Agent: ${user_agent}" 2>&1 > /dev/tty1; do
     echo "Waiting for network connection" |tee -a $logfile > /dev/tty1
     sleep 1
   done
 }
 
-function http_ntp(){
+function wait_dhcp_success(){
+  while ! ip address show $1 |grep inet | grep -v "inet -127" 2>&1 > /dev/tty1; do
+    echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
+    sleep 1
+  done
+}
+
+function http_timesync(){
   wait_internet_access
   curl --max-time 10 --silent --compressed http://1.1.1.1/ -H "User-Agent: ${user_agent}" --dump-header - |grep "^[Dd]ate"|sed "s/[Dd]ate: //"|xargs -I {} date -s {}
 }
@@ -88,85 +95,92 @@ function http_ntp(){
 if [ "$2" = "before-network-service" ]; then
   initial_firewall_rules
 elif [ "$2" = "pre-up" ]; then
-  echo xxf | tee -a $logfile
   ifconfig $1 link random
   case $1 in 
     usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then internet_access_on $1 $2; else /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --keep-in-foreground --interface=$1 --clear-on-reload --strict-order --listen-address=10.0.2.1 --dhcp-range=10.0.2.1,10.0.2.2,24h --dhcp-lease-max=1 --dhcp-leasefile=/var/tmp/dnsmasq.leases --conf-dir=/etc/NetworkManager/dnsmasq-shared.d & fi;;
     *) internet_access_on $1 $2;;
   esac
-elif [ "$2" = "up" ]; then
-  wan_port=0
-  case $1 in 
-    usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then wan_port=1; fi;;
-    *) wan_port=1;;
-  esac
-  if [ $wan_port -eq 1 ];  then
-    revoke_dhcp_client_access_on $1 $2
-    http_ntp
-    if test -f /var/hood_harden_only; then
-      exit
-    fi
-    echo "test danted" |tee -a $logfile > /dev/tty1
-    if ! test -f /usr/sbin/danted; then
-      echo "dante-server not installed" |tee -a $logfile > /dev/tty1
-      wait_internet_access
-      rm /var/lib/apt/lists/*_*
-      apt-get update 2>&1 |tee -a $logfile > /dev/tty1
-      dpkg --configure -a
-      apt list dante-serer 2>&1 |tee -a $logfile > /dev/tty1
-      apt-get install -y -o Dpkg::Options::="--force-confold" dante-server 2>&1 |tee -a $logfile > /dev/tty1
-      if ! test -f /usr/sbin/danted; then
-        echo "Failed to install dante" |tee -a $logfile > /dev/tty1
-        curl http://www.bing.com/ -H "User-Agent: ${user_agent}" 2>&1 |tee -a $logfile > /dev/tty1
-        openssl s_client --connect mirror.init7.net:443 -showcerts </dev/null 2>&1 |tee -a $logfile > /dev/tty1
+  #nmcli device modify eth0 ipv4.method disabled ipv6.method disabled
 
-        sleep 10
-        shutdown -P now
-        exit 0
+elif [ "$2" = "timesync" ]; then
+  http_timesync
+elif [ "$2" = "up" ]; then
+  if [ "$3" = "" ]; then
+    nohup $0 $1 $2 stage1 &
+    disown
+  elif [ "$3" = "stage1" ]; then
+    wan_port=0
+    case $1 in 
+      usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then wan_port=1; fi;;
+      *) wan_port=1;;
+    esac
+    if 
+    if [ $wan_port -eq 1 ]; then
+      wait_dhcp_success $1
+      revoke_dhcp_client_access_on $1 $2
+      http_timesync
+      if test -f /var/hood_harden_only; then
+        exit
+      fi
+      echo "test danted" |tee -a $logfile > /dev/tty1
+      if ! test -f /usr/sbin/danted; then
+        echo "dante-server not installed" |tee -a $logfile > /dev/tty1
+        wait_internet_access
+        rm /var/lib/apt/lists/*_*
+        apt-get update 2>&1 |tee -a $logfile > /dev/tty1
+        dpkg --configure -a
+        apt list dante-serer 2>&1 |tee -a $logfile > /dev/tty1
+        apt-get install -y -o Dpkg::Options::="--force-confold" dante-server 2>&1 |tee -a $logfile > /dev/tty1
+        if ! test -f /usr/sbin/danted; then
+          echo "Failed to install dante" |tee -a $logfile > /dev/tty1
+          curl http://www.bing.com/ -H "User-Agent: ${user_agent}" 2>&1 |tee -a $logfile > /dev/tty1
+          openssl s_client --connect mirror.init7.net:443 -showcerts </dev/null 2>&1 |tee -a $logfile > /dev/tty1
+
+          sleep 10
+          shutdown -P now
+          exit 0
+        fi
+      fi
+      echo "Config dante to use" $1 |tee -a $logfile > /dev/tty1
+      sed -i "s|external: eth0|external: "$1"|g" /etc/danted.conf
+      sed -i "s|external: wlan0|external: "$1"|g" /etc/danted.conf
+      echo "Up usb0" |tee -a $logfile > /dev/tty1
+      #if nmcli connection show --active|grep usb0; then
+      if ip address show usb0|grep inet; then
+        $0 "usb0" "up"
+      elif ip address show usb1|grep inet; then
+        $0 "usb1" "up"
+      else
+        #ip link set usb0 down
+        #ip link set usb0 address 99:88:77:66:55:43
+        nmcli connection up usb0
+      fi
+      
+      if test -f /do_upgrade; then
+        wait_internet_access
+        apt-get update |tee -a $logfile > /dev/tty1
+        apt-get full-upgrade -y|tee -a $logfile > /dev/tty1
+        rm /do_upgrade
+        reboot
+      fi
+      if test -f /run_once; then
+        wait_internet_access
+        echo "run once" |tee -a $logfile > /dev/tty1
+        rm /tmp/run_once
+        mv /run_once /tmp/
+        /tmp/run_once |tee -a $logfile > /dev/tty1
+        reboot
       fi
     fi
-    echo "Config dante to use" $1 |tee -a $logfile > /dev/tty1
-    sed -i "s|external: eth0|external: "$1"|g" /etc/danted.conf
-    sed -i "s|external: wlan0|external: "$1"|g" /etc/danted.conf
-    echo "Up usb0" |tee -a $logfile > /dev/tty1
-    #if nmcli connection show --active|grep usb0; then
-    if ip address show usb0|grep inet; then
-      $0 "usb0" "up"
-    elif ip address show usb1|grep inet; then
-      $0 "usb1" "up"
-    else
-      #ip link set usb0 down
-      #ip link set usb0 address 99:88:77:66:55:43
-      nmcli connection up usb0
-    fi
-    
-    if test -f /do_upgrade; then
-      wait_internet_access
-      apt-get update |tee -a $logfile > /dev/tty1
-      apt-get full-upgrade -y|tee -a $logfile > /dev/tty1
-      rm /do_upgrade
-      reboot
-    fi
-    if test -f /run_once; then
-      wait_internet_access
-      echo "run once" |tee -a $logfile > /dev/tty1
-      rm /tmp/run_once
-      mv /run_once /tmp/
-      /tmp/run_once |tee -a $logfile > /dev/tty1
-      reboot
-    fi
-  elif [ "$1" = "usb0" ]; then
-    killall danted
-    /usr/sbin/danted 2>&1 > /dev/tty1 &
   fi
 elif [ "$2" = "down" ]; then
   revoke_internet_access_on $1 $2
 fi
 
 if [ "$2" = "connectivity-change" ]; then
-    exit 0;
+  exit 0;
 fi
 
-echo $1 $2 end > /dev/tty1
+echo $1 $2 $3 end |tee -a $logfile > /dev/tty1
 
 exit 0

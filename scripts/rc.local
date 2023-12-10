@@ -27,7 +27,6 @@ if test -f /usr/sbin/avahi-daemon; then
   apt-get autoremove --purge -y avahi-daemon dphys-swapfile vim-tiny vim-common
   reboot
 fi
-echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
 /usr/bin/tvservice -o
 
