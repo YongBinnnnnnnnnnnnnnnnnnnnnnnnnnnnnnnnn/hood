@@ -18,7 +18,6 @@ class Server {
   boost::asio::io_context& io_context_;
   boost::asio::executor executor_;
   boost::asio::ip::tcp::acceptor acceptor_;
-  boost::asio::signal_set signals_;
   boost::asio::ip::address listen_address_;
   uint16_t listen_port_;
   boost::asio::ip::tcp::acceptor tls_proxy_acceptor_;

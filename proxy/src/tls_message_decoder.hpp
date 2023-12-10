@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "src/server.hpp"
 #include "tls_definition.hpp"
 
 namespace hood_proxy {

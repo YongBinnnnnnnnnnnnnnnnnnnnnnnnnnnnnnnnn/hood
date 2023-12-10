@@ -29,7 +29,6 @@ namespace hood_proxy {
 Server::Server()
     : io_context_(Engine::get().GetExecutor()),
       acceptor_(io_context_.get_executor()),
-      signals_(io_context_),
       listen_address_(
           make_address(Configuration::get("listen-address").as<string>())),
       listen_port_(Configuration::get("listen-port").as<uint16_t>()),
@@ -39,16 +38,7 @@ Server::Server()
       tls_proxy_port_(Configuration::get("tls-proxy-port").as<uint16_t>()),
       stop_(false) {}
 
-void Server::Run() {
-  signals_.add(SIGINT);
-  signals_.add(SIGTERM);
-#if defined(SIGQUIT)
-  signals_.add(SIGQUIT);
-#endif  // defined(SIGQUIT)
-
-  DoAwaitStop();
-  io_context_.run();
-}
+void Server::Run() { io_context_.run(); }
 
 void Server::StartUdp() {
   auto udp_endpoint = udp::endpoint(listen_address_, listen_port_);
@@ -106,16 +96,6 @@ void Server::DoAccept() {
     }
 
     DoAccept();
-  });
-}
-
-void Server::DoAwaitStop() {
-  signals_.async_wait([this](boost::system::error_code /*ec*/, int /*signo*/) {
-    // The server is stopped by cancelling all outstanding asynchronous
-    // operations. Once all operations have finished the io_context::run()
-    // call will exit.
-    stop_ = true;
-    acceptor_.close();
   });
 }
 
