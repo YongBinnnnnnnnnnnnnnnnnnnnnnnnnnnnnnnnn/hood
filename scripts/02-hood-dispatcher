@@ -122,25 +122,6 @@ elif [ "$2" = "up" ]; then
       if test -f /var/hood_harden_only; then
         exit
       fi
-      echo "test danted" |tee -a $logfile > /dev/tty1
-      if ! test -f /usr/sbin/danted; then
-        echo "dante-server not installed" |tee -a $logfile > /dev/tty1
-        wait_internet_access
-        rm /var/lib/apt/lists/*_*
-        apt-get update 2>&1 |tee -a $logfile > /dev/tty1
-        dpkg --configure -a
-        apt list dante-serer 2>&1 |tee -a $logfile > /dev/tty1
-        apt-get install -y -o Dpkg::Options::="--force-confold" dante-server 2>&1 |tee -a $logfile > /dev/tty1
-        if ! test -f /usr/sbin/danted; then
-          echo "Failed to install dante" |tee -a $logfile > /dev/tty1
-          curl http://www.bing.com/ -H "User-Agent: ${user_agent}" 2>&1 |tee -a $logfile > /dev/tty1
-          openssl s_client --connect mirror.init7.net:443 -showcerts </dev/null 2>&1 |tee -a $logfile > /dev/tty1
-
-          sleep 10
-          shutdown -P now
-          exit 0
-        fi
-      fi
       echo "Config dante to use" $1 |tee -a $logfile > /dev/tty1
       sed -i "s|external: eth0|external: "$1"|g" /etc/danted.conf
       sed -i "s|external: wlan0|external: "$1"|g" /etc/danted.conf
