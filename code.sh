@@ -4,7 +4,7 @@
 if [ "$1" = "stage2" ]; then
   echo  $(whoami)
   script_dir=$(readlink -f $(dirname "$0"))
-  sudo mount -o bind $script_dir/proxy/resolv.conf /etc/resolv.conf
+  #sudo mount -o bind $script_dir/proxy/resolv.conf /etc/resolv.conf
   cat /etc/resolv.conf
   env_dir=$(readlink -f $(dirname "$0"))/environment
   mkdir -p "$env_dir/code/extensions" "$env_dir/code/data"
