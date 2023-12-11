@@ -8,9 +8,21 @@ namespace hood_proxy {
 void InitLogging();
 }  // namespace hood_proxy
 
+#ifdef NDEBUG
+
+#ifndef __FILE_NAME__
+#define __FILE_NAME__ __FILE__
+#endif  // __FILE_NAME__
+
+#define HOOD_PROXY_LOG_TRIVIAL2(severity, color, line) \
+  BOOST_LOG_TRIVIAL(severity)                          \
+      << color __FILE_NAME__ ":" #line " " << __FUNCTION__ << ": "
+
+#else  // NDEBUG
 #define HOOD_PROXY_LOG_TRIVIAL2(severity, color, line) \
   BOOST_LOG_TRIVIAL(severity)                          \
       << color __FILE__ ":" #line " " << __FUNCTION__ << ": "
+#endif  // NDEBUG
 
 #define HOOD_PROXY_LOG_TRIVIAL(severity, color, line) \
   HOOD_PROXY_LOG_TRIVIAL2(severity, color, line)
