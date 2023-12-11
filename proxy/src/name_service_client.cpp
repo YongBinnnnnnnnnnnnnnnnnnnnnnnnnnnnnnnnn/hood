@@ -32,7 +32,7 @@ static void DecodeResult(std::vector<boost::asio::ip::address>& output,
     if (!error) {
       output.emplace_back(std::move(address));
     }
-    offset += length;
+    offset += length + 1;
   }
 }
 
