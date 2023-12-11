@@ -13,7 +13,7 @@ morecomment=[l]{//s},
 
 
 
-\title{Design and implementation of a firewall device with a new method to harden SSL introduced} %compulsory
+\title{Design and implementation of a firewall device with a new method to harden TLS introduced} %compulsory
 \mastermajor{Financial Technology and Computing}%optional
 \specialization{main track}
 %\subtitle{Subtitle: Reinventing the World} %optional 
@@ -40,12 +40,12 @@ morecomment=[l]{//s},
 
 \begin{abstract}
   Design and implementation of a firewall device based on Raspberry Pi.
-  The firewall will use a new method to harden the SSL protocol. It is
+  The firewall will use a new method to harden the TLS protocol. It is
   designed for someone who would like to sacrifice some compatibility
   to pursue better security but still wants some balance between
   security and convenience. A sensitive target, like an investigative
   journalist, could be a potential user of this device. The new method
-  to enhance SSL security introduced in this article is widely
+  to enhance TLS security introduced in this article is widely
   applicable to firewall designs.
 
 \end{abstract}
@@ -61,9 +61,7 @@ morecomment=[l]{//s},
 \mainmatter
 
 \chapter{Introduction}
-The goal of this work is to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device will work as a strict firewall which limits network activities and will also apply privacy enhancing technologies to reduce the attack surface of digital fingerprinting and it will also apply emerging technologies to
-increase the difficulty of eavesdropping. The device will run a SSL proxy
-to harden SSL protocol. It will use a screen to display selected real-time
+The goal of this work is to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device will work as a strict firewall which limits network activities and will also apply privacy enhancing technologies to reduce the attack surface of digital fingerprinting and it will also apply emerging technologies to increase the difficulty of eavesdropping. The device will run a TLS proxy to harden TLS protocol. It will use a screen to display selected real-time
 internet activities.\par
 Using a hardware as a firewall has several advantages. Firstly, hardware
 firewall can provide complete isolation between highly unsafe code,
@@ -87,9 +85,9 @@ used in this work could be replaced with some cheaper alternatives, making
 the cost will be even lower. Commercial firewalls also do not provide a
 screen to display network activities in real-time.
 
-\section{SSL proxy}
-Unlike traditional MITM SSL proxy, the proxy used in this device will work
-in non-intrusive way which means it will not decrypt SSL sessions.
+\section{TLS proxy}
+Unlike traditional MITM TLS proxy, the proxy used in this device will work
+in non-intrusive way which means it will not decrypt TLS sessions.
 
 \chapter[Design]{Design}
 
@@ -101,23 +99,23 @@ Due to its security-focused nature, OpenBSD would be a great choice when buiding
 
 A name resoving service is created to resolve domain name queries from firewall serices. It is a local RPC service that resolve domain name queries via public DoH (DNS-over-HTTPS) services. DoH can mitigate both passive surveillance and DNS spoofing attacks\citet{rfc:doh8}. DoT (DNS-over-TLS) is another DNS encryption standard that can do almost the same as DoH. The reason why I choose DoH instead of DoT is that DoT uses a unique server port number, 853, that can be easily filtered and identified as an encrypted DNS connection, while DoH, with the help of using the same port number and protocol as HTTPS, makes it much harder to be identified and filtered than DoT.
 
-\section{SSL Proxy}
+\section{TLS Proxy}
 
-There are advantages of using a proxy from forwarding packets like a router. Firstly, a proxy can run under user level while packets forwarding run at kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure netfilter well. When the rule is not strict enough, like allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually represent the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations. Third, the packets from the proxy will be encoded again by Linux network stack so the TCP fingerprinting will be less useful to the devices under its protection.\par
-The proxy will not decrypt SSL sessions, so that when the firewall itself is hacked will not cause a disasteer to the user because the certificate verification s still working on the devices behind this firewall. If I give the proxy the ability to decrypt SSL sessions, when the firewall is hacked, the hacker can easily modify the encrypted data transfered over TLS while the devices behind the firewall will still consider the modified data are coming from a trusted connecting. To do this, the proxy will parse handshake packets. It will check algorithms provided by ClientHello and ServerHello, if the negotiation result could not be using strong encryptions, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets is used for encryption. The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by TLS handshakes used for certification check from proxy.\par
+There are advantages of using a proxy from forwarding packets like a router. Firstly, a proxy can run under user level while packets forwarding run at kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure netfilter well. When the rule is not strict enough, like allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations. Third, the packets from the proxy will be encoded again by Linux network stack so the TCP fingerprinting will be less useful to the devices under its protection.\par
+The proxy will not decrypt TLS sessions, so that when the firewall itself is hacked will not cause a disasteer to the user because the certificate verification s still working on the devices behind this firewall. If I give the proxy the ability to decrypt TLS sessions, when the firewall is hacked, the hacker can easily modify the encrypted data transfered over TLS while the devices behind the firewall will still consider the modified data are coming from a trusted connecting. To do this, the proxy will parse handshake packets. It will check algorithms provided by ClientHello and ServerHello, if the negotiation result could not be using strong encryptions, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets is used for encryption. The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by TLS handshakes used for certification check from proxy.\par
 
+
+\section{DHCP (Dynamic Host Configuration Protocol)}
+
+DHCP is widely used to dynamically decide which ip address to use when a new device connected to a network. A client can expose its host name to the network from the 'client identifier' option or 'sname' field in the protocol. When in the same local network, the host name exposed by the DHCP protocol and other protocols can be used to locate the devices of the victim. If the name of a computer is straightforward enough, like "Yongbin's MacBoook Pro", the network administrator will be able to know the name of the owner of the computer from the first glance. The hardware address exposed to the network can also expose more information than just the address. Hardware address or MAC (Media Access Control) address can be used to reversly lookup the manufacturer and the manufacturer can help identify the owner. In example, the network administrator may lookup the MAC address of the a device to find out the manufacturer is company A and if the company A only sell its products in Country B and if C is the only person come from Country B then the chance that the device belongs to C would be much higher than others. To solve the problem, the firewall randomize both host name and MAC address. The randomized computer name is crafted to look normal. In example, the format of default computer name of Microsoft Windows is used. The implementation of the client of the protocol could also be vulnerable, so the firewall used the combination of AppArmor and dhclient to mitigate this problem.
 
 \section{Dealing with plaintext connections}
 
-By design, only HTTP and HTTPS protocols are allowed to pass-through the firewall. A proxy is used to filter, protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP servers. Only the connections to OCSP servers are allowed to be plaintext. The connections to other hosts will be converted to HTTPS connections. If a remote host accepts only HTTP connections, the connection attempt will be failed.
-
-\section{Disguise and randomizatoin}
-
-The device disguises itself as other common devices. It will generate random hostname and MAC address on startup so when local network administrators check their the DHCP server they will always see different device information.
+By design, only HTTP and HTTPS protocols are allowed to pass-through the firewall. A proxy is used to filter, protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to OCSP servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected by TLS. The connections to other hosts will be converted to HTTPS connections. If a remote host accepts only HTTP connections, the connection attempt will be failed.
 
 \section{Untrust certificates}
 
-Even if CAs (certificate authorities) do not want to do evil, their private key could still have been stolen. Thus, none of them are trustworthy. However, whole SSL is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without SSL. When trying to decide which certificates to untrust, people could at first consider the CAs of the place you living in, the CAs of the place you come from, and their enemies and allies. SSL-pinning can prevent MITM attacks from a trusted CA when the user know the remote endpoint should use the certificate from another authority. However, configuring SSL-pinning to all the websites they use is hard and time consuming to average users and if they do not have a basic trusted environment, they cannot be certain whether they are doing it correctly. Even if they have done it correctly, it is still not strange for a website to switch to another CA. Thus, this can only be used in very limited circumstances. SSL-pinning can be configured to the proxy when needed.
+Even if CAs (certificate authorities) do not want to do evil, their private key could still have been stolen. Thus, none of them are strictly trustworthy. However, whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without TLS. When trying to decide which certificates to untrust, people could at first consider the CAs of the place you living in, the CAs of the place you come from, and their enemies and allies. TLS-pinning can prevent MITM attacks from a trusted CA when the user know the remote endpoint should use the certificate from another authority. However, configuring TLS-pinning to all the websites is hard and time consuming to average users and without a basic trusted environment, it will be unable to certain whether the configuration has done correctly. Even if the configuration is correct, it is still not strange for a website to switch to another CA. Thus, this can only be used in very limited circumstances. The firewall automatically untrusted most of CAs that are not widely used in the internet according to the data published by
 
 \chapter{Improvements to be done in the future}
 
