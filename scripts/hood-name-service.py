@@ -1,4 +1,10 @@
 #!/usr/bin/python3
+"""
+Name servce for hood firewall
+https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood
+Bin Yong all rights reserved.
+"""
+
 import sys
 import asyncio
 import socket
@@ -8,8 +14,19 @@ if __name__ == '__main__':
   import os
   import json
   import time
+  import argparse
 
-  useragent = "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/120.0"
+  parser = argparse.ArgumentParser(
+    prog="hood-name-service",
+    description="A name service sepecially designed for the hood firewall.",
+    epilog="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood",
+  )
+
+  parser.add_argument("--address", default="127.0.0.1", type=str, help="the ip address to listent to")
+  parser.add_argument("--port", default=530, type=int, help="the port number to be used")
+  #parser.add_argument("--useragent", default="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/120.0", help="the useragent to be used")
+
+  args_ = parser.parse_args()
 
   dns_over_https_server_paths = {
   #  "doh.opendns.com",
@@ -205,7 +222,7 @@ if __name__ == '__main__':
     # client requests.
     transport, protocol = await loop.create_datagram_endpoint(
       lambda: NameServiceProtocol(),
-      local_addr=('127.0.0.1', 530))
+      local_addr=(args_.address, args_.port))
 
     await asyncio.Future() 
     transport.close()

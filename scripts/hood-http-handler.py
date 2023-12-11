@@ -1,6 +1,14 @@
 #!/usr/bin/python3 -B
+"""
+HTTP proxy for hood firewall
+https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood
+Bin Yong all rights reserved.
+"""
+
 import asyncio
 import ssl
+import re
+import argparse
 
 def load_hood_name_service():
   import importlib.util
@@ -14,8 +22,21 @@ def load_hood_name_service():
 
 HoodResolve = load_hood_name_service().HoodResolve
 
-buffer_size_ = 4096
-forward_to_hood_proxy_ = True
+
+parser = argparse.ArgumentParser(
+  prog="hood-http-handler",
+  description="A HTTP proxy sepecially designed for the hood firewall.",
+  epilog="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood",
+)
+
+parser.add_argument("--address", default="127.0.0.1", type=str, help="the ip address to listent to")
+parser.add_argument("--port", default=80, type=int, help="the port number of the proxy")
+parser.add_argument("--buffer-size", default=4096, help="buffer size per send/recv")
+parser.add_argument("--forward-to-address", default="127.0.0.1", help="the address of the host that HTTPS connections will be forwarded to, use 'off' to use actual ip address of the remote server")
+
+args_ = parser.parse_args()
+if args_.forward_to_address == "off":
+  args_.forward_to_address = None
 
 ocsp_or_crl_hosts = set([
   "status.geotrust.com",
@@ -79,19 +100,25 @@ async def handle_connection(client_reader, client_writer):
     port = 80
     ssl_context = None
     server_hostname = None
+    do_resolve = True
+    host=re.sub(":\d+$", "", host)
+    
     if host not in ocsp_or_crl_hosts:
+      port=443
       ssl_context = ssl.create_default_context()
       ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
       server_hostname = host
-      if forward_to_hood_proxy_:
-        host = "127.0.0.1"
-      port = 443
-    else:
+      if args_.forward_to_address:
+        host = args_.forward_to_address
+        do_resolve = False
+
+    if do_resolve:
       host_addresses = await HoodResolve(host)
       if not host_addresses:
         print("Unable to resolve", host)
         return
       host = host_addresses[0]
+
     host_reader, host_writer = await asyncio.open_connection(
       host,
       port,
@@ -102,10 +129,11 @@ async def handle_connection(client_reader, client_writer):
     host_writer.write(headers)
     await host_writer.drain()
     
+    buffer_size = args_.buffer_size
     async def forward_client_to_server():
       try:
         while True:
-          buffer = await client_reader.read(buffer_size_)
+          buffer = await client_reader.read(buffer_size)
           if not buffer:
             break
           host_writer.write(buffer)
@@ -118,7 +146,7 @@ async def handle_connection(client_reader, client_writer):
     async def forward_server_to_client():
       try:
         while True:
-          buffer = await host_reader.read(buffer_size_)
+          buffer = await host_reader.read(buffer_size)
           if not buffer:
             break
           client_writer.write(buffer)
@@ -138,8 +166,9 @@ async def handle_connection(client_reader, client_writer):
 
 
 async def run_server():
-  server = await asyncio.start_server(handle_connection, "127.0.0.1", 80)
+  server = await asyncio.start_server(handle_connection, args_.address, args_.port)
   async with server:
     await server.serve_forever()
+
 
 asyncio.run(run_server())

@@ -81,7 +81,7 @@ function wait_internet_access(){
 }
 
 function wait_dhcp_success(){
-  while ! ip address show $1 |grep inet | grep -v "inet -127" 2>&1 > /dev/tty1; do
+  while ! ip address show $1 |grep inet | grep -v "inet 127" 2>&1 > /dev/tty1; do
     echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
     sleep 1
   done
@@ -95,7 +95,7 @@ function http_timesync(){
 if [ "$2" = "before-network-service" ]; then
   initial_firewall_rules
 elif [ "$2" = "pre-up" ]; then
-  ifconfig $1 link random
+  #ifconfig $1 link random
   case $1 in 
     usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then internet_access_on $1 $2; else /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --keep-in-foreground --interface=$1 --clear-on-reload --strict-order --listen-address=10.0.2.1 --dhcp-range=10.0.2.1,10.0.2.2,24h --dhcp-lease-max=1 --dhcp-leasefile=/var/tmp/dnsmasq.leases --conf-dir=/etc/NetworkManager/dnsmasq-shared.d & fi;;
     *) internet_access_on $1 $2;;
@@ -105,53 +105,44 @@ elif [ "$2" = "pre-up" ]; then
 elif [ "$2" = "timesync" ]; then
   http_timesync
 elif [ "$2" = "up" ]; then
-  if [ "$3" = "" ]; then
-    nohup $0 $1 $2 stage1 &
-    disown
-  elif [ "$3" = "stage1" ]; then
-    wan_port=0
-    case $1 in 
-      usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then wan_port=1; fi;;
-      *) wan_port=1;;
-    esac
-    if 
-    if [ $wan_port -eq 1 ]; then
-      wait_dhcp_success $1
-      revoke_dhcp_client_access_on $1 $2
-      http_timesync
-      if test -f /var/hood_harden_only; then
-        exit
-      fi
-      echo "Config dante to use" $1 |tee -a $logfile > /dev/tty1
-      sed -i "s|external: eth0|external: "$1"|g" /etc/danted.conf
-      sed -i "s|external: wlan0|external: "$1"|g" /etc/danted.conf
-      echo "Up usb0" |tee -a $logfile > /dev/tty1
-      #if nmcli connection show --active|grep usb0; then
-      if ip address show usb0|grep inet; then
-        $0 "usb0" "up"
-      elif ip address show usb1|grep inet; then
-        $0 "usb1" "up"
-      else
-        #ip link set usb0 down
-        #ip link set usb0 address 99:88:77:66:55:43
-        nmcli connection up usb0
-      fi
-      
-      if test -f /do_upgrade; then
-        wait_internet_access
-        apt-get update |tee -a $logfile > /dev/tty1
-        apt-get full-upgrade -y|tee -a $logfile > /dev/tty1
-        rm /do_upgrade
-        reboot
-      fi
-      if test -f /run_once; then
-        wait_internet_access
-        echo "run once" |tee -a $logfile > /dev/tty1
-        rm /tmp/run_once
-        mv /run_once /tmp/
-        /tmp/run_once |tee -a $logfile > /dev/tty1
-        reboot
-      fi
+  wan_port=0
+  case $1 in 
+    usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then wan_port=1; fi;;
+    *) wan_port=1;;
+  esac
+  if [ $wan_port -eq 1 ]; then
+    wait_dhcp_success $1
+    revoke_dhcp_client_access_on $1 $2
+    http_timesync
+    if test -f /var/hood_harden_only; then
+      exit
+    fi
+    echo "Up usb0" |tee -a $logfile > /dev/tty1
+    #if nmcli connection show --active|grep usb0; then
+    if ip address show usb0|grep inet; then
+      $0 "usb0" "up"
+    elif ip address show usb1|grep inet; then
+      $0 "usb1" "up"
+    else
+      #ip link set usb0 down
+      #ip link set usb0 address 99:88:77:66:55:43
+      nmcli connection up usb0
+    fi
+    
+    if test -f /do_upgrade; then
+      wait_internet_access
+      apt-get update |tee -a $logfile > /dev/tty1
+      apt-get full-upgrade -y|tee -a $logfile > /dev/tty1
+      rm /do_upgrade
+      reboot
+    fi
+    if test -f /run_once; then
+      wait_internet_access
+      echo "run once" |tee -a $logfile > /dev/tty1
+      rm /tmp/run_once
+      mv /run_once /tmp/
+      /tmp/run_once |tee -a $logfile > /dev/tty1
+      reboot
     fi
   fi
 elif [ "$2" = "down" ]; then
