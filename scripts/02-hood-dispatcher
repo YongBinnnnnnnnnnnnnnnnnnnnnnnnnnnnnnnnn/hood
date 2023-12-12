@@ -90,6 +90,7 @@ function wait_dhcp_success(){
 function http_timesync(){
   wait_internet_access
   curl --max-time 10 --silent --compressed http://1.1.1.1/ -H "User-Agent: ${user_agent}" --dump-header - |grep "^[Dd]ate"|sed "s/[Dd]ate: //"|xargs -I {} date -s {}
+  curl --max-time 10 --silent --compressed https://www.bing.com/ -H "User-Agent: ${user_agent}" --dump-header - |grep "^[Dd]ate"|sed "s/[Dd]ate: //"|xargs -I {} date -s {}
 }
 
 if [ "$2" = "before-network-service" ]; then

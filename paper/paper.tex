@@ -186,6 +186,26 @@ The firewall should trust only the CAs that are being widely used in the interne
 \paragraph{}
 Since SSL-pinning can only be used on a small number of enspoints to an andvanced user who can clearly know what is this meant to be, it is not implemented now. Manually management of the certificate can be done by Linux commands. The certificate of all outgoing TLS connection remote points are checked by TLS proxy.
 
+\chapter{Date time synchornization}
+\section{Introduction}
+\paragraph{}
+Network Time Protocol (NTP) is used by most of modern systems to synchornize the clock with a remote server.
+\subsection{The issue}
+\paragraph{}
+Many of operating systems are pre-configured to use a NTP server which having a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
+\paragraph{}
+Both the unique port number and the unique domain names makes NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. Not to mention that the operating system being exposed by the domain name can also help an attacker to target the NTP client being used by the device.
+\paragraph{}
+A problem of using a hardware like a Raspberry Pi is that it does not have a battery to keep the clock ticking after the power source is cut. So a time synchornization mechanism is a must for this firewall.
+
+\section{Design}
+\paragraph{}
+Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response of a HTTP server to synchornize date time in an acceptable accuracy. Usually, in order to hide, the attacks targeted to HTTP/HTTPS protocol do not want to make mistakes in the header of its attack vector.It's hard to say whether this request is made for time synchornization.
+
+\section{Implementation}
+\paragraph{}
+Since TLS needs time to be correct to validate certificates, a plaintext HTTP request is made to do an initial synchornization. After the first step, the system clock is considered to be correct enought for making a TLS connection. So the second step is to extract date time from the header of a HTTPS response.
+
 \chapter{Conclusions}
 
 \section{Possible improvements for future}
