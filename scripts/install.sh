@@ -68,6 +68,8 @@ sudo cp hood-name-service.py $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-name-service.py
 sudo cp hood-resolve.py $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-resolve.py
+sudo cp hood-timesync.py $prefix/usr/local/bin/
+sudo chmod 0755 $prefix/usr/local/bin/hood-timesync.py
 sudo cp hood-network-services-runner.sh $prefix/usr/local/bin/
 sudo chmod 0755 $prefix/usr/local/bin/hood-network-services-runner.sh
 sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/bin/hood-tls-proxy
