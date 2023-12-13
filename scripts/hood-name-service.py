@@ -127,8 +127,9 @@ if __name__ == '__main__':
       self.clients = tuple(map(DnsOverHttpsClient, self.servers))
       self.cache = {}
 
-    async def resolve(self, name):
+    async def resolve(self, name_stack):
       try:
+        name = name_stack[len(name_stack) - 1]
         if name in self.cache:
           cache = self.cache[name]
           if time.monotonic_ns() < cache["expire_at"]:
@@ -151,6 +152,7 @@ if __name__ == '__main__':
         answer = answer["Answer"]
         result = []
         min_ttl = 3600
+        cname = None
         for record in answer:
           if "data" not in record:
             continue
@@ -158,12 +160,18 @@ if __name__ == '__main__':
             continue
           address = record["data"]
           try:
+            cname = address
             socket.inet_pton(socket.AF_INET, address)
             result.append(address)
             min_ttl = min(min_ttl, record["TTL"])
             #print(record)
           except Exception:
             pass
+        if not result and cname:
+          if cname not in name_stack:
+            name_stack.append(cname)
+            return self.resolve(name_stack)
+          return result
         if min_ttl > 30:
           print(min_ttl)
           if len(self.cache) > 512:
@@ -198,7 +206,7 @@ if __name__ == '__main__':
       print('%s -> %r' % (addr, data))
       if len(data) > 253:
         return
-      asyncio.ensure_future(doh_resolver_.resolve(data.decode())).add_done_callback(
+      asyncio.ensure_future(doh_resolver_.resolve([data.decode()])).add_done_callback(
         self.name_resolved
       )
 
