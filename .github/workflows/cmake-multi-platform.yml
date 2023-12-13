@@ -5,8 +5,14 @@ name: CMake on multiple platforms
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'proxy/**'
+      - '.github/workflows/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'proxy/**'
+      - '.github/workflows/**'
 
 jobs:
   build:
