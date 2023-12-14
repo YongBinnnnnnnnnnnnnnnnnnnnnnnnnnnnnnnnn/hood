@@ -1,3 +1,4 @@
+use chains and priorities instead of rule index
 use dtoverlay=vc4-fkms-v3d for buggy new kernel
 
 https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/2023-12-05-raspios-bookworm-arm64.img.xz

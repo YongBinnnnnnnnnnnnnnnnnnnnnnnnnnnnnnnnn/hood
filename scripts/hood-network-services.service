@@ -10,7 +10,7 @@ Conflicts=shutdown.target
 Type=simple
 RemainAfterExit=no
 EnvironmentFile=
-ExecStart=/usr/local/bin/hood-network-services-runner.sh
+ExecStart=/usr/local/lib/hood/hood-network-services-runner.sh
 
 [Install]
 WantedBy=multi-user.target

@@ -14,10 +14,12 @@ fi
 harden_only=0
 rfkill=1
 target_instrument_set="arm64"
+usb_tether=1
 
 prefix=""
 for arg in "$@"; do
   case $arg in 
+    no_usb_tether) usb_tether=0;;
     harden_only) harden_only=1;;
     no_rfkill) rfkill=0;;
     prefix=*) prefix=$(echo $arg|sed "s/.*=//g");;
@@ -30,58 +32,68 @@ if file $prefix/usr/bin/ls| grep -q "armhf"; then
 fi
 
 
-echo $harden_only $rfkill $prefix $target_armhf
+echo $harden_only $usb_tether $rfkill $prefix $target_instrument_set
 
 if ! grep -q dtparam $prefix/boot/firmware/config.txt; then
   echo "target location unlikely to be a raspberry pi system mount"
   exit 1
 fi
 
+sudo mkdir -p $prefix/usr/local/lib/hood
+sudo mkdir -p $prefix/var/lib/hood/flags
+
+
 if [ $harden_only -eq 1 ]; then
-  sudo touch $prefix/var/hood_harden_only
+  sudo touch $prefix/var/lib/hood/flags/harden_only
 else
-  sudo cp -r boot/* $prefix/boot/firmware/
-  sudocpcontent ./modules $prefix/etc/
-  sudocpcontent ./danted.conf $prefix/etc/
+  cp ./boot/overlays/joy-IT-Display-Driver-35a-overlay.dtbo $prefix/boot/firmware/overlays/
+  if ! grep -q dtoverlay=joy-IT-Display-Driver-35a-overlay $prefix/boot/firmware/config.txt; then
+    sudo tee -a $prefix/boot/firmware/config.txt <<EOF
+dtoverlay=joy-IT-Display-Driver-35a-overlay,rotate=90,swapxy=1
+EOF
+  fi
 
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/userconfig.service
   sudo rm $prefix/etc/systemd/system/getty.target.wants/getty@tty1.service
 
-  sudo cp system-connections/* $prefix/etc/NetworkManager/system-connections/
-  sudo chmod 0600 $prefix/etc/NetworkManager/system-connections/*
-
-  sudo tar -xf ../../AdGuardHome_linux_arm64.tar.gz --directory=$HOME/m2/var/
-  sudo cp AdGuardHome.yaml  $prefix/var/AdGuardHome/
-  sudo cp run_adguard.sh  $prefix/var/AdGuardHome/
-  sudo chown -R nobody:nogroup $prefix/var/AdGuardHome/
-
-  sudo cp -rf ../../adguard $prefix/var/
-  sudo chmod 777 $prefix/var/adguard
-  sudo chmod 666 $prefix/var/adguard/*
-
-  sudo cp dante-server_1.4.2+dfsg-7+b2_arm64.deb $prefix/var/cache/apt/archives/
 fi
 
-sudo cp hood-http-handler.py $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood-http-handler.py
-sudo cp hood-name-service.py $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood-name-service.py
-sudo cp hood-resolve.py $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood-resolve.py
-sudo cp hood-timesync.py $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood-timesync.py
-sudo cp hood-network-services-runner.sh $prefix/usr/local/bin/
-sudo chmod 0755 $prefix/usr/local/bin/hood-network-services-runner.sh
-sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/bin/hood-tls-proxy
-sudo chmod 0755 $prefix/usr/local/bin/hood-tls-proxy
+if [ $usb_tether -eq 1 ]; then
+  sudo touch $prefix/var/lib/hood/flags/usb_tether
+  if ! grep -q dtoverlay=dwc2 $prefix/boot/firmware/config.txt; then
+    sudo tee -a $prefix/boot/firmware/config.txt <<EOF
+dtoverlay=dwc2,dr_mode=peripheral
+EOF
+  fi
+  sudocpcontent ./modules $prefix/etc/
+
+  sudo cp enable-usb-gadget.sh $prefix/usr/local/lib/hood/
+  sudo chmod 0755 $prefix/usr/local/lib/hood/enable-usb-gadget.sh
+  sudo ln -sf /usr/local/lib/hood/enable-usb-gadget.sh $prefix/usr/local/sbin/
+fi
+
+sudo cp hood-http-handler.py $prefix/usr/local/lib/hood/
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-http-handler.py
+sudo cp hood-name-service.py $prefix/usr/local/lib/hood/
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-name-service.py
+sudo cp hood-resolve.py $prefix/usr/local/lib/hood/
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-resolve.py
+sudo ln -sf /usr/local/lib/hood/hood-resolve.py $prefix/usr/local/bin/
+sudo cp hood-timesync.py $prefix/usr/local/lib/hood/
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-timesync.py
+sudo ln -sf /usr/local/lib/hood/hood-timesync.py $prefix/usr/local/bin/
+sudo cp hood-network-services-runner.sh $prefix/usr/local/lib/hood/
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-network-services-runner.sh
+sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/lib/hood/hood-tls-proxy
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-tls-proxy
 sudocpcontent ./hood_proxy.conf $prefix/etc/
 
 
-if ! grep "apparmor" $prefix/boot/firmware/cmdline.txt; then 
+if ! grep -q "apparmor" $prefix/boot/firmware/cmdline.txt; then 
   sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" $prefix/boot/firmware/cmdline.txt
 fi
 
-sudo tee /etc/modprobe.d/bin-y-blacklist.conf <<EOF
+sudo tee /etc/modprobe.d/bin-y-blacklist.conf > /dev/null <<EOF
 blacklist ipv6
 blacklist hci_uart
 blacklist i2c_brcmstb
@@ -101,7 +113,7 @@ dtoverlay=disable-bt
 dtoverlay=disable-wifi
 EOF
   fi
-  sudo tee -a $prefix/etc/modprobe.d/bin-y-blacklist.conf <<EOF
+  sudo tee $prefix/etc/modprobe.d/bin-y-rfkill-blacklist.conf > /dev/null <<EOF
 blacklist bluetooth
 blacklist btbcm
 blacklist hci_uart
@@ -115,11 +127,6 @@ EOF
   find /lib/linux-image*/broadcom -type f|xargs sudo rm
   find $prefix/usr/lib/modules/ -name bluetooth |xargs -I {} find {} -type f|xargs sudo rm
 fi
-
-
-
-sudo cp 99-fbturbo.conf $prefix/usr/share/X11/xorg.conf.d/
-sudo cp 99-calibration.conf $prefix/usr/share/X11/xorg.conf.d/
 
 sudocpcontent ./rc.local $prefix/etc/
 sudocpcontent ./hosts $prefix/etc/
@@ -185,27 +192,30 @@ sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/
 
 sudocpcontent ./before-network.service $prefix/usr/lib/systemd/system/
 sudocpcontent ./hood-network-services.service $prefix/usr/lib/systemd/system/
-sudo ln -s /lib/systemd/system/before-network.service $prefix/etc/systemd/system/multi-user.target.wants/before-network.service
-sudo ln -s /lib/systemd/system/hood-network-services.service $prefix/etc/systemd/system/multi-user.target.wants/hood-network-services.service
-sudo ln -s /lib/systemd/system/nftables.service $prefix/etc/systemd/system/sysinit.target.wants/nftables.service
-sudo ln -s /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/system/multi-user.target.wants/NetworkManager.service
-sudo ln -s /lib/systemd/system/NetworkManager-wait-online.service $prefix/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
-sudo ln -s /lib/systemd/system/NetworkManager-dispatcher.service $prefix/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service
+sudo ln -sf /lib/systemd/system/before-network.service $prefix/etc/systemd/system/multi-user.target.wants/before-network.service
+sudo ln -sf /lib/systemd/system/hood-network-services.service $prefix/etc/systemd/system/multi-user.target.wants/hood-network-services.service
+sudo ln -sf /lib/systemd/system/nftables.service $prefix/etc/systemd/system/sysinit.target.wants/nftables.service
+sudo ln -sf /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/system/multi-user.target.wants/NetworkManager.service
+sudo ln -sf /lib/systemd/system/NetworkManager-wait-online.service $prefix/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
+sudo ln -sf /lib/systemd/system/NetworkManager-dispatcher.service $prefix/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service
 
-sudo rm $prefix/etc/systemd/system/multi-user.target.wants/avahi-daemon.service
-sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.path
-sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.service
-sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups-browsed.service
-sudo rm $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
-sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
+if test -f $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service; then
+  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/avahi-daemon.service
+  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.path
+  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.service
+  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups-browsed.service
+  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
+  sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
+  sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service
+fi
 
 sudo cp 02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/
-sudo ln -s /etc/NetworkManager/dispatcher.d/02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/pre-up.d/02-hood-dispatcher
-sudo ln -s /etc/NetworkManager/dispatcher.d/02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/pre-down.d/02-hood-dispatcher
+sudo ln -sf /etc/NetworkManager/dispatcher.d/02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/pre-up.d/02-hood-dispatcher
+sudo ln -sf /etc/NetworkManager/dispatcher.d/02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/pre-down.d/02-hood-dispatcher
 sudo chmod 0755 $prefix/etc/NetworkManager/dispatcher.d/02-hood-dispatcher
 
-sudo ln -s /etc/NetworkManager/dnsmasq.d/dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
+sudo ln -sf /etc/NetworkManager/dnsmasq.d/dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
 sudo cp update_eeprom $prefix/
 sudo chmod +x $prefix/update_eeprom
-sudo ln -s /update_eeprom $prefix/run_once
+sudo ln -sf /update_eeprom $prefix/run_once
 #sudo touch $prefix/do_init
