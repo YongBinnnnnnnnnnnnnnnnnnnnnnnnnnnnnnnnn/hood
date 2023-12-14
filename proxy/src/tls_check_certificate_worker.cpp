@@ -90,12 +90,14 @@ void CertificateCheckWorker::CheckEndpoint(
   }
 
   socket.set_verify_callback(
-      [host_name = host_name_](bool preverified,
-                               boost::asio::ssl::verify_context& ctx) {
+      [host_name = host_name_, endpoint = endpoint](
+          bool preverified, boost::asio::ssl::verify_context& ctx) {
         char subject_name[256];
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
         X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-        LOG_INFO(" verifying " << host_name << " :" << subject_name);
+        LOG_INFO(" verifying " << host_name << " " << endpoint << " :"
+                               << subject_name);
+
         return ssl::host_name_verification(host_name)(preverified, ctx);
       });
 
