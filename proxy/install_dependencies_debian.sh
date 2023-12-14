@@ -16,7 +16,7 @@ export TAR_OPTIONS=--no-same-owner
 # -- Get boost includes --------------------------------------------------------
 # ==============================================================================
 
-BOOST_VERSION="1.83.0"
+BOOST_VERSION="1.84.0"
 BOOST_FILE_NAME=$(echo boost_$BOOST_VERSION|tr '.' '_')
 
 if [ -d "${BOOST_FILE_NAME}-install" ] ; then
@@ -28,8 +28,8 @@ else
       curl -L -O -C - "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_FILE_NAME}.tar.gz"
     fi
     echo "Extracting boost."
-    tar -xvmf boost_1_83_0.tar.gz --exclude "libs" --exclude "doc" --exclude "example" --exclude "test"
-    tar -xvmf boost_1_83_0.tar.gz --exclude "test" --exclude "example" --exclude "doc" boost_1_83_0/libs/
+    tar -xvmf $BOOST_FILE_NAME.tar.gz --exclude "libs" --exclude "doc" --exclude "example" --exclude "test"
+    tar -xvmf $BOOST_FILE_NAME.tar.gz --exclude "test" --exclude "example" --exclude "doc" ${BOOST_FILE_NAME}/libs/
     mkdir -p $(uname -s)/${BOOST_FILE_NAME}-install/include
     mv ${BOOST_FILE_NAME} ${BOOST_FILE_NAME}-source
   fi

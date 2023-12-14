@@ -268,6 +268,10 @@ inline MessageDecoder::ResultType MessageDecoder::DecodeExtensions(
       return ResultType::bad;
     }
     if (extension.type == protocol::extension::Type::server_name) {
+      if (length == 0) {
+        extension.content.emplace<extension::ServerName>();
+        return ResultType::good;
+      }
       if (end_of_extension < offset + sizeof(protocol::extension::ServerName)) {
         LOG_DEBUG();
         return ResultType::bad;
