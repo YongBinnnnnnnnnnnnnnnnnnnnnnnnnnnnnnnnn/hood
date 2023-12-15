@@ -27,39 +27,60 @@ using std::chrono::milliseconds;
 namespace hood_proxy {
 namespace tls {
 
-void Context::Stop() {
-  client_message_reader_.Stop();
-  server_message_reader_.Stop();
-  if (std::holds_alternative<boost::asio::ip::tcp::socket>(client_socket_)) {
-    std::get<tcp::socket>(client_socket_).close();
-  }
-  if (std::holds_alternative<boost::asio::ip::tcp::socket>(server_socket_)) {
-    std::get<tcp::socket>(server_socket_).close();
+void Context::Pair(pointer another) {
+  paired_ = another;
+}
+
+void Context::Queue(pointer from, std::shared_ptr<WriteTask> task) {
+  if (from == paired_) {
+    write_task_queue_.emplace(task);
+    DoWrite();
   }
 }
+void Context::Stop() {
+  message_reader_.Stop();
+  if(paired_) {
+    paired_->Pair(nullptr);
+    paired_->Stop();
+    paired_ = nullptr;
+  }
+  if (std::holds_alternative<SocketSharedPtr>(socket_)) {
+    auto socket = std::get<SocketSharedPtr>(socket_);
+    boost::system::error_code error;
+    socket->shutdown(tcp::socket::shutdown_both, error);
+    socket->cancel(error);
+    socket->close();
+  }
+}
+std::atomic<intptr_t> Context::active_instance_counter_(0);
 
 Context::TlsMessageReader::NextStep Context::HandleUserMessage(
     TlsMessageReader::Reason reason, const uint8_t* data, uint16_t data_size) {
   auto next_step = TlsMessageReader::NextStep::Read;
   if (reason != TlsMessageReader::Reason::NEW_MESSAGE) {
     LOG_TRACE("ignore reason:" << static_cast<int>(reason));
+    if (reason == TlsMessageReader::Reason::IO_ERROR) {
+      Stop();
+    }
     return next_step;
   }
   if (!data || !data_size) {
     LOG_ERROR("empty message!");
     return next_step;
   }
+  if (!paired_) {
+    Pair(create(Role::server));
+  }
   LOG_TRACE("received query");
+  LimitTaskQueueSize();
   size_t decoded_message_size = 0;
-  auto write_task_pointer = std::make_unique<WriteTask>();
-  write_task_pointer->to_client = false;
+  auto write_task_pointer = std::make_shared<WriteTask>();
   auto& message = write_task_pointer->message;
   write_task_pointer->raw_message.insert(write_task_pointer->raw_message.end(),
                                          data, data + data_size);
 
   if (flags_ & Flags::CLIENT_ENABLED_ENCRYPTION) {
-    write_task_queue_.emplace(std::move(write_task_pointer));
-    DoWrite();
+    paired_->Queue(shared_from_this(), write_task_pointer);
     return next_step;
   }
 
@@ -101,8 +122,10 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
         }
         std::string host_name;
         extension::FindHostName(host_name, client_hello_message.extensions);
-
-        write_task_queue_.emplace(std::move(write_task_pointer));
+        
+        paired_->Pair(shared_from_this());
+        
+        paired_->Queue(shared_from_this(), write_task_pointer);
         if (flags_ & Flags::CONNECTED_TO_HOST) {
           if (host_name != host_name_) {
             LOG_INFO("Discard connection due to host name mismatch "
@@ -110,7 +133,6 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
             Stop();
             return next_step;
           }
-          DoWrite();
         } else {
           if (host_name.length() == 0) {
             LOG_INFO("Discard connection due to lack of host name");
@@ -118,18 +140,8 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
             return next_step;
           }
           host_name_ = host_name;
-          CheckCertificateOf(
-              host_name_, [this, _ = shared_from_this()](
-                              const std::vector<boost::asio::ip::tcp::endpoint>&
-                                  trusted_endpoints) {
-                if (trusted_endpoints.empty()) {
-                  LOG_ERROR("Secure connection failed " << host_name_);
-                  return;
-                }
-                host_endpoints_ = trusted_endpoints;
-
-                DoConnectHost();
-              });
+          CheckCertificateOf(host_name, std::bind(&Context::DoConnectHost, 
+            shared_from_this(), std::placeholders::_1));
         }
 
         return next_step;
@@ -138,8 +150,7 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
   } else if (message.type == protocol::ContentType::change_cipher_spec) {
     flags_ |= Flags::CLIENT_ENABLED_ENCRYPTION;
   }
-  write_task_queue_.emplace(std::move(write_task_pointer));
-  DoWrite();
+  paired_->Queue(shared_from_this(), write_task_pointer);
   return next_step;
 }
 
@@ -148,7 +159,9 @@ Context::TlsMessageReader::NextStep Context::HandleServerMessage(
   auto next_step = TlsMessageReader::NextStep::Read;
   if (reason != TlsMessageReader::Reason::NEW_MESSAGE) {
     LOG_TRACE("ignore reason:" << static_cast<int>(reason));
-    Stop();
+    if (reason == TlsMessageReader::Reason::IO_ERROR) {
+      Stop();
+    }
     return next_step;
   }
   if (!data || !data_size) {
@@ -157,17 +170,15 @@ Context::TlsMessageReader::NextStep Context::HandleServerMessage(
     return next_step;
   }
   LOG_TRACE("received query");
-
+  LimitTaskQueueSize();
   size_t decoded_message_size = 0;
-  auto write_task_pointer = std::make_unique<WriteTask>();
-  write_task_pointer->to_client = true;
+  auto write_task_pointer = std::make_shared<WriteTask>();
   auto& message = write_task_pointer->message;
   write_task_pointer->raw_message.insert(write_task_pointer->raw_message.end(),
                                          data, data + data_size);
 
   if (flags_ & Flags::SERVER_ENABLED_ENCRYPTION) {
-    write_task_queue_.emplace(std::move(write_task_pointer));
-    DoWrite();
+    paired_->Queue(shared_from_this(), write_task_pointer);
     return next_step;
   }
 
@@ -213,26 +224,27 @@ Context::TlsMessageReader::NextStep Context::HandleServerMessage(
       }
     }
 
-    write_task_queue_.emplace(std::move(write_task_pointer));
-    DoWrite();
+    paired_->Queue(shared_from_this(), write_task_pointer);
     return next_step;
   } else if (message.type == protocol::ContentType::change_cipher_spec) {
     flags_ |= Flags::SERVER_ENABLED_ENCRYPTION;
   }
 
-  write_task_queue_.emplace(std::move(write_task_pointer));
-  DoWrite();
+  paired_->Queue(shared_from_this(), write_task_pointer);
   return next_step;
 }
 
-void Context::DoConnectHost() {
+void Context::DoConnectHost(const std::vector<boost::asio::ip::tcp::endpoint>& endpoints) {
+  if (endpoints.empty()) {
+    LOG_ERROR("No endpoints " << host_name_);
+    return;
+  }
   LOG_INFO("Connecting to " << host_name_);
-  auto& socket =
-      server_socket_.emplace<tcp::socket>(Engine::get().GetExecutor());
-  auto handler = [this, _ = shared_from_this(), &for_stream = socket](
+  auto socket = std::make_shared<tcp::socket>(Engine::get().GetExecutor());
+  auto handler = [this, _ = shared_from_this(), socket](
                      const boost::system::error_code& error,
                      const tcp::endpoint& /*endpoint*/) {
-    if (!for_stream.lowest_layer().is_open()) {
+    if (!socket->lowest_layer().is_open()) {
       Stop();
       return;
     }
@@ -241,24 +253,32 @@ void Context::DoConnectHost() {
       Stop();
       return;
     }
-
-    auto handler = std::bind(&Context::HandleServerMessage, shared_from_this(),
-                             std::placeholders::_1, std::placeholders::_2,
-                             std::placeholders::_3);
-    server_message_reader_.Start(for_stream, handler);
-    DoWrite();
+    
+    paired_->Start(std::move(*socket));
     flags_ |= Flags::CONNECTED_TO_HOST;
   };
 
-  boost::asio::async_connect(socket.lowest_layer(), host_endpoints_,
+  boost::asio::async_connect((*socket).lowest_layer(), endpoints,
                              std::move(handler));
 }
 
+void Context::LimitTaskQueueSize() {
+  if (write_task_queue_.size() > 8) {
+    auto& executor = Engine::get().GetExecutor();
+    while (write_task_queue_.size()) {
+      DoWrite();
+      executor.run_one();
+    }
+  }
+}
 void Context::DoWrite() {
   if (writing_) {
     return;
   }
   if (write_task_queue_.empty()) {
+    return;
+  }
+  if (std::holds_alternative<nullptr_t>(socket_)) {
     return;
   }
   writing_ = true;
@@ -267,40 +287,27 @@ void Context::DoWrite() {
 
   auto write_data = task->raw_message.data();
   auto write_size = task->raw_message.size();
-  auto to_client = task->to_client;
 
-  auto handler = [this, _ = std::move(task), __ = shared_from_this()](
-                     error_code error, size_t) {
+  auto socket = std::get<SocketSharedPtr>(socket_);
+  if (!socket->is_open()) {
+    return;
+  }
+  auto handler = [this, _ = std::move(task), __ = shared_from_this(),
+                  socket](error_code error, size_t) {
     if (error) {
+      LOG_ERROR(<< error.message());
       LOG_ERROR(<< error.message());
     }
     writing_ = false;
     DoWrite();
   };
-  if (to_client) {
-    if (std::holds_alternative<tcp::socket>(client_socket_)) {
-      auto& socket = std::get<tcp::socket>(client_socket_);
-      if (!socket.is_open()) {
-        return;
-      }
-      async_write(socket, boost::asio::buffer(write_data, write_size),
-                  std::move(handler));
-    }
-  } else {
-    if (std::holds_alternative<tcp::socket>(server_socket_)) {
-      auto& socket = std::get<tcp::socket>(server_socket_);
-      if (!socket.is_open()) {
-        return;
-      }
-      async_write(socket, boost::asio::buffer(write_data, write_size),
-                  std::move(handler));
-    }
-  }
+  async_write(*socket, boost::asio::buffer(write_data, write_size),
+              std::move(handler));
 }
 
 Context::~Context() {
-  client_message_reader_.Stop();
-  server_message_reader_.Stop();
+  message_reader_.Stop();
+  active_instance_counter_--;
 }
 
 }  // namespace tls

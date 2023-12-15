@@ -130,14 +130,11 @@ static void DoResolve(std::string host_name) {
           return;
         }
 
-        if (ends_with(host_name, Configuration::proxy_domain)) {
-          auto tls_host_name = host_name.substr(
-              0, host_name.length() - Configuration::proxy_domain.length());
-          auto worker = CertificateCheckWorker::create(tls_host_name, endpoints,
-                                                       WorkerResultHandler);
-          worker->Start();
-          return;
-        }
+#ifdef NO_CHECK_CERTIFICATE
+        WorkerResultHandler(host_name, endpoints[0], CertificateCheckWorker::Flags::good |
+             CertificateCheckWorker::Flags::finished);
+             return;
+#endif
         auto worker = CertificateCheckWorker::create(host_name, endpoints,
                                                      WorkerResultHandler);
         worker->Start();

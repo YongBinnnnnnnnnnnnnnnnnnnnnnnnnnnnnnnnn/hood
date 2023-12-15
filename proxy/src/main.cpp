@@ -13,6 +13,10 @@ using hood_proxy::InitLogging;
 using hood_proxy::Server;
 using std::cout;
 
+#include <cassert>
+#ifdef NDEBUG
+LOG_TRACE(fdsfdsfdafdafda)
+#endif
 int main(int argc, const char **argv) {
   InitLogging();
   LOG_INFO("hood-proxy version:" << HOOD_PROXY_VERSION << " pid:" << getpid());

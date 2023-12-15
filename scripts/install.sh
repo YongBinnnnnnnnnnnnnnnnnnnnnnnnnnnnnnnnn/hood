@@ -176,7 +176,10 @@ sudo chmod -x $prefix/etc/systemd/timesyncd.conf
 #https://ftp.crifo.org/raspbian/raspbian/
 #https://mirrors.gigenet.com/raspbian/raspbian/
 #https://mirrors.ocf.berkeley.edu/raspbian/raspbian/
-sudosedi "s|http://archive.raspberrypi..../debian/|https://mirrors.ustc.edu.cn/archive.raspberrypi.org/debian/|g" $prefix/etc/apt/sources.list.d/raspi.list
+#https://mirrors.ocf.berkeley.edu/raspbian/raspbian/
+#https://mirrors.ustc.edu.cn/archive.raspberrypi.org/debian/
+#https://mirror01.ikoula.com/raspbian/mirror/archive.raspberrypi.org/debian/
+sudosedi "s|http://archive.raspberrypi..../debian/|https://mirrors.tuna.tsinghua.edu.cn/raspberrypi/|g" $prefix/etc/apt/sources.list.d/raspi.list
 #sudosedi "s|http://archive.raspberrypi..../|https://archive.raspberrypi.com/|g" $prefix/etc/apt/sources.list.d/raspi.list
 #sudosedi "s|deb http://deb.debian.org|#deb http://deb.debian.org|g" $prefix/etc/apt/sources.list
 # never use http mirror and lets encrypt https mirror

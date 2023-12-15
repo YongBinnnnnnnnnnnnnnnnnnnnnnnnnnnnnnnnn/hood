@@ -78,7 +78,7 @@ void Server::DoAcceptTls() {
         }
         if (!error) {
           //
-          auto context = tls::Context::create();
+          auto context = tls::Context::create(tls::Context::Role::client);
           context->Start(std::move(socket));
         }
 

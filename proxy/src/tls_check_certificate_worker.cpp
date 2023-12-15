@@ -21,26 +21,40 @@ namespace tls {
 
 // thread-unsafe, designed for thread_local use
 
+static inline boost::asio::ssl::context BuildSSLContext() {
+  // TODO: support more tls option from configuration
+  // Use system cert
+  boost::asio::ssl::context result(ssl::context::tls_client);
+  boost::system::error_code error;
+  result.set_default_verify_paths(error);
+  // lowest tls version set to 1.2
+  result.set_options(ssl::context::default_workarounds |
+                     ssl::context::no_tlsv1 | ssl::context::no_tlsv1_1);
+  SSL_CTX_set_session_cache_mode(result.native_handle(),
+-                                SSL_SESS_CACHE_NO_INTERNAL);
+
+  return result;
+}
+
+static auto ssl_context_ =  BuildSSLContext();
+
 struct CertificateVerificationContext {
   using stream_type = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
-  boost::asio::ssl::context ssl_context;
-  SSL_SESSION* ssl_session = nullptr;
   stream_type socket;
   void Close() {
     if (!socket.lowest_layer().is_open()) {
       return;
     }
 
-    ssl_session = SSL_get1_session(socket.native_handle());
-    socket.lowest_layer().cancel();
+    boost::system::error_code error;
+    socket.lowest_layer().shutdown(tcp::socket::shutdown_both, error);
+    socket.lowest_layer().cancel(error);
     socket.lowest_layer().close();
   }
-  CertificateVerificationContext(boost::asio::ssl::context&& ssl_context)
-      : ssl_context(ssl::context::tls_client),
-        socket(Engine::get().GetExecutor(), ssl_context) {}
+  CertificateVerificationContext()
+      : socket(Engine::get().GetExecutor(), ssl_context_) {}
   ~CertificateVerificationContext() {
     Close();
-    SSL_SESSION_free(ssl_session);
   }
 };
 
@@ -52,37 +66,14 @@ CertificateCheckWorker::CertificateCheckWorker(
       callback_countdown_(endpoints.size()),
       handler_(std::move(handler)) {}
 
-static inline boost::asio::ssl::context BuildSSLContext() {
-  // TODO: support more tls option from configuration
-  // Use system cert
-  boost::asio::ssl::context result(ssl::context::tls_client);
-  result.set_default_verify_paths();
-  // lowest tls version set to 1.2
-  result.set_options(ssl::context::default_workarounds |
-                     ssl::context::no_tlsv1 | ssl::context::no_tlsv1_1);
-  SSL_CTX_set_session_cache_mode(result.native_handle(),
-                                 SSL_SESS_CACHE_NO_INTERNAL);
-  return result;
-}
-
 void CertificateCheckWorker::CheckEndpoint(
     boost::asio::ip::tcp::endpoint& endpoint) {
   LOG_INFO(<< host_name_);
-  auto context =
-      std::make_unique<CertificateVerificationContext>(BuildSSLContext());
+  auto context = std::make_shared<CertificateVerificationContext>();
 
   auto& socket = context->socket;
 
   socket.set_verify_mode(ssl::verify_peer);
-
-  {
-    // Enable automatic hostname checks
-    auto param = SSL_get0_param(socket.native_handle());
-
-    X509_VERIFY_PARAM_set_hostflags(param,
-                                    X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
-    X509_VERIFY_PARAM_set1_host(param, host_name_.data(), host_name_.length());
-  }
 
   {
     // Add Server Name Indication SNI
@@ -92,20 +83,24 @@ void CertificateCheckWorker::CheckEndpoint(
   socket.set_verify_callback(
       [host_name = host_name_, endpoint = endpoint](
           bool preverified, boost::asio::ssl::verify_context& ctx) {
-        char subject_name[256];
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-        X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-        LOG_INFO(" verifying " << host_name << " " << endpoint << " :"
-                               << subject_name);
-
+        if (cert) {
+          char subject_name[512];
+          X509_NAME_oneline(X509_get_subject_name(cert), subject_name, sizeof(subject_name) - 1);
+          LOG_INFO(" verifying " << host_name << " " << endpoint << " :"
+                                 << subject_name);
+        }
+        else {
+          LOG_INFO(" verifying " << host_name << " " << endpoint << " :"
+                                 << "has no certificate");
+        };
         return ssl::host_name_verification(host_name)(preverified, ctx);
       });
 
   auto connect_handler = [this, _ = shared_from_this(),
-                          context = context.release(),
+                          context,
                           &endpoint](const boost::system::error_code& error,
                                      const tcp::endpoint& /*endpoint*/) {
-    std::unique_ptr<CertificateVerificationContext> context_unque_ptr(context);
     if (!context->socket.lowest_layer().is_open()) {
       CallHandler(endpoint, Flags::error);
       return;
@@ -118,10 +113,8 @@ void CertificateCheckWorker::CheckEndpoint(
 
     context->socket.async_handshake(
         boost::asio::ssl::stream_base::client,
-        [this, _ = shared_from_this(), context = context_unque_ptr.release(),
+        [this, _ = shared_from_this(), context,
          &endpoint](const boost::system::error_code& error) {
-          std::unique_ptr<CertificateVerificationContext> context_unque_ptr(
-              context);
           if (!context->socket.lowest_layer().is_open()) {
             CallHandler(endpoint, Flags::error);
             return;
@@ -133,6 +126,10 @@ void CertificateCheckWorker::CheckEndpoint(
             return;
           }
           CallHandler(endpoint, Flags::good);
+          
+          context->socket.async_shutdown([this, _ = shared_from_this(), 
+            context] (
+              const boost::system::error_code& ){});
         });
   };
 

@@ -40,7 +40,7 @@ class MessageReader {
   }
 
   template <typename StreamType, typename HandlerType>
-  void Start(StreamType& stream, HandlerType&& handler) {
+  void Start(std::shared_ptr<StreamType> stream, HandlerType&& handler) {
     if (status_ != Status::RUNNING) {
       status_ = Status::RUNNING;
       if constexpr (std::is_same<StreamType,
@@ -52,13 +52,7 @@ class MessageReader {
         }
         DoReadUdp(stream, std::move(handler));
       } else {
-        if constexpr (std::is_same<StreamType,
-                                   boost::asio::ip::tcp::socket>::value) {
-          DoReadStream(&stream, std::move(handler));
-        } else {
-          // ssl object should pass shared_ptr
-          DoReadStream(stream, std::move(handler));
-        }
+        DoReadStream(stream, std::move(handler));
       }
     }
   }
@@ -104,8 +98,8 @@ class MessageReader {
             sizeof(RawMessageType::message_length) +
             boost::endian::big_to_native(tcp_message->message_length);
       }
+      LOG_TRACE("Message " << this << " " << data_size_ << "/" << tcp_message_size_);
       if (data_size_ < tcp_message_size_) {
-        LOG_DEBUG("Message " << data_size_ << "/" << tcp_message_size_);
         break;
       }
       auto next = handler(Reason::NEW_MESSAGE, data, tcp_message_size_);

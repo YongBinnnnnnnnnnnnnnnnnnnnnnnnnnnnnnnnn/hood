@@ -8,10 +8,11 @@
 namespace hood {
 namespace name_service {
 
-using ResultHandler =
-    std::function<void(const boost::system::error_code& error,
-                       const std::vector<boost::asio::ip::address>& results)>;
-void Resolve(const std::string& host_name, ResultHandler&& handler);
+using ResolveResultHandler =
+  std::function<void(const boost::system::error_code& error,
+                const std::vector<boost::asio::ip::address>& 
+                                                        results)>;
+void Resolve(const std::string& host_name, ResolveResultHandler&& handler);
 
 }  // namespace name_service
 }  // namespace hood

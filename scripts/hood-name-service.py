@@ -108,8 +108,8 @@ if __name__ == '__main__':
         return 
       if self.chunked_transfer:
         answer_size = await self.readline() 
-        print(answer_size)
         answer_size = int(answer_size[:-2], 16)
+        print(answer_size)
       if answer_size > 65536 or answer_size < 2:
         print(answer_size)
         return
@@ -209,8 +209,14 @@ if __name__ == '__main__':
     def datagram_received(self, data, addr):
       self.addr = addr
       print('%s -> %r' % (addr, data))
+      def reply_none():
+        future = asyncio.Future()
+        future.set_result(None)
+        self.name_resolved(future)
       if len(data) > 253:
-        return
+        return reply_none()
+      if b"." not in data:
+        return reply_none()
       asyncio.ensure_future(doh_resolver_.resolve([data.decode()])).add_done_callback(
         self.name_resolved
       )

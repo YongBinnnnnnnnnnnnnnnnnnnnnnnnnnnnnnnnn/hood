@@ -1,5 +1,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/asio.hpp>
+#include <chrono>
 #include <cstring>
 
 #include "configuration.hpp"
@@ -10,6 +11,7 @@
 using boost::algorithm::ends_with;
 using boost::asio::async_read;
 using boost::asio::async_write;
+using boost::asio::steady_timer;
 using boost::asio::ip::make_address;
 using boost::asio::ip::udp;
 using boost::system::error_code;
@@ -36,59 +38,102 @@ static void DecodeResult(std::vector<boost::asio::ip::address>& output,
   }
 }
 
-void Resolve(const std::string& host_name, ResultHandler&& handler) {
-  struct Context {
-    Context(ResultHandler&& result_handler)
-        : socket(hood_proxy::Engine::get().GetExecutor()),
-          handler(result_handler) {}
-    udp::socket socket;
-    std::array<uint8_t, 65536> buffer;
-    ResultHandler handler;
-    udp::endpoint response_sender;
-  };
-  auto host_name_length = host_name.length();
-  if (host_name_length > hood_proxy::Configuration::max_length_of_a_domain) {
+
+class Client: public std::enable_shared_from_this<Client> {
+public:
+  using pointer = std::shared_ptr<Client>;
+
+  static pointer create() {
+    return pointer(new Client());
+  }
+  void Start(const std::string& host_name, ResolveResultHandler&& the_handler);
+private:
+  constexpr static auto timeout_ = std::chrono::seconds(5);
+  Client()
+        : socket_(hood_proxy::Engine::get().GetExecutor()),
+          timer_(hood_proxy::Engine::get().GetExecutor()),
+          attempts_(0) {}
+  udp::socket socket_;
+  std::array<uint8_t, 65536> buffer_;
+  size_t data_size_;
+  ResolveResultHandler handler_;
+  udp::endpoint response_sender_;
+  steady_timer timer_;
+  uintptr_t attempts_;
+  
+  void Attempt();
+};
+
+void Client::Start(const std::string& host_name, ResolveResultHandler&& handler) {
+  data_size_ = host_name.length();
+  if (data_size_ > hood_proxy::Configuration::max_length_of_a_domain) {
     auto error = boost::system::errc::make_error_code(
         boost::system::errc::invalid_argument);
     handler(error, dummy_addresses_);
     return;
   }
-  auto context = std::unique_ptr<Context>(
-      new Context(std::move(handler)));  // std::make_unique<Context>();
-  auto& socket = context->socket;
-  auto& buffer = context->buffer;
-  memcpy(buffer.data(), host_name.data(), host_name_length);
-  auto send_result_handler = [context_raw_pointer = context.release()](
+  memcpy(buffer_.data(), host_name.data(), data_size_);
+  handler_ = std::move(handler);
+  Attempt();
+}
+
+void Client::Attempt() {
+  attempts_++;
+  if (attempts_ > 3) {
+    auto error = boost::system::errc::make_error_code(
+        boost::system::errc::timed_out);
+    handler_(error, dummy_addresses_);
+    return;
+  }
+  if (attempts_ > 1) {
+    boost::system::error_code error;
+    socket_.shutdown(udp::socket::shutdown_both, error);
+    socket_.cancel(error);
+    socket_.close();
+    socket_ = udp::socket(hood_proxy::Engine::get().GetExecutor());
+  }
+  
+  auto send_result_handler = [this, _ = shared_from_this()](
                                  const boost::system::error_code& error,
                                  std::size_t /*bytes_transfered*/) {
-    auto context = std::unique_ptr<Context>(context_raw_pointer);
     if (error) {
-      context->handler(error, dummy_addresses_);
+      handler_(error, dummy_addresses_);
       return;
     }
 
-    auto& socket = context->socket;
-    auto& buffer = context->buffer;
-    auto& response_sender = context->response_sender;
-    auto receive_result_handler = [context_raw_pointer = context.release()](
+    auto receive_result_handler = [this, _ = shared_from_this()](
                                       const boost::system::error_code& error,
                                       std::size_t bytes_transfered) {
-      auto context = std::unique_ptr<Context>(context_raw_pointer);
+      timer_.cancel();
       if (error) {
-        context->handler(error, dummy_addresses_);
+        handler_(error, dummy_addresses_);
         return;
       }
       std::vector<boost::asio::ip::address> result;
-      DecodeResult(result, context->buffer.data(), bytes_transfered);
-      context->handler(error, result);
+      DecodeResult(result, buffer_.data(), bytes_transfered);
+      handler_(error, result);
     };
-    socket.async_receive_from(boost::asio::buffer(buffer.data(), buffer.size()),
-                              response_sender,
-                              std::move(receive_result_handler));
+    
+    timer_.expires_after(timeout_);
+    timer_.async_wait(
+      [this, _ = shared_from_this()](const boost::system::error_code& error){
+        if (error != boost::asio::error::operation_aborted) {
+          socket_.cancel();
+          Attempt();
+        }        
+      });
+      
+    socket_.async_receive_from(boost::asio::buffer(buffer_.data(), buffer_.size()),
+                              response_sender_, std::move(receive_result_handler));
+    
   };
-  socket.open(udp::v4());
-  socket.async_send_to(boost::asio::buffer(buffer.data(), host_name_length),
+  socket_.open(udp::v4());
+  socket_.async_send_to(boost::asio::buffer(buffer_.data(), data_size_),
                        service_endpont_, std::move(send_result_handler));
+}
+
+void Resolve(const std::string& host_name, ResolveResultHandler&& handler) {
+  Client::create()->Start(host_name, std::move(handler));
 }
 
 }  // namespace name_service
