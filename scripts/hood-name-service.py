@@ -46,6 +46,7 @@ if __name__ == '__main__':
       self.default_headers += "Accept: application/dns-json\r\n".encode("utf-8")
       self.default_headers += "Connection: keep-alive\r\n".encode("utf-8")
       self.default_headers += "\r\n".encode("utf-8")
+      self.busy = False
     
     async def write(self, data):
       await self.ensure_connection()
@@ -79,6 +80,9 @@ if __name__ == '__main__':
       headers = ("GET " + dns_over_https_server_paths[self.host_name] + "?type=A&name="  + name + " HTTP/1.1 \r\n").encode("utf-8")
       headers += self.default_headers
       #print(headers)
+      while self.busy:
+        await asyncio.sleep(0)
+      self.busy = True
       await self.write(headers)
       headers = bytes()
       success = True
@@ -116,6 +120,7 @@ if __name__ == '__main__':
         await self.readline()
         await self.readline()
 
+      self.busy = False
       return answer
       
 
