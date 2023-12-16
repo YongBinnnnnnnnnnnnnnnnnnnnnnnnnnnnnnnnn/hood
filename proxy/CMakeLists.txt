@@ -34,7 +34,7 @@ add_executable(hood_proxy
 if(MSVC)
   target_compile_options(hood_proxy PRIVATE /W4 /WX)
 else()
-  target_compile_options(hood_proxy PRIVATE -Wall -Wextra -Werror)
+  target_compile_options(hood_proxy PRIVATE -Wall -Wextra -Werror -fstack-protector)
 endif()
 
 target_link_libraries( hood_proxy ${Boost_LIBRARIES} pthread ssl crypto )

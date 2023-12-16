@@ -20,10 +20,12 @@ exit
 sudo sed -i "s/dtoverlay=vc4-kms-v3d/dtoverlay=vc4-fkms-v3d/g" /boot/firmware/config.txt
 sudo sed -i "s/.*udp dport {6.*//g" /etc/NetworkManager/dispatcher.d/02-hood-dispatcher
 
-sudo tee /etc/modprobe.d/bin-y-blacklist.conf <<EOF
-blacklist bluetooth
+if ! grep -q framebuffer_width /boot/firmware/config.txt; then
+  sudo tee -a /boot/firmware/config.txt <<EOF
+#framebuffer_width=1920
+#framebuffer_height=1080
 EOF
-
+fi
 #apt-key export 7FA3303E| gpg --dearmor|sudo tee /etc/apt/trusted.gpg.d/raspberrypi-raspbian.gpg|sha256sum |grep e3669c0d6e5a887c668b6c27a57ce47272aeb77373937ffb9939d020c5c16137
 #apt-key export 9165938D90FDDD2E| gpg --dearmor|sudo tee /etc/apt/trusted.gpg.d/raspberrypi-raspbian.gpg|sha256sum |grep e3669c0d6e5a887c668b6c27a57ce47272aeb77373937ffb9939d020c5c16137
 #sudo sed -i "s|deb \[ arch=armhf \]|deb \[ arch=armhf signed-by=/etc/apt/trusted.gpg.d/raspberrypi-raspbian.gpg \]|g" /etc/apt/sources.list

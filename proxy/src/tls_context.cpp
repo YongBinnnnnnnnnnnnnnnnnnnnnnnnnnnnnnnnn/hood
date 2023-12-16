@@ -58,10 +58,8 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
     TlsMessageReader::Reason reason, const uint8_t* data, uint16_t data_size) {
   auto next_step = TlsMessageReader::NextStep::Read;
   if (reason != TlsMessageReader::Reason::NEW_MESSAGE) {
-    LOG_TRACE("ignore reason:" << static_cast<int>(reason));
-    if (reason == TlsMessageReader::Reason::IO_ERROR) {
-      Stop();
-    }
+    LOG_TRACE("Error reason:" << static_cast<int>(reason));
+    Stop();
     return next_step;
   }
   if (!data || !data_size) {
@@ -296,7 +294,8 @@ void Context::DoWrite() {
                   socket](error_code error, size_t) {
     if (error) {
       LOG_ERROR(<< error.message());
-      LOG_ERROR(<< error.message());
+      Stop();
+      return;
     }
     writing_ = false;
     DoWrite();
@@ -306,7 +305,7 @@ void Context::DoWrite() {
 }
 
 Context::~Context() {
-  message_reader_.Stop();
+  Stop();
   active_instance_counter_--;
 }
 

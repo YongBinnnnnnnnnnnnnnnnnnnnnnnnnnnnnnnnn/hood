@@ -3,12 +3,28 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/endian/conversion.hpp>
+#include <cassert>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "logging.hpp"
 
 namespace hood_proxy {
+
+template <typename T>
+static constexpr size_t MaxValueOfType(size_t current = 256, size_t iteration = sizeof(T)) {
+  static_assert(std::is_integral_v<T>);
+  if (iteration == 1) {    
+    if (std::is_signed_v<T>) {
+      return current / 2 - 1;
+    }
+    return current -1;
+  }
+  return MaxValueOfType<T>(current * 256, iteration - 1);
+}
+static_assert(MaxValueOfType<int16_t>() == 32767);
+static_assert(MaxValueOfType<uint16_t>() == 65535);
 
 template <typename RawMessageType>
 class MessageReader {
@@ -17,6 +33,7 @@ class MessageReader {
     NEW_MESSAGE,
     IO_ERROR,
     MANUALLY_STOPPED,
+    CONNECTION_CLOSED,
   };
 
   enum class NextStep {
@@ -66,7 +83,7 @@ class MessageReader {
   enum class Status { STOP, RUNNING } status_ = Status::STOP;
   size_t data_offset_ = 0;
   size_t data_size_ = 0;
-  uint16_t tcp_message_size_ = 0;
+  size_t tcp_message_size_ = 0;
   boost::asio::ip::udp::endpoint udp_endpoint_;
 
   std::vector<uint8_t> buffer_;
@@ -80,7 +97,7 @@ class MessageReader {
       return;
     }
     if (!stream_pointer->lowest_layer().is_open()) {
-      handler(Reason::MANUALLY_STOPPED, nullptr, 0);
+      handler(Reason::CONNECTION_CLOSED, nullptr, 0);
       status_ = Status::STOP;
       LOG_TRACE("connection closed");
       return;
@@ -119,10 +136,12 @@ class MessageReader {
       data_offset_ = 0;
     }
     auto available_size = buffer_.size() - data_offset_ - data_size_;
-    auto read_size = tcp_message_size_ - data_size_;
-    if (!read_size) {
-      read_size = sizeof(RawMessageType);
+    size_t read_size = sizeof(RawMessageType);;
+    
+    if (tcp_message_size_) {
+      read_size = tcp_message_size_ - data_size_;
     }
+    assert(read_size < MaxValueOfType<decltype(RawMessageType::message_length)>());
     if (available_size < read_size) {
       if (data_offset_ + available_size > read_size) {
         memmove(buffer_.data(), buffer_.data() + data_offset_, data_size_);

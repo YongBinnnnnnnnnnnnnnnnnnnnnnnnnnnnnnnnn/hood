@@ -13,6 +13,7 @@ fi
 
 harden_only=0
 rfkill=1
+gpukill=1
 target_instrument_set="arm64"
 usb_tether=1
 
@@ -22,6 +23,7 @@ for arg in "$@"; do
     no_usb_tether) usb_tether=0;;
     harden_only) harden_only=1;;
     no_rfkill) rfkill=0;;
+    no_gpukll) gpukill=0;;
     prefix=*) prefix=$(echo $arg|sed "s/.*=//g");;
   esac
 done
@@ -128,6 +130,25 @@ EOF
   find $prefix/usr/lib/modules/ -name bluetooth |xargs -I {} find {} -type f|xargs sudo rm
 fi
 
+if [ $gpukill -eq 1 ]; then
+  if grep -q kms-v3d $prefix/boot/firmware/config.txt; then
+    sudosedi "s/dtoverlay=vc4-f?kms-v3d//g" $prefix/boot/firmware/config.txt
+  fi
+  if test -f $prefix/etc/systemd/system/display-manager.service; then
+    sudo rm $prefix/etc/systemd/system/display-manager.service
+    echo "GPU is disabled."
+    echo "Default lightdm stopped working."
+    echo "Please use startx command instead."
+    echo "You may also need config.txt to set the resolution of HDMI."
+    echo "Example:"
+    echo "framebuffer_width=1920"
+    echo "framebuffer_height=1080"
+  fi
+  sudo tee $prefix/etc/modprobe.d/bin-y-rfkill-blacklist.conf > /dev/null <<EOF
+blacklist v3d
+EOF
+fi
+
 sudocpcontent ./rc.local $prefix/etc/
 sudocpcontent ./hosts $prefix/etc/
 sudocpcontent ./sysctl.conf $prefix/etc/
@@ -163,6 +184,8 @@ fi
 
 sudo chmod -x  $prefix/etc/*.conf
 sudocpcontent ./dhclient.conf $prefix/etc/dhcp/
+# This will also diable the hooks of dhclient
+echo "deny /{,usr/}bin/bash mr," | sudo tee $prefix/etc/apparmor.d/local/sbin.dhclient > /dev/null
 sudocpcontent ./dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
 sudo chmod -x  $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
 sudo ln -s /etc/NetworkManager/dnsmasq.d/dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
@@ -202,7 +225,7 @@ sudo ln -sf /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/syste
 sudo ln -sf /lib/systemd/system/NetworkManager-wait-online.service $prefix/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
 sudo ln -sf /lib/systemd/system/NetworkManager-dispatcher.service $prefix/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service
 
-if test -f $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service; then
+if test -f $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service; then
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/avahi-daemon.service
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.path
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.service
@@ -210,6 +233,7 @@ if test -f $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service; th
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
   sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
   sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service
+  sudo rm $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service
 fi
 
 sudo cp 02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/
