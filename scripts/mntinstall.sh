@@ -13,6 +13,6 @@ elif [ $machine = "Linux" ]; then
 fi
 
 
-./install.sh "$@:2" prefix=/tmp/hood-install/mnt/
+./install.sh "${@:2}" prefix=/tmp/hood-install/mnt/
 sudo umount /tmp/hood-install/mnt/boot/firmware
 sudo umount /tmp/hood-install/mnt
