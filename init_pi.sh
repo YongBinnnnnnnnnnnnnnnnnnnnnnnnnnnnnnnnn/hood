@@ -22,8 +22,11 @@ sudo sed -i "s/.*udp dport {6.*//g" /etc/NetworkManager/dispatcher.d/02-hood-dis
 
 if ! grep -q framebuffer_width /boot/firmware/config.txt; then
   sudo tee -a /boot/firmware/config.txt <<EOF
-#framebuffer_width=1920
-#framebuffer_height=1080
+framebuffer_width=1920
+framebuffer_height=1080
+hdmi_force_hotplug=1
+hdmi_group=2
+hdmi_mode=82
 EOF
 fi
 #apt-key export 7FA3303E| gpg --dearmor|sudo tee /etc/apt/trusted.gpg.d/raspberrypi-raspbian.gpg|sha256sum |grep e3669c0d6e5a887c668b6c27a57ce47272aeb77373937ffb9939d020c5c16137

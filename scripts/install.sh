@@ -143,6 +143,9 @@ if [ $gpukill -eq 1 ]; then
     echo "Example:"
     echo "framebuffer_width=1920"
     echo "framebuffer_height=1080"
+    echo "hdmi_force_hotplug=1"
+    echo "hdmi_group=2"
+    echo "hdmi_mode=82"
   fi
   sudo tee $prefix/etc/modprobe.d/bin-y-rfkill-blacklist.conf > /dev/null <<EOF
 blacklist v3d
