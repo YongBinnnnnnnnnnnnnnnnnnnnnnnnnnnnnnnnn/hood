@@ -31,12 +31,20 @@ static inline boost::asio::ssl::context BuildSSLContext() {
   result.set_options(ssl::context::default_workarounds |
                      ssl::context::no_tlsv1 | ssl::context::no_tlsv1_1);
   SSL_CTX_set_session_cache_mode(result.native_handle(),
--                                SSL_SESS_CACHE_NO_INTERNAL);
+                                 SSL_SESS_CACHE_NO_INTERNAL);
 
+  SSL_CTX_set_ciphersuites(result.native_handle(),
+                           "ECDHE-RSA-AES128-GCM-SHA256"
+                           ":ECDHE-RSA-AES256-GCM-SHA384"
+                           ":ECDHE-ECDSA-AES128-GCM-SHA256"
+                           ":ECDHE-ECDSA-AES256-GCM-SHA384"
+                           ":TLS_AES_256_GCM_SHA384"
+                           ":TLS_AES_128_GCM_SHA256"
+                           ":TLS_CHACHA20_POLY1305_SHA256");
   return result;
 }
 
-static auto ssl_context_ =  BuildSSLContext();
+static auto ssl_context_ = BuildSSLContext();
 
 struct CertificateVerificationContext {
   using stream_type = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
@@ -53,9 +61,7 @@ struct CertificateVerificationContext {
   }
   CertificateVerificationContext()
       : socket(Engine::get().GetExecutor(), ssl_context_) {}
-  ~CertificateVerificationContext() {
-    Close();
-  }
+  ~CertificateVerificationContext() { Close(); }
 };
 
 CertificateCheckWorker::CertificateCheckWorker(
@@ -86,21 +92,20 @@ void CertificateCheckWorker::CheckEndpoint(
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
         if (cert) {
           char subject_name[512];
-          X509_NAME_oneline(X509_get_subject_name(cert), subject_name, sizeof(subject_name) - 1);
+          X509_NAME_oneline(X509_get_subject_name(cert), subject_name,
+                            sizeof(subject_name) - 1);
           LOG_INFO(" verifying " << host_name << " " << endpoint << " :"
                                  << subject_name);
-        }
-        else {
+        } else {
           LOG_INFO(" verifying " << host_name << " " << endpoint << " :"
                                  << "has no certificate");
         };
         return ssl::host_name_verification(host_name)(preverified, ctx);
       });
 
-  auto connect_handler = [this, _ = shared_from_this(),
-                          context,
-                          &endpoint](const boost::system::error_code& error,
-                                     const tcp::endpoint& /*endpoint*/) {
+  auto connect_handler = [this, _ = shared_from_this(), context, &endpoint](
+                             const boost::system::error_code& error,
+                             const tcp::endpoint& /*endpoint*/) {
     if (!context->socket.lowest_layer().is_open()) {
       CallHandler(endpoint, Flags::error);
       return;
@@ -126,10 +131,10 @@ void CertificateCheckWorker::CheckEndpoint(
             return;
           }
           CallHandler(endpoint, Flags::good);
-          
-          context->socket.async_shutdown([this, _ = shared_from_this(), 
-            context] (
-              const boost::system::error_code& ){});
+
+          context->socket.async_shutdown(
+              [this, _ = shared_from_this(),
+               context](const boost::system::error_code&) {});
         });
   };
 
