@@ -27,9 +27,7 @@ using std::chrono::milliseconds;
 namespace hood_proxy {
 namespace tls {
 
-void Context::Pair(pointer another) {
-  paired_ = another;
-}
+void Context::Pair(pointer another) { paired_ = another; }
 
 void Context::Queue(pointer from, std::shared_ptr<WriteTask> task) {
   if (from == paired_) {
@@ -39,7 +37,7 @@ void Context::Queue(pointer from, std::shared_ptr<WriteTask> task) {
 }
 void Context::Stop() {
   message_reader_.Stop();
-  if(paired_) {
+  if (paired_) {
     paired_->Pair(nullptr);
     paired_->Stop();
     paired_ = nullptr;
@@ -120,9 +118,9 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
         }
         std::string host_name;
         extension::FindHostName(host_name, client_hello_message.extensions);
-        
+
         paired_->Pair(shared_from_this());
-        
+
         paired_->Queue(shared_from_this(), write_task_pointer);
         if (flags_ & Flags::CONNECTED_TO_HOST) {
           if (host_name != host_name_) {
@@ -138,8 +136,9 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
             return next_step;
           }
           host_name_ = host_name;
-          CheckCertificateOf(host_name, std::bind(&Context::DoConnectHost, 
-            shared_from_this(), std::placeholders::_1));
+          CheckCertificateOf(
+              host_name, std::bind(&Context::DoConnectHost, shared_from_this(),
+                                   std::placeholders::_1));
         }
 
         return next_step;
@@ -217,6 +216,8 @@ Context::TlsMessageReader::NextStep Context::HandleServerMessage(
                 server_hello_message.cipher_suite)) {
           LOG_INFO("Discard connection due to unsafe cipher suite"
                    << server_hello_message.cipher_suite);
+          Stop();
+          return next_step;
         }
         break;
       }
@@ -232,7 +233,8 @@ Context::TlsMessageReader::NextStep Context::HandleServerMessage(
   return next_step;
 }
 
-void Context::DoConnectHost(const std::vector<boost::asio::ip::tcp::endpoint>& endpoints) {
+void Context::DoConnectHost(
+    const std::vector<boost::asio::ip::tcp::endpoint>& endpoints) {
   if (endpoints.empty()) {
     LOG_ERROR("No endpoints " << host_name_);
     return;
@@ -251,7 +253,7 @@ void Context::DoConnectHost(const std::vector<boost::asio::ip::tcp::endpoint>& e
       Stop();
       return;
     }
-    
+
     paired_->Start(std::move(*socket));
     flags_ |= Flags::CONNECTED_TO_HOST;
   };
@@ -290,8 +292,8 @@ void Context::DoWrite() {
   if (!socket->is_open()) {
     return;
   }
-  auto handler = [this, _ = std::move(task), __ = shared_from_this(),
-                  socket](error_code error, size_t) {
+  auto handler = [this, _ = std::move(task), __ = shared_from_this(), socket](
+                     error_code error, size_t) {
     if (error) {
       LOG_ERROR(<< error.message());
       Stop();
