@@ -85,7 +85,7 @@ screen to display network activities in real-time.
 \paragraph{}
 Due to its security-focused nature, OpenBSD would be a great choice when buiding a firewall. However, as a portable device, it is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most of Linux, Windows, BSD and MacOS could be supported. FreeBSD USB stack can run in device mode and provided 3 virtual network iterface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. Considering the large market share of Microsoft Windows, linux is decided as the base OS of this firewall device.
 
-\chapter{Packet filtering and forwarding traffics}
+\chapter{Packet filtering and forwarding}
 \section{Design}
 \paragraph{}
 As the general principles, all traffics passed thorugh should be checked to against evasdropping. A plaintext connection should be channeled through strong encryptions or be discarded if unable to ensure its integrity.
@@ -155,9 +155,38 @@ A dnsmasq is started to resolve everything to the firewall device to make the fi
 
 \chapter{Transport Layer Security (TLS)}
 
-\section{Implementation}
+\section{Management of certificates}
+
+\subsection{Introduction}
+All modern major operating systems managed a collection of trused certificates issued by certificate authorities (CAs) they choose. Those certificates are used to prove the validity of a public key. When makeing a TLS connection, local applications will check the path of the certificate provided by remote with local trusted collection to ensure secure connections.
+\subsubsection{The issue}
 \paragraph{}
-A TLS proxy is created to forward and protect TLS connections. The proxy will not decrypt TLS sessions, so that when the firewall itself is hacked will not cause a disasteer to the user because the certificate verification s still working on the devices behind this firewall. If I give the proxy the ability to decrypt TLS sessions, when the firewall is hacked, the hacker can easily modify the encrypted data transfered over TLS while the devices behind the firewall will still consider the modified data are coming from a trusted connecting. To do this, the proxy will parse handshake packets. It will check algorithms provided by ClientHello and ServerHello, if the negotiation result could not be using strong encryptions, the connection will be blocked. Altering handshake packets without MITM is not viable because the HMAC of all handshake packets is used for encryption. The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by TLS handshakes used for certificate check from proxy.
+Almost all TLS clients do not alert its user when the remote website presented a different certificate, which gives CAs the power to do man in the middle (MITM) attacks. Even if  do not want to do evil, their private key could still have been stolen. Thus, none of them are strictly trustworthy. However, whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without TLS.
+\subsubsection{Exsting solutions}
+\paragraph{}
+SSL-pinning can prevent MITM attacks from a trusted CA when the user know the remote endpoint should use the certificate from another authority. However, configuring SSL-pinning to all the enspoints is hard and time consuming to average users and without a basic trusted environment, it will be unable to certain whether the configuration has done correctly. Even if the configuration is correct, it is still not strange for an enspoint to switch to another CA. Thus, to a firewall, this technique cannot be used as a general solution of the issue that can be applied to all endpoints.
+\paragraph{}
+Removing suspecious CAs from the trusted list could protect people from MITM attacks initiated by those CA. However, some systems and devices do proide the function of untrusting a CA. In example, iPhone needs a computer to enable such configuration and most of Android variants.
+\subsection{Design}
+\paragraph{}
+The firewall should trust only the CAs that are being widely used in the internet. People should be able to further decide which certificates to trust. One can consider untrust following when making such decisios: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
+\subsection{Implementation}
+\paragraph{}
+Since SSL-pinning can only be used on a small number of enspoints to an andvanced user who can clearly know what is this meant to be, it is not implemented now. Manually management of the certificate can be done by Linux commands. The certificate of all outgoing TLS connection remote points are checked by TLS proxy.
+
+\section{Proxy}
+\subsubsection{Man in the mddle(MITM) attack}
+\paragraph{}
+Despite using MITM attack to insepect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the tls proxy used in this firewall should not implement the same functioality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disasteer to the devices behind it: the attacker will be able to easily modify the encrypted data transfered over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attack at all, the compromised still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
+\subsubsection{Filtering certificates}
+\paragraph{}
+The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by certificate check connections
+\subsubsection{Checking connections}
+\paragraph{}
+The proxy should parse handshake packets. It should check algorithms provided by ClientHello and ServerHello, to ensure strong encryption. Strenghten the connection by modifing handshake packets without MITM is not possible because the HMAC of all handshake packets is used for encryption.
+\subsubsection{Implementation}
+\paragraph{}
+Since TLS proxy in charge of processing and forwarding the majority traffic of the firewall, c++ is used to develop the proxy due to its high performance capability. Upon receiving ClientHello from a client, the proxy checks the cryptography algorithms provided in it, like ciphersuites, and apply the best practices provided in rfc9325. The proxy extracts the Server Name Indication (SNI) from ClientHello to dertermine the actual destination of the request. Then use A RPC call to name service to resolve domain names. Then a TLS connection will be established to all of the addresses returned from the name service to selet the endpoints that is able to make a strong enough connection with a trusted certificate. The packets will be forwarded to one of the selected endpoints. Upon receiving the response ServerHello to the client, the proxy will check again whether the negotiation result comply to the best practce provided in rfc9325 and discard the connections that are not.
 
 
 \chapter{Plaintext connections}
@@ -167,36 +196,17 @@ A TLS proxy is created to forward and protect TLS connections. The proxy will no
 \paragraph{}
 A proxy is created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected by TLS. The connections to other hosts will be converted to HTTPS connections. If a remote host accepts only HTTP connections, the connection attempt will be failed.
 
-\chapter{Management of certificates}
-
-\section{Introduction}
-All modern major operating systems managed a collection of trused certificates issued by certificate authorities (CAs) they choose. Those certificates are used to prove the validity of a public key. When makeing a TLS connection, local applications will check the path of the certificate provided by remote with local trusted collection to ensure secure connections.
-\subsection{The issue}
-\paragraph{}
-Almost all TLS clients do not alert its user when the remote website presented a different certificate, which gives CAs the power to do man in the middle (MITM) attacks. Even if  do not want to do evil, their private key could still have been stolen. Thus, none of them are strictly trustworthy. However, whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without TLS.
-\subsection{Exsting solutions}
-\paragraph{}
-SSL-pinning can prevent MITM attacks from a trusted CA when the user know the remote endpoint should use the certificate from another authority. However, configuring SSL-pinning to all the enspoints is hard and time consuming to average users and without a basic trusted environment, it will be unable to certain whether the configuration has done correctly. Even if the configuration is correct, it is still not strange for an enspoint to switch to another CA. Thus, to a firewall, this technique cannot be used as a general solution of the issue that can be applied to all endpoints.
-\paragraph{}
-Removing suspecious CAs from the trusted list could protect people from MITM attacks initiated by those CA. However, some systems and devices do proide the function of untrusting a CA. In example, iPhone needs a computer to enable such configuration and most of Android variants.
-\section{Design}
-\paragraph{}
-The firewall should trust only the CAs that are being widely used in the internet. People should be able to further decide which certificates to trust. One can consider untrust following when making such decisios: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
-\section{Implementation}
-\paragraph{}
-Since SSL-pinning can only be used on a small number of enspoints to an andvanced user who can clearly know what is this meant to be, it is not implemented now. Manually management of the certificate can be done by Linux commands. The certificate of all outgoing TLS connection remote points are checked by TLS proxy.
-
 \chapter{Date time synchornization}
 \section{Introduction}
 \paragraph{}
 Network Time Protocol (NTP) is used by most of modern systems to synchornize the clock with a remote server.
 \subsection{The issue}
 \paragraph{}
+A problem of using a hardware like a Raspberry Pi is that it does not have a battery to keep the clock ticking after the power source is cut. However, a correct time is required for TLS protocol to check certificates. So a time synchornization mechanism is a must for this firewall.
+\paragraph{}
 Many of operating systems are pre-configured to use a NTP server which having a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
 \paragraph{}
 Both the unique port number and the unique domain names makes NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. Not to mention that the operating system being exposed by the domain name can also help an attacker to target the NTP client being used by the device.
-\paragraph{}
-A problem of using a hardware like a Raspberry Pi is that it does not have a battery to keep the clock ticking after the power source is cut. So a time synchornization mechanism is a must for this firewall.
 
 \section{Design}
 \paragraph{}
