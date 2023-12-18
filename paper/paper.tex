@@ -194,15 +194,14 @@ Since TLS proxy in charge of processing and forwarding the majority traffic of t
 \section{HTTP}
 \subsection{Implementation}
 \paragraph{}
-A proxy is created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected by TLS. The connections to other hosts will be converted to HTTPS connections. If a remote host accepts only HTTP connections, the connection attempt will be failed.
-
+A proxy is created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected
 \chapter{Date time synchornization}
 \section{Introduction}
 \paragraph{}
-Network Time Protocol (NTP) is used by most of modern systems to synchornize the clock with a remote server.
+A correct time is required for TLS protocol to check certificates. Network Time Protocol (NTP) is used by most of modern systems to synchornize the clock with a remote server.
 \subsection{The issue}
 \paragraph{}
-A problem of using a hardware like a Raspberry Pi is that it does not have a battery to keep the clock ticking after the power source is cut. However, a correct time is required for TLS protocol to check certificates. So a time synchornization mechanism is a must for this firewall.
+A problem of using a hardware like a Raspberry Pi is that it does not have a battery to keep the clock ticking after the power source is cut. So a time synchornization mechanism is a must for this firewall.
 \paragraph{}
 Many of operating systems are pre-configured to use a NTP server which having a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
 \paragraph{}
