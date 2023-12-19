@@ -1,0 +1,41 @@
+[
+  {
+    "type": "property",
+    "name": "safe_to_age",
+    "value": "0"
+  },
+  {
+    "type": "property",
+    "name": "role",
+    "value": "browser"
+  },
+  {
+    "type": "task",
+    "name": "homepage",
+    "execution": "parallel",
+    "before": [],
+    "after": [],
+    "actions": [
+      "http://www.baidu.com"
+    ]
+  },
+  {
+    "type": "task",
+    "name": "click",
+    "execution": "parallel",
+    "before": [],
+    "after": [
+      "homepage"
+    ],
+    "like-browser": true,
+    "actions": [
+      "hood:click_random_link()"
+    ],
+    "delay_range_before_execution": [
+      5,
+      20
+    ],
+    "repeat": true,
+    "chance_to_exit": 0.1
+  }
+]

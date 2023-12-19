@@ -92,7 +92,7 @@ As the general principles, all traffics passed thorugh should be checked to agai
 \paragraph{}
 A modern browser can satisify most of needs to interact with internet for working. So, allowing HTTP and HTTPS connections could make most of works done when facing a hostile network environment. Thus, everyting unnecessray to make this done are blocked. The firewall rules should be carefully made to filter out as much as possible and as early as possible, because everything on all layers of the Open Systems Interconnection model (OSI model) is protentialy vulnerable and the less network traffic being passed to the following components, the less chance a vulnerability can affect the firewall.
 \paragraph{}
-Proxies should be used to forward network traffics. There are advantages of using a proxy than forwarding packets like a router. First, a proxy can run under user level while packets forwarding run at kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operatng system firewalls well. When the rules are not strict enough unexpected things may happen. In example, allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations. Third, the packets from the proxy will be encoded again by Linux network stack so the TCP fingerprinting will be less useful to the devices under its protection.
+Proxies should be used to forward network traffics. There are advantages of using a proxy than forwarding packets like a router. First, a proxy can run under user level while packets forwarding run at kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operatng system firewalls well. When the rules are not strict enough unexpected things may happen. In example, allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations. Third, the packets from the proxy will be encoded again by Linux network stack so the fingerprinting techniques that targeting TCP ad IP properties will useless to the devices under its protection.
 
 \section{Implementation}
 \paragraph{}
@@ -195,6 +195,8 @@ Since TLS proxy in charge of processing and forwarding the majority traffic of t
 \subsection{Implementation}
 \paragraph{}
 A proxy is created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected
+
+
 \chapter{Date time synchornization}
 \section{Introduction}
 \paragraph{}
@@ -205,7 +207,7 @@ A problem of using a hardware like a Raspberry Pi is that it does not have a bat
 \paragraph{}
 Many of operating systems are pre-configured to use a NTP server which having a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
 \paragraph{}
-Both the unique port number and the unique domain names makes NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. Not to mention that the operating system being exposed by the domain name can also help an attacker to target the NTP client being used by the device.
+Both the unique port number (UDP 123) and the unique domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org) makes NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. The different in NTP behavior between different operatiing systems has been used in OS fingerprinting and tethering detection {osandtether}. Not to mention that the operating system being exposed by the domain name can also help an attacker to target the NTP client being used by the device.
 
 \section{Design}
 \paragraph{}
@@ -214,6 +216,20 @@ Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response 
 \section{Implementation}
 \paragraph{}
 Since TLS needs time to be correct to validate certificates, a plaintext HTTP request is made to do an initial synchornization. After the first step, the system clock is considered to be correct enought for making a TLS connection. So the second step is to extract date time from the header of a HTTPS response.
+
+\chapter{Behavioral simulation}
+\section{Introduction}
+\paragraph{}
+In previous chapters, the fact that network activities can be used to detect the user has been proved in different protocols. However, the efforts to reduce the leak of the information on those protocols are not enought when facing a more sophisticated network analyzation. In example, the connections to Windows update servers and App Store servers can be used to detect Windows and Apple devices citep{osandtether}, but the firewall has no reason to stop those connections. Even if the firewall blocked all OS specific connections, the domain leaked from TLS handshakes can also tell the evasdroppers what websites a person is watching and then may infer what the person is doing. Thus, the leak of the information seems to be inevitable.
+
+\section{Design}
+\paragraph{}
+A service to simuluate different network activities is designed to solve ths issue. The goal is to hide user network activities inside the flood of fake network activities to increase the difficulty of an analyzer to produce useful reports. However, the risk of using this service is to produce a false alarm immediately and make the user blocked for tethering, make the user fired for browsering unrelated websites, etc.. To avoid the firewall to be compromised from browser vulnerabilities, browser-based simulation tools, like puppeteer, should not be used for implementation. It should also make plaintext traffics to attaract attentions from attackers and evasdroppers to make them less focused on the actual user traffics.
+
+\section{Implementation}
+\paragraph{}
+The service is implemented in a python script named hood-actor.py. It can
+WC
 
 \chapter{Conclusions}
 

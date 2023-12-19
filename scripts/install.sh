@@ -43,6 +43,7 @@ fi
 
 sudo mkdir -p $prefix/usr/local/lib/hood
 sudo mkdir -p $prefix/var/lib/hood/flags
+sudo mkdir -p $prefix/etc/hood/
 
 
 if [ $harden_only -eq 1 ]; then
@@ -84,6 +85,9 @@ sudo ln -sf /usr/local/lib/hood/hood-resolve.py $prefix/usr/local/bin/
 sudo cp hood-timesync.py $prefix/usr/local/lib/hood/
 sudo chmod 0755 $prefix/usr/local/lib/hood/hood-timesync.py
 sudo ln -sf /usr/local/lib/hood/hood-timesync.py $prefix/usr/local/bin/
+sudo cp hood-actor.py $prefix/usr/local/lib/hood/
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-actor.py
+sudo ln -sf /usr/local/lib/hood/hood-actor.py $prefix/usr/local/bin/
 sudo cp hood-network-services-runner.sh $prefix/usr/local/lib/hood/
 sudo chmod 0755 $prefix/usr/local/lib/hood/hood-network-services-runner.sh
 sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/lib/hood/hood-tls-proxy
