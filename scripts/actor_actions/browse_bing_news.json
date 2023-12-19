@@ -1,0 +1,29 @@
+[
+  {
+    "type": "properties",
+    "value": {
+      "safe_age": 0,
+      "proper_age": [
+        6,
+        3000
+      ]
+    }
+  },
+  {
+    "type": "task",
+    "name": "browse",
+    "execution": {
+      "before": [],
+      "after": [],
+      "delay_range_between_actions": [
+        5,
+        20
+      ]
+    },
+    "actions": [
+      "hood:browser:http://www.bing.com",
+      "hood:browser:http://www.bing.com/search/news",
+      "hood:loop:exit=chance,0.1:click_random_link"
+    ]
+  }
+]
