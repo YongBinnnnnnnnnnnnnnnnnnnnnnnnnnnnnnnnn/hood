@@ -61,7 +61,7 @@ class Executor:
   new_task_event = threading.Event()
   task_queue = []
   delayed_queue = []
-  already_delayed_tasks = set()
+  already_delayed_tasks = []
   queue_lock = threading.Lock()
   thread_local = threading.local()
   delay_precision = 0.1
@@ -112,14 +112,19 @@ class Executor:
       self.queue_multiple(new_tasks)
 
   def __delay_task_if_not_has_been(self, task):
-    if "delay_before" not in task:
+    if "delay" not in task:
       return task
+    delay = task["delay"]
+    if not delay:
+      return task
+    if hasattr(delay, '__getitem__'):
+      delay = random.uniform(delay[0], delay[1])
+
     with self.queue_lock:
       if task in self.already_delayed_tasks:
         self.already_delayed_tasks.remove(task)
         return task
-      delay_range = task["delay_before"]
-      delay = random.uniform(delay_range[0], delay_range[1])
+      
       self.delayed_queue.append({
         "end": time.monotonic() + delay,
         "task": task
@@ -137,12 +142,12 @@ class Executor:
         for item in self.delayed_queue:
           if now > item["end"]:
             to_remove.append(item)
-            self.already_delayed_tasks.add(item["task"])
-            finished_tasks.add(item["task"])
+            self.already_delayed_tasks.append(item["task"])
+            finished_tasks.append(item["task"])
         for item in to_remove:
           self.delayed_queue.remove(item)
       if finished_tasks:
-        self.queue_mutiple(finished_tasks)
+        self.queue_multiple(finished_tasks)
       
   def worker(self):
     self.thread_local.worker = True
@@ -403,14 +408,18 @@ def play_in_action(action):
         return actor.act(action)
       return result
     previous_action_task = start_anchor
+    delay = task.get("delay_between_actions", None)
     for i in range(len(actions)):
       action_name = name + "$" + str(i)
       action_task = {
         "name": anchor_name,
         "dependants": [],
         "run": build_run(actor, actions[i]),
+        "delay": delay,
         "waiting": 1
       }
+      if previous_action_task == start_anchor:
+        del action_task["delay"]
       previous_action_task["dependants"].append(action_task)
       executor_tasks[action_name] = action_task
       previous_action_task = action_task
