@@ -12,18 +12,16 @@
   {
     "type": "task",
     "name": "browse",
-    "execution": {
-      "before": [],
-      "after": [],
-      "delay_range_between_actions": [
-        5,
-        20
-      ]
-    },
+    "before": [],
+    "after": [],
+    "delay_between_actions": [
+      5,
+      20
+    ],
     "actions": [
-      "hood:browser:http://www.bing.com",
-      "hood:browser:http://www.bing.com/search/news",
-      "hood:loop:exit=chance,0.1:click_random_link"
+      "hood:browser:goto http://www.bing.com",
+      "hood:browser:goto http://www.bing.com/search/news",
+      "hood:loop:exit=chance,0.1:browser:click_random_link"
     ]
   }
 ]

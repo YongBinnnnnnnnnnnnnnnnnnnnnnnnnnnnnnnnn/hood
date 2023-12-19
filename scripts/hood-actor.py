@@ -16,6 +16,8 @@ import socket
 import time
 import json
 import os
+import random
+import secrets
 
 parser = argparse.ArgumentParser(
   prog="hood-timesync",
@@ -23,7 +25,7 @@ parser = argparse.ArgumentParser(
   epilog="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood",
 )
 
-parser.add_argument("--action", default="random_persist", type=str, help="Action to act.")
+parser.add_argument("--action", default="browse_bing_news", type=str, help="Action to act.")
 parser.add_argument("--age", default=13, type=int, help="Age to act.")
 parser.add_argument("--ignore-proper-age", default=False, type=bool, help="Follow the proper age range.")
 args_ = parser.parse_args()
@@ -59,12 +61,15 @@ class Executor:
   new_task_event = threading.Event()
   task_queue = []
   delayed_queue = []
+  already_delayed_tasks = set()
   queue_lock = threading.Lock()
   thread_local = threading.local()
+  delay_precision = 0.1
 
   def __init__(self, pool_size=8):
     for _ in range(pool_size):
       self.pool.append(threading.Thread(target=self.worker).start())
+    threading.Thread(target=self.delay_scheduler).start()
 
   def queue_one(self, task):
     with self.queue_lock:
@@ -72,6 +77,7 @@ class Executor:
     self.new_task_event.set()
         
   def queue_multiple(self, task_list):
+    task_list = list(filter(lambda task:not task.get("waiting", 0), task_list))
     with self.queue_lock:
       self.task_queue = self.task_queue + task_list
       alert_times = min(len(self.pool), len(self.task_queue))
@@ -91,16 +97,53 @@ class Executor:
   def __run(self, task):
     if not task:
       return
-    result = task["run"]()
+    task = self.__delay_task_if_not_has_been(task)
+    if not task:
+      return
+    if "run" in task and task["run"]:
+      task["run"]()
     if "dependants" in task and task["dependants"]:
       new_tasks = []
       with self.update_countdown_lock:
         for dependant in task["dependants"]:
-          dependant.wating = dependant.wating - 1
-          if dependant.wating == 0:
+          dependant["waiting"] = dependant["waiting"] - 1
+          if dependant["waiting"] == 0:
             new_tasks.append(dependant)
       self.queue_multiple(new_tasks)
 
+  def __delay_task_if_not_has_been(self, task):
+    if "delay_before" not in task:
+      return task
+    with self.queue_lock:
+      if task in self.already_delayed_tasks:
+        self.already_delayed_tasks.remove(task)
+        return task
+      delay_range = task["delay_before"]
+      delay = random.uniform(delay_range[0], delay_range[1])
+      self.delayed_queue.append({
+        "end": time.monotonic() + delay,
+        "task": task
+      })
+
+  def delay_scheduler(self):
+    while True:
+      time.sleep(self.delay_precision)
+      if not self.delayed_queue:
+        continue
+      now = time.monotonic()
+      finished_tasks = []
+      with self.queue_lock:
+        to_remove = []
+        for item in self.delayed_queue:
+          if now > item["end"]:
+            to_remove.append(item)
+            self.already_delayed_tasks.add(item["task"])
+            finished_tasks.add(item["task"])
+        for item in to_remove:
+          self.delayed_queue.remove(item)
+      if finished_tasks:
+        self.queue_mutiple(finished_tasks)
+      
   def worker(self):
     self.thread_local.worker = True
     while True:
@@ -109,6 +152,7 @@ class Executor:
         self.__run(self.get())
 
   def sleep(self, duration):
+    #not implemented
     begin = time.monotonic()
 
     while True:
@@ -292,7 +336,11 @@ def load_action(name):
     if element.get('type') == 'properties':
       result.update(element['value'])
     elif element.get('type') == 'task':
-      result['tasks'][element['name']] = element
+      name = element['name']
+      if "$" in name:
+        print("invald name", name)
+        return
+      result['tasks'][name] = element
     else:
       return
   return result
@@ -309,17 +357,74 @@ def check_age(action):
       return
   return True
 
-def play_action(action):
+class Actor:
+  def act(self, action):
+    print(action)
+
+def play_in_action(action):
   if not check_age(action):
     print("Not doing it at", args_.age, "years old")
     return
-  program_tasks = {}
+  executor_tasks = {}
   lock = threading.Lock()
+  for name in action['tasks'].keys():
+    anchor_name = name + "$end"
+    end_anchor =  {
+      "name": anchor_name,
+      "dependants": [],
+      "waiting": 1
+    }
+    executor_tasks[anchor_name] = end_anchor
+    anchor_name = name + "$start"
+    executor_tasks[anchor_name] = {
+      "name": anchor_name,
+      "dependants": [end_anchor],
+      "waiting": 0
+    }
+    
+    
   for name, task in action['tasks'].items():
-    print(task)
+    start_anchor = executor_tasks[name + "$start"]
+    end_anchor = executor_tasks[name + "$end"]
+    for before in task['before']:
+      other_anchor = executor_tasks[before + "$start"]
+      other_anchor["waiting"] = other_anchor["waiting"] + 1
+      end_anchor["dependants"].append(other_anchor)
+
+    for after in task['after']:
+      other_anchor = executor_tasks[before + "$end"]
+      start_anchor["waiting"] = start_anchor["waiting"] + 1
+      other_anchor["dependants"].append(start_anchor)
+
+    actions = task['actions']
+    actor = Actor()
+    def build_run(actor, action):
+      def result():
+        return actor.act(action)
+      return result
+    previous_action_task = start_anchor
+    for i in range(len(actions)):
+      action_name = name + "$" + str(i)
+      action_task = {
+        "name": anchor_name,
+        "dependants": [],
+        "run": build_run(actor, actions[i]),
+        "waiting": 1
+      }
+      previous_action_task["dependants"].append(action_task)
+      executor_tasks[action_name] = action_task
+      previous_action_task = action_task
+    if previous_action_task != start_anchor:
+      previous_action_task["dependants"].append(end_anchor)
+      end_anchor["waiting"] = end_anchor["waiting"] + 1
+
+
+
+  
+  executor_.queue_multiple(executor_tasks.values())
 
 action = load_action(args_.action)
-play_action(action)
+play_in_action(action)
 
 #browser = Browser()
 
