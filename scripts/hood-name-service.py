@@ -250,8 +250,15 @@ if __name__ == '__main__':
 else:
 
   class HoodResolve(asyncio.Future):
-    def __init__(self, query):
-      super().__init__()
+    attempts_left = 3
+    loop = None
+    timeout = 5
+    timeout_future = None
+    def __init__(self, query, loop = None):
+      if not loop:
+        loop = asyncio.get_running_loop()
+      self.loop = loop
+      super().__init__(loop = loop)
       self.transport = None
       self.query = query
       try:
@@ -260,15 +267,32 @@ else:
         return
       except OSError:
           pass
-      loop = asyncio.get_running_loop()
-      asyncio.ensure_future(loop.create_datagram_endpoint(
-        lambda: self, remote_addr=('127.0.0.1', 530))).add_done_callback(lambda x:x)
-
+      self.attempt()
+    
+    def attempt(self):
+      if self.done():
+        return
+      self.attempts_left = self.attempts_left - 1
+      if self.attempts_left == 0:
+        self.set_result(None)
+        return
+      asyncio.ensure_future(
+        self.loop.create_datagram_endpoint(
+          lambda: self, remote_addr=('127.0.0.1', 530)
+        ),
+        loop = self.loop
+      ).add_done_callback(lambda x:x)
+      self.timeout_future = asyncio.ensure_future(
+        asyncio.sleep(self.timeout),
+        loop = self.loop
+      )
+      self.timeout_future.add_done_callback(lambda x: self.attempt())
     def connection_made(self, transport):
       self.transport = transport
       self.transport.sendto(self.query.encode())
 
     def datagram_received(self, data, addr):
+      self.timeout_future.cancel()
       if len(data) <= 7:
         result = []
       else:
@@ -291,9 +315,16 @@ else:
     if family == socket.AF_INET6:
       return []
     if family == socket.AF_INET or family == 0 or family == socket.AF_UNSPEC:
-      addresses = asyncio.run(HoodResolve(host))
+      loop = asyncio.new_event_loop()
+      future = HoodResolve(host, loop=loop)
+      loop.run_until_complete(future)
+      addresses = future.result()
+      if proto == 0:
+        proto = 6
+      if type == 0:
+        type = socket.SOCK_STREAM
       def convert(address):
-        return (socket.AF_INET, type, proto, None, (address, port))
+        return (socket.AF_INET, type, proto, '', (address, port))
       return list(map(convert, addresses))
     return socket_getaddrinfo(host, port, family, type, proto, flags)
     
