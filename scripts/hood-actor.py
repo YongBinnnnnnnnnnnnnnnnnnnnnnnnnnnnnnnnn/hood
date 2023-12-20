@@ -28,7 +28,7 @@ def load_hood_name_service():
   spec.loader.exec_module(module)
   return module
   
-#load_hood_name_service().HookGetAddrInfo()
+load_hood_name_service().HookGetAddrInfo()
 
 parser = argparse.ArgumentParser(
   prog="hood-timesync",
@@ -38,12 +38,24 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("--action", default="browse_bing_news", type=str, help="Action to act.")
 parser.add_argument("--age", default=13, type=int, help="Age to act.")
+parser.add_argument("--thread-pool-size", default=16, type=int, help="Age to act.")
 parser.add_argument("--ignore-proper-age", default=False, type=bool, help="Follow the proper age range.")
+parser.add_argument("--debug", default=False, type=bool, help="Follow the proper age range.")
 args_ = parser.parse_args()
+
+if args_.debug:
+  LOG_DEBUG = print
+else:
+  def LOG_DEBUG(*args, **kwargs):
+    pass
+
 
 #TODO: HAR or pcap replay
 
 default_accept_ = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+image_accept_ = "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+css_accept_ = "text/css,*/*;q=0.8"
+any_accept_ = "*/*;q=0.8"
 
 headers_ = {
   "Accept":default_accept_,
@@ -77,11 +89,17 @@ class Executor:
   queue_lock = threading.Lock()
   thread_local = threading.local()
   delay_precision = 0.1
+  deleted = False
 
   def __init__(self, pool_size=8):
     for _ in range(pool_size):
       self.pool.append(threading.Thread(target=self.worker).start())
     threading.Thread(target=self.delay_scheduler).start()
+
+  def __del__(self):
+    self.deleted = True
+    self.new_task_event.set()
+    self.new_delayed_task_event.set()
 
   def queue_one(self, task):
     with self.queue_lock:
@@ -140,10 +158,10 @@ class Executor:
         "end": time.monotonic() + delay,
         "task": task
       })
-      self.new_delayed_task_event.set()
+    self.new_delayed_task_event.set()
 
   def delay_scheduler(self):
-    while True:
+    while not self.deleted:
       if not self.delayed_queue:
         self.new_delayed_task_event.wait()
         self.new_delayed_task_event.clear()
@@ -164,11 +182,15 @@ class Executor:
       
   def worker(self):
     self.thread_local.worker = True
-    while True:
+    while not self.deleted:
       self.new_task_event.wait()
+      if self.deleted:
+        break
       self.new_task_event.clear()
       while self.task_queue:
         self.__run(self.get())
+        if self.deleted:
+          break
 
   def sleep(self, duration):
     #not implemented
@@ -187,7 +209,7 @@ class Executor:
   def start(self):
     pass
     
-executor_ = Executor()
+executor_ = Executor(pool_size = args_.thread_pool_size)
 
 class HoodHTMLParser(HTMLParser):
   #useless_tags = set(['meta', 'div', 'i', 'span', 'p', 'style', 'map', 'area', 'b', 'form', 'title', 'noscript', 'li', 'ul', 'input', 'html', 'head', 'body', 'textarea'])
@@ -195,6 +217,7 @@ class HoodHTMLParser(HTMLParser):
   tags_with_src = set(['script', 'img', 'audio', 'video', 'iframe'])
   tags_with_href = set(['a', 'link'])
   load_rels = set(['icon', 'stylesheet', 'preload'])
+  image_tags = set(['link:image', 'img', 'link:icon'])
 
   resources = []
   links = []
@@ -232,8 +255,10 @@ class HoodHTMLParser(HTMLParser):
           if attr[0] == 'rel':
             if attr[1] not in self.load_rels:
               return
-            tag = tag + ':' + attr[1]
-            break
+            if attr[1] != 'preload':
+              tag = tag + ':' + attr[1]
+          if attr[0] == 'as':
+              tag = tag + ':' + attr[1]
       save_url_attr('href')
     
     if self.useless_tags:
@@ -261,13 +286,17 @@ class Browser(object):
     self.opener = urllib.request.build_opener(cookie_processor)
     print(self.opener)
 
-  def load(self, url, referer = None):
+  def load(self, url, headers = None, referer = None, accept = None):
     try:
-      headers = headers_.copy()
-      headers["Connection"] : "closee";
+      if headers is None:
+        headers = headers_.copy()
+      headers["Connection"] : "close";
+      if url.startswith('http://'):
+        del headers["Upgrade-Insecure-Requests"]
       if referer:
-        headers = headers.copy()
         headers["Referer"] = referer
+      if accept:
+        headers["Accept"] = accept
       request = urllib.request.Request(url, headers=headers);
       return self.opener.open(url)
     except Exception as e:
@@ -285,7 +314,7 @@ class Browser(object):
     parsed_url = urllib.parse.urlparse(url)
     if iframe:
       referer = self.url
-    with self.load(url, referer) as f:
+    with self.load(url, referer = referer) as f:
       content = f.read().decode('utf-8')
     html_parser = HoodHTMLParser(parsed_url.scheme, parsed_url.netloc)
     html_parser.feed(content)
@@ -314,21 +343,43 @@ class Browser(object):
           run_callback = callback
       if run_callback:
         callback()
+    blockers = []
     def load_resource(resource):
-      url = resource[1]
+      nonlocal countdown_lock
+      (tag, url) = resource
+      with countdown_lock:
+        blockers.append(url)
+      LOG_DEBUG("loading resource", url)
       if resource[0] == 'iframe':
         self.load_webpage(url, iframe = True, callback = load_finish_callback)
       else:
-        response = self.load(url, referer)
+        accept = None
+        if tag in HoodHTMLParser.image_tags:
+          accept = image_accept_
+        elif tag == 'link:stylesheet':
+          accept = css_accept_
+        elif tag == 'script':
+          accept = any_accept_
+        response = self.load(url, referer=referer, accept=accept)
         if response:
           with response as f:
-            if url not in self.loaded_resources:
-              while f.read(4096):
+            loaded = False
+            with self.lock:
+              if url not in self.loaded_resources:
+                self.loaded_resources.add(url)
+              else:
+                loaded = True
+            if not loaded:
+              try:
+                while len(f.read(4096, 1)) == 4096:
+                  pass
+              except:
                 pass
         load_finish_callback()
-      with self.lock:
-        self.loaded_resources.add(url)
-      #print("resource", url)
+      LOG_DEBUG("loaded resource", url, countdown)
+      with countdown_lock:
+        blockers.remove(url)
+        LOG_DEBUG("blockers", blockers)
     
     tasks = []
     for resource in loading_resources:
@@ -397,8 +448,8 @@ class Actor:
             return
           url = self.browser.links[random.randint(0, link_count - 1)]
         self.browser.load_webpage(url, callback=lambda:load_finish_event.set())
-        load_finish_event.wait()
-        print("finished load", url, "in browser")
+        load_finish_event.wait(timeout=20)
+        print("finished to load", url, "in browser")
     elif action.startswith("loop:"):
       action = action[5:]
       condition_end = action.index(":")
@@ -407,22 +458,40 @@ class Actor:
       while condition():
         self.act(action)
   def compile_condition(self, text):
-    if text.startswith("exit_chance="):
-      chance = float(text[12:])
-      return lambda: random.random() > chance
-      time.sleep(random.uniform(2, 7))
+    subconditions = text.split(',')
+    decision_condition = lambda:True
+    other_conditions = []
+    for condition in subconditions:
+      if condition.startswith("exit_chance="):
+        chance = float(condition[12:])
+        decision_condition = lambda: random.random() > chance
+      elif condition.startswith("delay="):
+        ranges = list(map(float, condition[6:].split("-")))
+        def compile(min, max):
+          return lambda: time.sleep(random.uniform(min, max))
+        other_conditions.append(compile(*ranges))
+    def compiled():
+      for condition in other_conditions:
+        condition()
+      return decision_condition()
+    return compiled
+
 
 def play_in_action(action):
   if not check_age(action):
     print("Not doing it at", args_.age, "years old")
     return
+  action_done_event = threading.Event()
+  action_done_task = {
+    "run": lambda: action_done_event.set(),
+    "waiting": len(action['tasks'].keys())
+  }
   executor_tasks = {}
-  lock = threading.Lock()
   for name in action['tasks'].keys():
     anchor_name = name + "$end"
     end_anchor =  {
       "name": anchor_name,
-      "dependants": [],
+      "dependants": [action_done_task],
       "waiting": 1
     }
     executor_tasks[anchor_name] = end_anchor
@@ -473,15 +542,13 @@ def play_in_action(action):
       previous_action_task["dependants"].append(end_anchor)
       end_anchor["waiting"] = end_anchor["waiting"] + 1
 
-
-
-  
   executor_.queue_multiple(executor_tasks.values())
-
+  action_done_event.wait()
 action = load_action(args_.action)
 play_in_action(action)
+print("Finished acting")
+executor_.__del__()
 
-#browser = Browser()
-
-
-#browser.load_webpage("http://www.bing.com/news/search", callback = lambda : print(browser.links))
+for i in range(args_.thread_pool_size * 2):
+  time.sleep(0.01)
+os._exit(os.EX_OK)

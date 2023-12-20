@@ -21,7 +21,7 @@
     "actions": [
       "hood:browser:goto:http://www.bing.com",
       "hood:browser:goto:http://www.bing.com/news/search",
-      "hood:loop:exit_chance=0.1:hood:browser:goto:random_link"
+      "hood:loop:exit_chance=0.8,delay=10-30:hood:browser:goto:random_link"
     ]
   }
 ]
