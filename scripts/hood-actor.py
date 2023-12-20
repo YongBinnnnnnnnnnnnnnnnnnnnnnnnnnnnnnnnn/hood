@@ -19,6 +19,17 @@ import os
 import random
 import secrets
 
+def load_hood_name_service():
+  import importlib.util
+  import sys
+  spec = importlib.util.spec_from_file_location("hood-name-service.py",  "/usr/local/lib/hood/hood-name-service.py")
+  module = importlib.util.module_from_spec(spec)
+  sys.modules["hood_name_service"] = module
+  spec.loader.exec_module(module)
+  return module
+  
+#load_hood_name_service().HookGetAddrInfo()
+
 parser = argparse.ArgumentParser(
   prog="hood-timesync",
   description="Behavioral simuluation tool for hood firewall.",
@@ -59,6 +70,7 @@ class Executor:
   pool = []
   update_countdown_lock = threading.Lock()
   new_task_event = threading.Event()
+  new_delayed_task_event = threading.Event()
   task_queue = []
   delayed_queue = []
   already_delayed_tasks = []
@@ -81,8 +93,7 @@ class Executor:
     with self.queue_lock:
       self.task_queue = self.task_queue + task_list
       alert_times = min(len(self.pool), len(self.task_queue))
-    for i in range(alert_times):
-      self.new_task_event.set()
+    self.new_task_event.set()
         
   def get(self):
     if self.task_queue:
@@ -129,12 +140,14 @@ class Executor:
         "end": time.monotonic() + delay,
         "task": task
       })
+      self.new_delayed_task_event.set()
 
   def delay_scheduler(self):
     while True:
-      time.sleep(self.delay_precision)
       if not self.delayed_queue:
-        continue
+        self.new_delayed_task_event.wait()
+        self.new_delayed_task_event.clear()
+      time.sleep(self.delay_precision)
       now = time.monotonic()
       finished_tasks = []
       with self.queue_lock:
@@ -153,6 +166,7 @@ class Executor:
     self.thread_local.worker = True
     while True:
       self.new_task_event.wait()
+      self.new_task_event.clear()
       while self.task_queue:
         self.__run(self.get())
 
@@ -302,20 +316,19 @@ class Browser(object):
         callback()
     def load_resource(resource):
       url = resource[1]
-      if url in self.loaded_resources:
-        load_finish_callback()
-        return
       if resource[0] == 'iframe':
         self.load_webpage(url, iframe = True, callback = load_finish_callback)
       else:
-        with self.load(url, referer) as f:
-          data = f.read(4096)
-          while data:
-            data = f.read(4096)
+        response = self.load(url, referer)
+        if response:
+          with response as f:
+            if url not in self.loaded_resources:
+              while f.read(4096):
+                pass
         load_finish_callback()
       with self.lock:
         self.loaded_resources.add(url)
-      print("resource", url)
+      #print("resource", url)
     
     tasks = []
     for resource in loading_resources:
@@ -363,8 +376,41 @@ def check_age(action):
   return True
 
 class Actor:
+  browser = None
   def act(self, action):
     print(action)
+    if action.startswith("hood:"):
+      return self.eval_hood_action_script(action[5:])
+  
+  def eval_hood_action_script(self, action):
+    if action.startswith("browser:"):
+      action = action[8:]
+      if action.startswith("goto:"):
+        url = action[5:]
+        if not self.browser:
+          self.browser = Browser()
+        load_finish_event = threading.Event()
+        if url == "random_link":
+          link_count = len(self.browser.links)
+          if link_count == 0:
+            print("current page has no links")
+            return
+          url = self.browser.links[random.randint(0, link_count - 1)]
+        self.browser.load_webpage(url, callback=lambda:load_finish_event.set())
+        load_finish_event.wait()
+        print("finished load", url, "in browser")
+    elif action.startswith("loop:"):
+      action = action[5:]
+      condition_end = action.index(":")
+      condition = self.compile_condition(action[:condition_end])
+      action = action[condition_end + 1:]
+      while condition():
+        self.act(action)
+  def compile_condition(self, text):
+    if text.startswith("exit_chance="):
+      chance = float(text[12:])
+      return lambda: random.random() > chance
+      time.sleep(random.uniform(2, 7))
 
 def play_in_action(action):
   if not check_age(action):
@@ -397,7 +443,7 @@ def play_in_action(action):
       end_anchor["dependants"].append(other_anchor)
 
     for after in task['after']:
-      other_anchor = executor_tasks[before + "$end"]
+      other_anchor = executor_tasks[after + "$end"]
       start_anchor["waiting"] = start_anchor["waiting"] + 1
       other_anchor["dependants"].append(start_anchor)
 
