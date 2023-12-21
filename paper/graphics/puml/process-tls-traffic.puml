@@ -1,0 +1,33 @@
+@startuml
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Process view of TLS traffics
+
+participant "Client" as CLIENT
+participant "dnsmasq on LAN port" as DNSLAN
+participant "hood-tls-proxy on 0.0.0.0:443" as HOODTLS
+participant "hood-name-service.py" as HOODNAME
+participant "public DNS services" as PUBDNS
+participant "example.com:443" as HTTP
+
+CLIENT -> DNSLAN: Ask example.com
+DNSLAN -> CLIENT: 10.0.33.1, for example
+CLIENT -> HOODTLS: Connect to 10.0.33.1:443
+CLIENT -> HOODTLS: TLS Handshake, SNI: example.com
+HOODTLS -> HOODNAME: Ask example.com
+HOODNAME <-> PUBDNS: Resolve example.com via DoH
+HOODNAME -> HOODTLS: x.x.x.x
+HOODTLS -> HTTP: Connect to x.x.x.x:443
+HOODTLS <-> CLIENT: TLS Handshakes
+HOODTLS -> HOODTLS: Security checks
+HOODTLS <-> HTTP: TLS Handshakes
+CLIENT <-> HTTP: Handshake success through hood-tls-proxy
+HOODTLS <-> CLIENT: TLS packets
+HOODTLS <-> HTTP: TLS packets
+
+
+@enduml

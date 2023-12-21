@@ -1,6 +1,8 @@
 \documentclass[mscthesis]{usiinfthesis}
 \usepackage{lipsum}
 \usepackage{xcolor}
+\usepackage{float}
+\usepackage{cleveref}
 
 \usepackage{listings}
 
@@ -98,7 +100,7 @@ Proxies should be used to forward network traffics. There are advantages of usin
 \paragraph{}
 Nftables is integrated in modern linux systems. It can classify and filter network traffics. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed from users to the firewall device for DNS requests, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffics. All other packets are filtered as early as possible.
 \paragraph{}
-Different proxies and RPC services are created to check connections, to forward traffcs, and to apply encryptions. Details are included in the chapters of the corresponding protocol.
+Different proxies and RPC services are created to check connections, to forward traffcs, and to apply encryptions. Details are included in the chapters of the corresponding protocol. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}.
 
 \chapter{Dynamic Host Configuration Protocol (DHCP)}
 
@@ -189,13 +191,31 @@ The proxy should parse handshake packets. It should check algorithms provided by
 Since TLS proxy in charge of processing and forwarding the majority traffic of the firewall, c++ is used to develop the proxy due to its high performance capability. Upon receiving ClientHello from a client, the proxy checks the cryptography algorithms provided in it, like ciphersuites, and apply the best practices provided in rfc9325. The proxy extracts the Server Name Indication (SNI) from ClientHello to dertermine the actual destination of the request. Then use A RPC call to name service to resolve domain names. Then a TLS connection will be established to all of the addresses returned from the name service to selet the endpoints that is able to make a strong enough connection with a trusted certificate. The packets will be forwarded to one of the selected endpoints. Upon receiving the response ServerHello to the client, the proxy will check again whether the negotiation result comply to the best practce provided in rfc9325 and discard the connections that are not.
 
 
+\section{Process view of traffics}
+\begin{figure}[H]
+  \includegraphics[width=\textheight, angle=90]{graphics/puml/process-tls-traffic.png}
+  \caption{Process view of TLS traffics from user}
+  \label{fig:tls-process-view}
+\end{figure}
+
 \chapter{Plaintext connections}
 
 \section{HTTP}
 \subsection{Implementation}
 \paragraph{}
-A proxy is created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected
+hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected. The connections to other servers will be tunneled via TLS protocol through hood-tls-proxy service. See \cref{fig:ocsp-process-view,fig:http-process-view}.
 
+\begin{figure}[H]
+  \includegraphics[width=\textheight, angle=90]{graphics/puml/process-ocsp-traffic.png}
+  \caption{Process view of OCSP over HTTP traffics from user}
+  \label{fig:ocsp-process-view}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=\textheight, angle=90]{graphics/puml/process-http-traffic.png}
+  \caption{Process view of normal HTTP traffics from user}
+  \label{fig:http-process-view}
+\end{figure}
 
 \chapter{Date time synchornization}
 \section{Introduction}
@@ -228,13 +248,77 @@ A service to simuluate different network activities is designed to solve ths iss
 
 \section{Implementation}
 \paragraph{}
-The service is implemented in a python script named hood-actor.py. It can
+The service is implemented in a python script named hood-actor.py. It can parse and execute action files. To simuluate the behaviors of a human user or a computer service.
+\subsection{Action files}
 \paragraph{}
-\begin{figure}
+Action files are in JSON format. An action file contains an array of objects. All objects in the array has a "type" field to let the parser know how to process it. Supported object types are descripted in \cref{tab:action_type,tab:properties_object,tab:task_object}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|}
+    \hline
+    Value      & Descriptoin                    \\
+    \hline
+    properties & Properties of the action       \\
+    task       & Tasks to be done in the action \\
+    \hline
+  \end{tabular}
+  \caption{"type" field of action file objects}
+  \label{tab:action_type}
+\end{table}
+
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    Field       & Type                           & Descriptoin                     \\
+    \hline
+    type        & string                         & "properties"                    \\
+    safe\_age   & integer                        & Minimum age safe to do this     \\
+    proper\_age & list of two numbers [min, max] & Proper range of age to do this. \\
+    \hline
+  \end{tabular}
+  \caption{"properties" object of action file}
+  \label{tab:properties_object}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    Field                   & Type                           & Descriptoin                                          \\
+    \hline
+    type                    & string                         & "task"                                               \\
+    name                    & string                         & Name of the task, must be unique in current file     \\
+    before                  & list of strings                & Names of tasks that should run no earlier than this. \\
+    after                   & list of strings                & Names of tasks that should run before this.          \\
+    delay\_between\_actions & list of two numbers [min, max] & Range of seconds to wait between actions.            \\
+    actions                 & list of strings                & list hood action script                              \\
+    \hline
+  \end{tabular}
+  \caption{"task" object of action file}
+  \label{tab:task_object}
+\end{table}
+
+\subsection{Hood action script}
+\paragraph{}
+Hood action script is a script to describe actions to be done to the actor. Each line of the script can be seen as three parts: namespaces, command, and argument. For example, "hood:browser:goto:http://www.example.com". "hood:browser:" is to refer browser namespace from hood namespace, "goto" is a command inside browser namespace to tell intepreter to use browser to load a webpage. "http://www.example.com" is the parameter of the "goto" command. In this example, it represents the url of the webpage to be loaded.
+\subsubsection{hood:browser:goto command}
+\paragraph{}
+Its usage is "hood:browser:goto URL". Its will to use a fake browser to load a URL, all static resource descripted in HTML will be loaded, cookies will be stored and used in the running session, but by design, dynamic things like JavaScript, will not be executed. When the special value "random\_link" is used as the argument, actor will randomly pick a link from the webpage currently loaded in the browser to go to, but nothing will be done if current webpage contains not links.
+\subsubsection{hood:loop command}
+\paragraph{}
+Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in CONDITION part by syntax "key=value[,key=value]". Currently only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has 33% chance of termination at the beginning of each loop, "0" means it will never has an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into python code. The COMMAND part is the hood action script to be executed in the loop.
+
+
+
+\begin{figure}[H]
   \includegraphics[width=0.9\textwidth]{graphics/puml/actor.png}
   \caption{Logic view of hood-actor.py}
   \label{fig:actor-logic-view}
 \end{figure}
+\paragraph{}
 
 \chapter{Conclusions}
 

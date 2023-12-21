@@ -1,0 +1,30 @@
+@startuml
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Process view of OCSP over HTTP traffics from user
+
+participant "Client" as CLIENT
+participant "dnsmasq on LAN port" as DNSLAN
+participant "hood-http-handler.py on 0.0.0.0:80" as HOODHTTP
+participant "hood-name-service.py" as HOODNAME
+participant "public DNS services" as PUBDNS
+participant "ocsp.digicert.com:80" as OCSP
+
+CLIENT -> DNSLAN: Ask ocsp.digicert.com
+DNSLAN -> CLIENT: 10.0.33.1, for example
+CLIENT -> HOODHTTP: Connect to 10.0.33.1:80
+CLIENT -> HOODHTTP: HTTP requests, Host: ocsp.digicert.com
+HOODHTTP -> HOODNAME: Ask ocsp.digicert.com
+HOODNAME <-> PUBDNS: Resolve ocsp.digicert.com via DoH
+HOODNAME -> HOODHTTP: x.x.x.x
+HOODHTTP -> OCSP: Connect to x.x.x.x:80
+HOODHTTP -> OCSP: HTTP requests, Host: ocsp.digicert.com
+HOODHTTP <-> OCSP: forward HTTP traffics
+HOODHTTP <-> CLIENT: forward HTTP traffics
+
+
+@enduml

@@ -403,7 +403,10 @@ def load_action(name):
   }
   for element in action:
     if element.get('type') == 'properties':
-      result.update(element['value'])
+      properties = ["age", "proper_age"]
+      for property in properties:
+        if property in element:
+          result[property] = element[property]
     elif element.get('type') == 'task':
       name = element['name']
       if "$" in name:

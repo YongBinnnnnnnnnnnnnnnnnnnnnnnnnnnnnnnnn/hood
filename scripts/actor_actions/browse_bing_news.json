@@ -1,13 +1,11 @@
 [
   {
     "type": "properties",
-    "value": {
-      "safe_age": 0,
-      "proper_age": [
-        6,
-        3000
-      ]
-    }
+    "safe_age": 0,
+    "proper_age": [
+      6,
+      3000
+    ]
   },
   {
     "type": "task",
