@@ -1,0 +1,40 @@
+@startuml
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Logical View of hood-actor.py
+
+[HoodHTMLParser] as HoodHTMLParser
+interface "feed" as HoodHTMLParser_feed
+HoodHTMLParser -- HoodHTMLParser_feed
+[Browser] as Browser
+interface "load_webpage" as Browser_load_webpage
+Browser -- Browser_load_webpage
+[Executor] as Executor
+interface "queue_one/queue_multiple" as Executor_queue
+Executor -- Executor_queue
+[Actor] as Actor
+interface "act" as Actor_act
+Actor -- Actor_act
+interface "eval_hood_action_script" as Actor_eval_hood_action_script
+Actor -- Actor_eval_hood_action_script
+interface "load_action" as load_action
+interface "play_in_action" as play_in_action
+[program entry] as entry
+
+
+
+entry --( load_action
+entry --( play_in_action
+play_in_action --( Executor_queue
+play_in_action --( Actor_act
+Actor_act --( Actor_eval_hood_action_script
+Actor_eval_hood_action_script --( Browser_load_webpage
+Browser --( Executor_queue
+Browser --( HoodHTMLParser_feed
+
+
+@enduml
