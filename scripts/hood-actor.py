@@ -78,7 +78,7 @@ headers_ = {
   "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
-class Executor:
+class HoodExecutor:
   pool = []
   update_countdown_lock = threading.Lock()
   new_task_event = threading.Event()
@@ -100,6 +100,9 @@ class Executor:
     self.deleted = True
     self.new_task_event.set()
     self.new_delayed_task_event.set()
+
+    for i in range(len(pool) * 2):
+      time.sleep(0.01)
 
   def queue_one(self, task):
     with self.queue_lock:
@@ -161,11 +164,12 @@ class Executor:
     self.new_delayed_task_event.set()
 
   def delay_scheduler(self):
+    to_wait = None
     while not self.deleted:
       if not self.delayed_queue:
-        self.new_delayed_task_event.wait()
+        self.new_delayed_task_event.wait(timeout=to_wait)
         self.new_delayed_task_event.clear()
-      time.sleep(self.delay_precision)
+      to_wait = 600
       now = time.monotonic()
       finished_tasks = []
       with self.queue_lock:
@@ -175,6 +179,8 @@ class Executor:
             to_remove.append(item)
             self.already_delayed_tasks.append(item["task"])
             finished_tasks.append(item["task"])
+          else:
+            to_wait = min(to_wait, item["end"] - now)
         for item in to_remove:
           self.delayed_queue.remove(item)
       if finished_tasks:
@@ -209,7 +215,7 @@ class Executor:
   def start(self):
     pass
     
-executor_ = Executor(pool_size = args_.thread_pool_size)
+executor_ = HoodExecutor(pool_size = args_.thread_pool_size)
 
 class HoodHTMLParser(HTMLParser):
   #useless_tags = set(['meta', 'div', 'i', 'span', 'p', 'style', 'map', 'area', 'b', 'form', 'title', 'noscript', 'li', 'ul', 'input', 'html', 'head', 'body', 'textarea'])
@@ -314,7 +320,11 @@ class Browser(object):
     parsed_url = urllib.parse.urlparse(url)
     if iframe:
       referer = self.url
-    with self.load(url, referer = referer) as f:
+    response = self.load(url, referer = referer)
+    if not response:
+      callback()
+      return
+    with response as f:
       content = f.read().decode('utf-8')
     html_parser = HoodHTMLParser(parsed_url.scheme, parsed_url.netloc)
     html_parser.feed(content)
@@ -552,6 +562,4 @@ play_in_action(action)
 print("Finished acting")
 executor_.__del__()
 
-for i in range(args_.thread_pool_size * 2):
-  time.sleep(0.01)
 os._exit(os.EX_OK)
