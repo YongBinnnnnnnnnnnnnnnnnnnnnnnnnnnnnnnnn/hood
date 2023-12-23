@@ -160,7 +160,8 @@ elif [ "$2" = "up" ]; then
     wait_dhcp_success $1
     revoke_dhcp_client_access_on $1 $2
     http_timesync
-    
+    systemctl restart hood-network-services.service
+
     if test -f /var/lib/hood/flags/usb_tether; then
       if ! ls /sys/class/udc/*/device/*/net > /dev/null; then
         /usr/local/lib/hood/enable-usb-gadget.sh ethernet
