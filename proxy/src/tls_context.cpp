@@ -45,9 +45,9 @@ void Context::Stop() {
   if (std::holds_alternative<SocketSharedPtr>(socket_)) {
     auto socket = std::get<SocketSharedPtr>(socket_);
     boost::system::error_code error;
-    socket->shutdown(tcp::socket::shutdown_both, error);
     socket->cancel(error);
-    socket->close();
+    socket->shutdown(tcp::socket::shutdown_both, error);
+    socket->close(error);
   }
 }
 std::atomic<intptr_t> Context::active_instance_counter_(0);
