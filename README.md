@@ -3,9 +3,25 @@ Things of my MSc thesis about A firewall device
 
 It's not hard to point out someone is wearing a hood, but the hood makes it harder to say who is wearing it.
 ## Table of Contents
+1. [Status](#status)
 1. [Graphics to show the concept](#graphics-to-show-the-concept)
 2. [Installation](#installation)
 3. [License](#license)
+
+## Status
+
+### Firewall hardware
+ - [x] Raspberry Pi 4B
+ - [ ] Others not tested
+
+### Operating systems to use the firewall
+ - [x] Windows 10
+ - [x] Linux
+ - [x] Mac OS (needs an additional USB NIC)
+
+### Todo
+ 1. Show realtime network activities on a screen
+ 2. Support HTTP3 QUIC 
 
 
 ## Graphics to show the concept
