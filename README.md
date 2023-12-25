@@ -50,6 +50,7 @@ cd hood/scripts
 ./mntinstall.sh sdX
 ```
 
+## Graphics to show the concept
 
 ![HTTP traffic graph](./paper/graphics/puml/process-http-traffic.png)
 ![TLS traffic graph](./paper/graphics/puml/process-tls-traffic.png)
