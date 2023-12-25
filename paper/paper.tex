@@ -75,7 +75,7 @@ configuration work on different softwares and operating systems one by one.
 \paragraph{}
 Even things that could not be configured will be under the restriction of the firewall. In example, people cannot untrust a built-in trusted root certificate from iPhone via Settings app.
 
-\Chapter{Hardware}
+\chapter{Hardware}
 \paragraph{}
 Commercial firewalls are more expensive than development boards that contains the same level of hardware functioality. It's acceptable because they provided addtional values throught their software and services and all of the development and maintainance of the product, the service, and the company are costing money. services are not
 If I was working on a commercial firewall,  wou
@@ -193,13 +193,41 @@ An idea to save the clients that contain severe deficiencies is to attack from t
 Despite using MITM attack to insepect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the tls proxy used in this firewall should not implement the same functioality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disasteer to the devices behind it: the attacker will be able to easily modify the encrypted data transfered over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attack at all, the compromised still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
 \subsubsection{Filtering certificates}
 \paragraph{}
-The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by certificate check connections
+The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by certificate check connections.
+
 \subsubsection{Checking connections}
 \paragraph{}
 The proxy should parse handshake packets. It should check algorithms provided by ClientHello and ServerHello, to ensure strong encryption. Strenghten the connection by modifing handshake packets without MITM is not possible because the HMAC of all handshake packets is used for encryption.
 \subsubsection{Implementation}
-\paragraph{}
-Since TLS proxy in charge of processing and forwarding the majority traffic of the firewall, c++ is used to develop the proxy due to its high performance capability. Upon receiving ClientHello from a client, the proxy checks the cryptography algorithms provided in it, like ciphersuites, and apply the best practices provided in rfc9325. The proxy extracts the Server Name Indication (SNI) from ClientHello to dertermine the actual destination of the request. Then use A RPC call to name service to resolve domain names. Then a TLS connection will be established to all of the addresses returned from the name service to selet the endpoints that is able to make a strong enough connection with a trusted certificate. The packets will be forwarded to one of the selected endpoints. Upon receiving the response ServerHello to the client, the proxy will check again whether the negotiation result comply to the best practce provided in rfc9325 and discard the connections that are not.
+
+\begin{figure}[H]
+  \includegraphics[width=\textwidth]{graphics/puml/process-tls-proxy.png}
+  \caption{Process view of TLS proxy}
+  \label{fig:tls-proxy-process-view}
+\end{figure}
+
+\paragraph{Programming language}
+Since TLS proxy in charge of processing and forwarding the majority traffic of the firewall, c++ is used to develop the proxy due to its high performance capability.
+\paragraph{ClientHello}
+Upon receiving ClientHello from a client, the proxy at first check the version of the protocol, and the suppor\_versions extension to see if the client supports to establish a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, the ciphersuites field will also be checked, if it contains none of the value listed in \ref{lst:tls-ciphersuites} \citep{rfc:bstprc}, it will be considered unable to be safe and discarded. If the ClientHello passed all of the security checks, the proxy will extract the Server Name Indication (SNI) from ClientHello to dertermine the actual destination of the request.
+
+\begin{table}[H]
+  \begin{itemize}
+    \item TLS\_ECDHE\_RSA\_WITH\_AES\_128\_GCM\_SHA256
+    \item TLS\_ECDHE\_RSA\_WITH\_AES\_256\_GCM\_SHA384
+    \item TLS\_ECDHE\_ECDSA\_WITH\_AES\_128\_GCM\_SHA256
+    \item TLS\_ECDHE\_ECDSA\_WITH\_AES\_256\_GCM\_SHA384
+    \item TLS\_AES\_128\_GCM\_SHA256
+    \item TLS\_AES\_256\_GCM\_SHA384
+    \item TLS\_CHACHA20\_POLY1305\_SHA256
+  \end{itemize}
+  \caption{Allowed cipher suites values}
+  \label{lst:tls-ciphersuites}
+\end{table}
+
+\paragraph{Name resolving and trused endpoint}
+The proxy will at first check if there is any cached trused endpoints available, if not it uses a RPC call to hood-name-service.py to resolve the domain name. Then TLS handshakes following the the same restrictions to the ClientHello check will be made to all of the addresses returned from the name service. The handshake process will not only ensure remote endpoint meets the requirements (versions and ciphersuites) of applying the best practices described in rfc9325, it will also check whether the remote endpoint could provide a validate certificate of the hostname from a trusted CA of the firewall.
+\paragraph{ServerHello} After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result to use unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
 
 
 \section{Process view of traffics}

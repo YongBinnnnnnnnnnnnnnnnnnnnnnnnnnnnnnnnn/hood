@@ -1,0 +1,32 @@
+@startuml
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Process view of TLS proxy
+
+participant "Client" as CLIENT
+participant "hood-tls-proxy on 0.0.0.0:443" as HOODTLS
+participant "hood-name-service.py" as HOODNAME
+participant "example.com:443" as HTTP
+
+CLIENT -> HOODTLS: ClientHello, SNI:example.com
+HOODTLS -> HOODTLS: Check ClientHello
+HOODTLS -> HOODTLS: Check Cache of example.com
+HOODTLS -> HOODNAME: Ask example.com
+HOODNAME -> HOODTLS: x.x.x.1, x.x.x.2, ..., x.x.x.10
+HOODTLS <-> HTTP: TLS Handshake x.x.x.1, x.x.x.2, ..., x.x.x.10 with the best practices specified in RFC9325.
+HOODTLS <-> HTTP: TLS Handshake success on x.x.x.2, ..., x.x.x.5
+HOODTLS -> HOODTLS: Cache x.x.x.2, ..., x.x.x.5 as trusted endpoints
+HOODTLS -> HTTP: Connect to x.x.x.2, forward ClientHello
+HOODTLS <- HTTP: ServerHello
+HOODTLS -> HOODTLS: Check ServerHello
+HOODTLS -> CLIENT: Forward ServerHello
+CLIENT <-> HTTP: Handshake success through hood-tls-proxy
+HOODTLS <-> CLIENT: TLS packets
+HOODTLS <-> HTTP: TLS packets
+
+
+@enduml
