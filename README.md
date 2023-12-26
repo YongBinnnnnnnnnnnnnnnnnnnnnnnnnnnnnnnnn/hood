@@ -4,9 +4,9 @@ Things of my MSc thesis about A firewall device
 It's not hard to point out someone is wearing a hood, but the hood makes it harder to say who is wearing it.
 ## Table of Contents
 1. [Status](#status)
-1. [Graphics to show the concept](#graphics-to-show-the-concept)
-2. [Installation](#installation)
-3. [License](#license)
+2. [Graphics to show the concept](#graphics-to-show-the-concept)
+3. [Installation](#installation)
+4. [License](#license)
 
 ## Status
 
@@ -53,7 +53,7 @@ Or you can use following command
 git clone --depth=1 https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood.git
 ```
 
-### Step 3. Install hood
+### Step 4. Install hood
 
 Firstly, use `lsblk` command to check the device name of you SD card, 
 
@@ -63,18 +63,25 @@ Then, use following command to ensure the partitions are not mounted (replace sd
 sudo umount /dev/sdX*
 ```
 
-Then, use following command to check the partitions are not mounted, the correct output is nothing (replace sdX with SD card device name)
+Then, use following command to ensure the partitions are not mounted. Correct output is nothing (replace sdX with SD card device name)
 
 ```shell
 mount|grep sdX
 ```
 
-Then, start install (replace sdX with SD card device name)
+Then, start to install (replace sdX with SD card device name)
 
 ```shell
 cd hood/scripts
 ./mntinstall.sh sdX
 ```
+
+Commandline options available to the install script:
+ - no_usb_tether
+ - harden_only
+ - no_rfkill
+ - no_gpukill
+ - prefix=
 
 ## License
 
