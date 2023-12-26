@@ -149,6 +149,7 @@ Despite the firewall implemented in this paper is not a general purpose firewall
     \multicolumn{4}{|c|}{Statistics of the prices in search results}                         \\
     \hline
     Mean                                     & 250.74                      & Median & 262.0  \\
+    \hline
     Min                                      & 55.49                       & Max    & 520.89 \\
     \hline
     \multicolumn{2}{|c|}{Standard deviation} & \multicolumn{2}{c|}{109.98}                   \\
@@ -342,11 +343,25 @@ Both the unique port number (UDP 123) and the unique domain names (time.windows.
 
 \section{Design}
 \paragraph{}
-Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response of a HTTP server to synchornize date time in an acceptable accuracy. Usually, in order to hide, the attacks targeted to HTTP/HTTPS protocol do not want to make mistakes in the header of its attack vector.It's hard to say whether this request is made for time synchornization.
+Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response of a HTTP server to synchornize date time in an acceptable accuracy. In order to hide from security detections, the attack vectors targeted to HTTP/HTTPS protocol usuall do not want to make mistakes in the header. Even if an attacker targeted to the method used by hood firewall, It's hard to say whether this request is made for time synchornization. Thus the date field of a HTTP response is generally trustworthy.
 
 \section{Implementation}
 \paragraph{}
-Since TLS needs time to be correct to validate certificates, a plaintext HTTP request is made to do an initial synchornization. After the first step, the system clock is considered to be correct enought for making a TLS connection. So the second step is to extract date time from the header of a HTTPS response.
+The tool is implemented in a python script named hood-timesync.py. It accepts two command line arguments as listed in \cref{tab:timesync_cmdarg}. It will at first try to receive a HTTP response through TLS connection from the domain name specified by host argument. If it failed, the reason could be the website is down or the system time is too different from the actual time and made a vailid certificate unable to pass the validation. Thus, a plaintext connection to the host name provided by the last resort address argument is made as the second attemept. After the second attempt, another attempt to receive time from the domain of the host argument via TLS connection will be made, because TLS has less chance to be attacked and because the reason why the first step failed could be the website is temporarily down, the reason could also be the huge time difference made the validation of the certificate failed. In both cases, a HTTPS request to the domain may become possible to success after the second attempt.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|m{68mm}|}
+    \hline
+    Name                & Type & Default      & Descriptoin                                                  \\
+    \hline
+    -\-host             & str  & www.bing.com & The website to request time from                             \\
+    -\-last-resort-host & str  & 1.1.1.1      & The website used as the last resort, should be an IP address \\
+    \hline
+  \end{tabular}
+  \caption{Comand line arguments of hood-timesync.py}
+  \label{tab:timesync_cmdarg}
+\end{table}
 
 \chapter{Behavioral simulation}
 \section{Introduction}
@@ -429,7 +444,10 @@ Its usage is "hood:browser:goto URL". Its will to use a fake browser to load a U
 \paragraph{}
 Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in CONDITION part by syntax "key=value[,key=value]". Currently only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has 33% chance of termination at the beginning of each loop, "0" means it will never has an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into python code. The COMMAND part is the hood action script to be executed in the loop.
 
+\chapter{Dispatcher}
 
+
+\chapter{Installation}
 
 \begin{figure}[H]
   \includegraphics[width=0.9\textwidth]{graphics/puml/actor.png}
