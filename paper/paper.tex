@@ -4,6 +4,7 @@
 \usepackage{float}
 \usepackage{cleveref}
 \usepackage{makecell}
+\usepackage{colortbl}
 
 \usepackage{listings}
 
@@ -76,15 +77,86 @@ configuration work on different softwares and operating systems one by one.
 Even things that could not be configured will be under the restriction of the firewall. In example, people cannot untrust a built-in trusted root certificate from iPhone via Settings app.
 
 \chapter{Hardware}
+\section{Theory of the cost}
 \paragraph{}
-Commercial firewalls are more expensive than development boards that contains the same level of hardware functioality. It's acceptable because they provided addtional values throught their software and services and all of the development and maintainance of the product, the service, and the company are costing money. services are not
-If I was working on a commercial firewall,  wou
-In switzerland, the price of a entry
-level firewall is more than twice of a raspberry pi. Raspberry Pi being
-used in this work could be replaced with some cheaper alternatives, making
-the cost will be even lower. Commercial firewalls also do not provide a
-screen to display network activities in real-time.
+Commercial firewalls are usually more expensive than development boards that contains the same level of hardware functioality. One one hand, It's acceptable because they provided addtional values throught their software and services and all of the development and maintainance of the product, the service, and the company itself are costing money. On the other hand, it also indicates that an open-source solution like the tool introduced in this paper would reduce lower bound of the cost of accessing a hardware firewall.
+\section{Market research}
+\paragraph{}
+Despite the firewall implemented in this paper is not a general purpose firewall, the difference in cost between market products is still worth knowing. From \cref{tab:amazon-search,tab:amazon-search-stat}, the prices of a firewall devices are around the price 250.74 EURO, and most of them are more expensive than the price of a Raspberry Pi 4B (68.79 EURO) selling on the same website. Only one exception: TP-LINK ER605. It's price is 55.5 euro which is still higher than the price of a Raspberry P 3B on the same website. After seeking into the details of this exception, its central management design and the corresponding cloud-based controller both showing that it is desigend for a totally different threat model and the its exceptional price could be explained, because it is under the control of that company and when people are motivated to spend money on a hardware firewall, their requirement to information security usually do not want to give full control of their firewall to a company. As a conclusion, using Raspberry Pi would cost less than usual general purpose firewalls.
 
+\iffalse
+  >>> x=[55.49,188.99,259.00,279.99,146.53,279.00,102.53,284.87,221.99,265.00,520.90,288.99,318.09,173.5,242.99,384.00]
+  >>> sum(x)/len(x)
+  250.74125000000004
+  >>> import statistics
+  >>> statistics.median(x)
+  262.0
+  >>> min(x)
+  55.49
+  >>> max(x)
+  520.9
+  >>> statistics.stdev(x)
+  109.9844098573369
+  >>> x=[188.99,259.00,279.99,146.53,279.00,102.53,284.87,221.99,265.00,288.99,318.09,173.5,242.99,384.00]
+\fi
+\begin{table}[H]
+  \begin{tabular}{|p{113mm}|p{12mm}|}
+    \hline
+    Name & Price   \\
+    \hline
+    \rowcolor[gray]{0.8} \texttt{TP-LINK ER605 5 Port Dual/Multiple WAN VPN Router (up to 4 Gigabit WAN Ports, Highly Secure, Omada SDN, Central Management, Intelligent Monitoring, Firewall) Black, Ideal for Office Network
+    }    & €55.49  \\
+    \texttt{Micro Firewall Appliance, Mini PC, Pfsense Plus, Mikrotik, OPNsense, VPN, Router PC, Intel N4505, HUNSN RS41k, AES-NI, 4 x 2.5GbE I226-V, Console, Type-C, HDMI, DP, SIM Slot, 4G RAM, 32G SSD
+    }    & €188.99 \\
+    \rowcolor[gray]{0.8} \texttt{ZyXEL ZyWALL 350Mbps VPN Firewall, Recommended for up to 10 Users [USG Flex 50]
+    }    & €259.00 \\
+    \texttt{Micro Firewall Appliance, Mini PC, pFsense Plus, Mikrotik, OPNsense, VPN, Router PC, Intel Alder Lake-N 12th Gen N100, HUNSN RJ42, 4 x 2.5GbE I226-V, 2 x HDMI, DP, TF, Type-C, 8G DDR5 RAM, 128G SSD
+    }    & €279.99 \\
+    \rowcolor[gray]{0.8} \texttt{KingnovyPC Firewall Micro Appliance, 4 Port i226 2.5GbE LAN Fanless Mini PC N5100, 2* DDR4, HDMI, DP, RJ45 COM, 4*USB Gigabit Ethernet AES-NI VPN Router Openwrt Barebone
+    }    & €146.53 \\
+    \texttt{New J4125 Quad Core Firewall Micro Appliance, Mini PC, Nano PC, Router PC with 8G RAM 128G SSD, 4 RJ45 2.5GBE Port AES-NI Compatible with Pfsense OPNsense
+    }    & €279.00 \\
+    \rowcolor[gray]{0.8} \texttt{Cisco Meraki Go - 5 Port Security Gateway - Power Supply to EU Standard GX20-HW-EU
+    }    & €102.53 \\
+    \texttt{Protectli Vault FW4B - 4 Port, Firewall Micro Appliance/Mini PC - Intel Quad Core, AES-NI, 4GB RAM, 32GB mSATA SSD - Compatible with pfSense/OPNsense etc
+    }    & €284.87 \\
+    \rowcolor[gray]{0.8} \texttt{Firewall Hardware, Pfsense, OPNsense, Mikrotik, VPN, Network Security Appliance, Router PC, Intel Atom N2600, HHUNSN RS31, 4 x Intel Gigabit LAN, 2 x USB, COM, VGA, Fan, 4G RAM, 32G SSD
+    }    & €221.99 \\
+    \texttt{Firewall Mini PC with 2.5G Gigabit LAN, Firewall Micro Appliance Celeron J4125,4 x I225 Gigabit LAN,Fanless Mini PC AES-NI,12V,WiFi,HDMI,RS232 COM,USB 3.0,8GB RAM/128GB SSD
+    }    & €265.00 \\
+    \rowcolor[gray]{0.8} \texttt{FORTINET FortiGate 40F Hardware - Next Generation Firewall Protection and Security
+    }    & €520.90 \\
+    \texttt{Micro Firewall Appliance, Mini PC, VPN, Router PC, Intel Alder Lake-N 12th Gen N100, HUNSN RJ42, 4 x 2.5GbE I226-V, 2 x HDMI, DP, TF, Type-C, Barebone, NO RAM, NO Storage, NO System
+    }    & €288.99 \\
+    \rowcolor[gray]{0.8} \texttt{Cisco Systems Go Router Firewall Plus | Cloud Managed | VPN | Cisco [GX50-HW-EU], White
+    }    & €318.09 \\
+    \texttt{Zyxel Secure Cloud-Managed Router/Firewall with AXE5400 Tri-Band WiFi Subscription Free Network Security, Managed via Nebula APP/Ideal for Small Offices/Small Branches. [SCR 50AXE]
+    }    & €173.5  \\
+    \rowcolor[gray]{0.8} \texttt{Micro Firewall Appliance, Mini PC, VPN, Router PC, Intel Alder Lake-N 12th Gen N100, HUNSN RJ46, 6 x 2.5GbE I226-V, 2 x HDMI2.1, TF, Type-C, Barebone, NO RAM, NO Storage, NO System
+    }    & €242.99 \\
+    \texttt{HSIPC 11th Gen i3 1115G4 Firewall Micro Appliance, Mini PC, Nano PC, Router PC (16G 256G) With 6 RJ45 2500M, AES-NI, HDMI USB3.0 Console, Compatible with Pfsense OPNsense
+    }    & €384.00 \\
+    \hline
+  \end{tabular}
+  \caption{The first page of search results of "hardware firewall" on amazon.de. Captured at 5 P.M. of December 26th, 2023, Lugano}
+  \label{tab:amazon-search}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    \multicolumn{4}{|c|}{Statistics of the prices in search results}                         \\
+    \hline
+    Mean                                     & 250.74                      & Median & 262.0  \\
+    Min                                      & 55.49                       & Max    & 520.89 \\
+    \hline
+    \multicolumn{2}{|c|}{Standard deviation} & \multicolumn{2}{c|}{109.98}                   \\
+    \hline
+  \end{tabular}
+  \caption{Statistics of \cref{tab:amazon-search}}
+  \label{tab:amazon-search-stat}
+\end{table}
 \chapter{Operating system}
 
 \paragraph{}
