@@ -134,10 +134,9 @@ if [ "$2" = "before-network-service" ]; then
 elif [ "$2" = "pre-up" ]; then
   #ifconfig $1 link random
   wan_port=0
-  case $1 in 
-    usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then wan_port=1; fi;;
-    *) wan_port=1;;
-  esac
+  if [ "$(realpath /sys/class/net/%1)" = "$(cat /var/lib/hood/wan_port_device_path)" ]; then
+    wan_port=1
+  fi
   if [ $wan_port -eq 1 ]; then
     internet_access_on $1 $2
   else
@@ -152,10 +151,9 @@ elif [ "$2" = "timesync" ]; then
   http_timesync
 elif [ "$2" = "up" ]; then
   wan_port=0
-  case $1 in 
-    usb*) if realpath /sys/class/net/$1/../../driver|grep rndis_host ; then wan_port=1; fi;;
-    *) wan_port=1;;
-  esac
+  if [ "$(realpath /sys/class/net/%1)" = "$(cat /var/lib/hood/wan_port_device_path)" ]; then
+    wan_port=1
+  fi
   if [ $wan_port -eq 1 ]; then
     wait_dhcp_success $1
     revoke_dhcp_client_access_on $1 $2

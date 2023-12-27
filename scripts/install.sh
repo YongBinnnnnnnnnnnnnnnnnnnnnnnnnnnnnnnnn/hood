@@ -16,6 +16,7 @@ rfkill=1
 gpukill=1
 target_instrument_set="arm64"
 usb_tether=1
+wan_port_device_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0"
 
 prefix=""
 for arg in "$@"; do
@@ -24,7 +25,8 @@ for arg in "$@"; do
     harden_only) harden_only=1;;
     no_rfkill) rfkill=0;;
     no_gpukll) gpukill=0;;
-    prefix=*) prefix=$(echo $arg|sed "s/.*=//g");;
+    prefix=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
+    wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
   esac
 done
 
@@ -44,7 +46,7 @@ fi
 sudo mkdir -p $prefix/usr/local/lib/hood
 sudo mkdir -p $prefix/var/lib/hood/flags
 sudo mkdir -p $prefix/etc/hood/
-
+echo "${wan_port_device_path}" | sudo tee $prefix/var/lib/hood/wan_port_device_path
 
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/lib/hood/flags/harden_only
