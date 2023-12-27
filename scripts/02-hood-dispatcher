@@ -134,7 +134,7 @@ if [ "$2" = "before-network-service" ]; then
 elif [ "$2" = "pre-up" ]; then
   #ifconfig $1 link random
   wan_port=0
-  if [ "$(realpath /sys/class/net/%1)" = "$(cat /var/lib/hood/wan_port_device_path)" ]; then
+  if [ "$(realpath /sys/class/net/$1)" = "$(cat /var/lib/hood/wan_port_device_path)" ]; then
     wan_port=1
   fi
   if [ $wan_port -eq 1 ]; then
