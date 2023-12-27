@@ -9,6 +9,7 @@ import argparse
 import http.client
 import subprocess
 import sys
+import os
 
 parser = argparse.ArgumentParser(
   prog="hood-timesync",
@@ -18,6 +19,8 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("--host", default="www.bing.com", type=str, help="The website to request time from")
 parser.add_argument("--last-resort-host", default="1.1.1.1", type=str, help="The website used as the last resort, should be an IP address")
+parser.add_argument("--time-anchor", default=1703703361, type=int, help="An Epoch time that being anchored as past, the time earlier than the anchor will be rejected.\nBased on the assumption that time only moves forward, any time before this value will be rejected.\nSet 0 to disable this test.\nExample: --hard-time-anchor=$(stat /etc/os-release -c %W)")
+
 args_ = parser.parse_args()
 
 headers_ = {
@@ -40,8 +43,25 @@ headers_ = {
   "Upgrade-Insecure-Requests":"1",
   "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
+
+def time_anchor_test(date):
+  if not args_.time_anchor:
+    return True
+  # use date command to convert date string to seconds since the Epoch
+  run_result = subprocess.run(['date', '-d', date, "+%s"], text=True, capture_output=True)
+  if run_result.returncode != 0:
+    return False
+  new_date = int(run_result.stdout)
+  return new_date > args_.time_anchor
+
 def set_date(date):
-  return subprocess.run(['sudo', 'date', '-s', date]).returncode
+  if not time_anchor_test(date):
+    print(date, "failed time anchor test")
+    return
+  command = ['sudo', 'date', '-s', date]
+  if os.getuid() == 0:
+    command.pop(0)
+  return subprocess.run(command).returncode == 0
 
 def fetch(host, https=True):
   try:
@@ -64,8 +84,8 @@ def fetch(host, https=True):
 date = fetch(args_.host, https=True)
 if date:
   print(date)
-  set_date(date)
-  sys.exit()
+  if set_date(date):
+    sys.exit()
 
 print("Fetch time from host failed, use last resort")
 

@@ -347,16 +347,17 @@ Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response 
 
 \section{Implementation}
 \paragraph{}
-The tool is implemented in a python script named hood-timesync.py. It accepts two command line arguments as listed in \cref{tab:timesync_cmdarg}. It will at first try to receive a HTTP response through TLS connection from the domain name specified by host argument. If it failed, the reason could be the website is down or the system time is too different from the actual time and made a vailid certificate unable to pass the validation. Thus, a plaintext connection to the host name provided by the last resort address argument is made as the second attemept. After the second attempt, another attempt to receive time from the domain of the host argument via TLS connection will be made, because TLS has less chance to be attacked and because the reason why the first step failed could be the website is temporarily down, the reason could also be the huge time difference made the validation of the certificate failed. In both cases, a HTTPS request to the domain may become possible to success after the second attempt.
+The tool is implemented in a python script named hood-timesync.py. It accepts two command line arguments as listed in \cref{tab:timesync_cmdarg}. It will at first try to receive a HTTP response through TLS connection from the domain name specified by host argument. If it failed, the reason could be the website is down or the system time is too different from the actual time and made a vailid certificate unable to pass the validation. Thus, a plaintext connection to the host name provided by the last resort address argument is made as the second attemept. After the second attempt, another attempt to receive time from the domain of the host argument via TLS connection will be made, because TLS has less chance to be attacked and because the reason why the first step failed could be the website is temporarily down, the reason could also be the huge time difference made the validation of the certificate failed. In both cases, a HTTPS request to the domain may become possible to success after the second attempt. An Epoch time is used as an 'achor' tim. Based on the assumption that time only moves forward, any time before this value will be rejected.
 
 \begin{table}[H]
   \centering
   \begin{tabular}{|c|c|c|m{68mm}|}
     \hline
-    Name                & Type & Default      & Descriptoin                                                  \\
+    Name               & Type & Default      & Descriptoin                                                                                                                                                                                                                                               \\
     \hline
-    -\-host             & str  & www.bing.com & The website to request time from                             \\
-    -\-last-resort-host & str  & 1.1.1.1      & The website used as the last resort, should be an IP address \\
+    --host             & str  & www.bing.com & The website to request time from                                                                                                                                                                                                                          \\
+    --last-resort-host & str  & 1.1.1.1      & The website used as the last resort, should be an IP address                                                                                                                                                                                              \\
+    --time-anchor      & int  & 1703703361   & An Epoch time that being anchored as past.\newline Based on the assumption that time only moves forward, any time before this value will be rejected.\newline Set 0 to disable this test.\newline Example: -\-time-anchor=\$(stat /etc/os-release -c \%W) \\
     \hline
   \end{tabular}
   \caption{Comand line arguments of hood-timesync.py}
