@@ -445,17 +445,48 @@ Its usage is "hood:browser:goto URL". Its will to use a fake browser to load a U
 \paragraph{}
 Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in CONDITION part by syntax "key=value[,key=value]". Currently only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has 33% chance of termination at the beginning of each loop, "0" means it will never has an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into python code. The COMMAND part is the hood action script to be executed in the loop.
 
-\chapter{Dispatcher}
-
-
-\chapter{Installation}
-
 \begin{figure}[H]
   \includegraphics[width=0.9\textwidth]{graphics/puml/actor.png}
   \caption{Logic view of hood-actor.py}
   \label{fig:actor-logic-view}
 \end{figure}
+
+\chapter{Dispatcher and firewall rules}\label{cha:dispatcher}
 \paragraph{}
+Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes of the network status or the system status to dynamically configure firewall rules and to start or stop netowrk services. It will be called by before-network.service (See \cref{sec:before-network-service}) and NetworkManager-dispatcher.service.
+
+\section{Initial state of firewall rules}
+\paragraph{}
+The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the deisgn of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPV4 and ARP protocol at layer 3. It allows anything to lo interface but reject anything else to communicate as/with 127.0.0.1. It allows connection track established and related state UDP/TCP packets. It allows the device to send or receive ICMP fragmentation-needed packets.
+
+
+\section{On system startup}
+\paragraph{}
+Upon system startup, dispatcher will be called by before-network.service. It will start two dmesg instances one is for redirecting firewall related logs to a log file another is for formatting the log to a more human readable form. In iptables era, it was used for inititalizing iptables rules.
+
+\section{On NetworkManager-dispatcher pre-up event}
+\paragraph{}
+This event means that a network interface is connected to the network but is not yet fully activated. The dispatcher will check the device path with the device specified during the installation process to know whether it is a WAN port. Devie path is the realpath of the network device. For example, on Linux, the device path of eth0 is the result of "realpath /sys/class/net/eth0".
+\paragraph{}
+If the network interface is the WAN port. The dispatcher will allow,
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|p{23mm}|p{24mm}|p{78mm}|}
+    \hline
+    Event          & Caller                 & Action                                               \\
+    \hline
+    system startup & before-network.service & network pre-up                                       \\
+    network pre-up & NetworkManager         & Name of the task, must be unique in current file     \\
+    before         & list of strings        & Names of tasks that should run no earlier than this. \\
+    after          & list of strings        & Names of tasks that should run before this.          \\
+    actions        & list of strings        & list hood action script                              \\
+    \hline
+  \end{tabular}
+  \caption{"task" object of action file}
+  \label{tab:dispatcher_actions}
+\end{table}
+
+\section{Installation}
 
 \chapter{Conclusions}
 
@@ -546,8 +577,112 @@ define something weird based on the BPEL specification
 
 \appendix %optional, use only if you have an appendix
 
-\chapter{Some retarded material}
-\section{It's over\dots}
+\chapter{Simple scripts and services created by firewall}
+\section{before-network.service}\label{sec:before-network-service}
+before-network.service is a systemd service being enabled during installation process and run before network is available to system. It is created to trigger dispatcher (See \cref{cha:dispatcher}) to initialize firewall rules and network configurations.
+\section{nftables.conf}\label{sec:nftables.conf}
+
+\begin{lstlisting}{language=conf}
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table ip filter {
+  chain input {
+    type filter hook input priority filter; policy drop;
+    iif lo accept
+    ip daddr 127.0.0.1/8 log prefix "[HOOD D]" flags all drop 
+    ip saddr 127.0.0.1/8 log prefix "[HOOD D]" flags all drop
+    meta l4proto udp ct state {established, related} log prefix "[HOOD A]" flags all accept
+    ct state {established, related} accept
+    icmp type {destination-unreachable} icmp code {frag-needed} accept
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain output {
+    type filter hook output priority filter; policy drop;
+    oif lo accept
+    ip daddr 127.0.0.1/8 log prefix "[HOOD D]" flags all drop 
+    ip saddr 127.0.0.1/8 log prefix "[HOOD D]" flags all drop 
+    meta l4proto udp ct state {established, related} log prefix "[HOOD A]" flags all accept
+    ct state {established, related} accept
+    icmp type destination-unreachable icmp code {frag-needed} accept
+    log prefix "[HOOD D]" flags all drop
+  }
+}
+
+table ip6 filter {
+  chain ingress {
+    type filter hook input priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain prerouting {
+    type filter hook input priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain input {
+    type filter hook output priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain output {
+    type filter hook output priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain postrouting {
+    type filter hook forward priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+}
+
+table bridge filter {
+  chain ingress {
+    type filter hook input priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain prerouting {
+    type filter hook prerouting priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain input {
+    type filter hook output priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain output {
+    type filter hook output priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+  chain postrouting {
+    type filter hook postrouting priority filter; policy drop;
+    log prefix "[HOOD D]" flags all drop
+  }
+}
+
+table netdev filter {
+}
+
+
+table arp filter {
+  chain input {
+    type filter hook input priority filter; policy drop;
+    log prefix "[HOOD A]" flags all accept
+  }
+  chain output {
+    type filter hook output priority filter; policy drop;
+    log prefix "[HOOD A]" flags all accept
+  }
+}
+\end{lstlisting}
 
 \backmatter
 
