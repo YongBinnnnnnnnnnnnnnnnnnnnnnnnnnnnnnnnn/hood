@@ -453,11 +453,12 @@ Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multip
 
 \chapter{Dispatcher and firewall rules}\label{cha:dispatcher}
 \paragraph{}
-Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes of the network status or the system status to dynamically configure firewall rules and to start or stop netowrk services. It will be called by before-network.service (See \cref{sec:before-network-service}) and NetworkManager-dispatcher.service.
+Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes of the network status or the system status to dynamically configure firewall rules and to start or stop netowrk services. It's callers are two sysrtemctl services: before-network.service (See \cref{sec:before-network-service}) and NetworkManager-dispatcher.service.
 
 \section{Initial state of firewall rules}
 \paragraph{}
-The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the deisgn of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPV4 and ARP protocol at layer 3. It allows anything to lo interface but reject anything else to communicate as/with 127.0.0.1. It allows connection track established and related state UDP/TCP packets. It allows the device to send or receive ICMP fragmentation-needed packets.
+The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the deisgn of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPV4 and ARP protocol at layer 3. It allows anything to lo interface but reject anything else to communicate from 127.0.0.1 or to 127.0.0.1. It allows UDP/TCP packets in connection track established and related
+state. It allows the device to send or receive ICMP fragmentation-needed packets. Anything else is ignored.
 
 
 \section{On system startup}
@@ -486,7 +487,13 @@ If the network interface is the WAN port. The dispatcher will allow,
   \label{tab:dispatcher_actions}
 \end{table}
 
-\section{Installation}
+\chapter{Installation}
+\chapter{Reasons of not to use}
+
+\section{IPV6}
+\section{WiFi}
+\section{Bluetooth}
+\section{GPU}
 
 \chapter{Conclusions}
 
