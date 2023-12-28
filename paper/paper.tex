@@ -17,7 +17,7 @@ morecomment=[l]{//s},
 
 
 
-\title{Design and implementation of a firewall device} %compulsory
+\title{Design and implementation of a hardware firewall} %compulsory
 \mastermajor{Financial Technology and Computing}%optional
 \specialization{main track}
 %\subtitle{Subtitle: Reinventing the World} %optional 
@@ -61,7 +61,7 @@ morecomment=[l]{//s},
 
 \chapter{Introduction}
 \paragraph{}
-Hacking and surveillance tools are widely deployed The goal of this work is to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device will work as a strict firewall which limits network activities and will also apply encryption standards to increase the difficulty of eavesdropping, and also to reduce the attack surface of fingerprinting. The device will run a TLS proxy to harden TLS protocol. It will use a screen to display selected real-time internet activities.
+Hacking and surveillance tools are widely deployed The goal of this work is to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device works as a strict firewall which limits network activities and applies encryption standards to increase the difficulty of eavesdropping, and also to reduce the attack surface of fingerprinting. The device run a TLS proxy to supervise and manage TLS connections. It uses a screen to display selected real-time internet activities.
 \paragraph{}
 Using a hardware as a firewall has several advantages. Firstly, hardware
 firewall can provide complete isolation between highly unsafe code,
@@ -69,18 +69,18 @@ like a browser, and firewall software (fun fact: I was hacked repeatedly
 through personally harddened latest version of firefox while writing this
 thesis). This could also work as a mitigation of CPU/BIOS level threats:
 Firmware malwares, bootkits, and doubtable proprietray technologies like
-Intel ME and the AMD PSP. Second, it will also provide convenience to the
-user: the configuration of this portable device will be applied to protect
+Intel ME and the AMD PSP. Second, it also provide convenience to the
+user: the configuration of this portable device is applied to protect
 everything behind it, so people do not need to do the time consuming
 configuration work on different softwares and operating systems one by one.
 \paragraph{}
-Even things that could not be configured will be under the restriction of the firewall. In example, people cannot untrust a built-in trusted root certificate from iPhone via Settings app.
+Even things that could not be configured is under the restriction of the firewall. In example, people cannot untrust a built-in trusted root certificate from iPhone via Settings app.
 
 \chapter{Hardware}
 \section{Theory of the cost}
 \paragraph{}
 Commercial firewalls are usually more expensive than development boards that contains the same level of hardware functioality. One one hand, It's acceptable because they provided addtional values throught their software and services and all of the development and maintainance of the product, the service, and the company itself are costing money. On the other hand, it also indicates that an open-source solution like the tool introduced in this paper would reduce lower bound of the cost of accessing a hardware firewall.
-\section{Market research}
+\section{Market research on commercial firewalls}
 \paragraph{}
 Despite the firewall implemented in this paper is not a general purpose firewall, the difference in cost between market products is still worth knowing. From \cref{tab:amazon-search,tab:amazon-search-stat}, the prices of a firewall devices are around the price 250.74 EURO, and most of them are more expensive than the price of a Raspberry Pi 4B (68.79 EURO) selling on the same website. Only one exception: TP-LINK ER605. It's price is 55.5 euro which is still higher than the price of a Raspberry P 3B on the same website. After seeking into the details of this exception, its central management design and the corresponding cloud-based controller both showing that it is desigend for a totally different threat model and the its exceptional price could be explained, because it is under the control of that company and when people are motivated to spend money on a hardware firewall, their requirement to information security usually do not want to give full control of their firewall to a company. As a conclusion, using Raspberry Pi would cost less than usual general purpose firewalls.
 
@@ -158,8 +158,12 @@ Despite the firewall implemented in this paper is not a general purpose firewall
   \caption{Statistics of \cref{tab:amazon-search}}
   \label{tab:amazon-search-stat}
 \end{table}
-\chapter{Operating system}
 
+\section{Choosing Raspberry Pi}
+\paragraph{}
+The historical reason why Raspberry Pi is used is because it is the only single board computer (SBC) I have when this firewall was started as a hobby project to solve the aggarsive hack problem that I was facing. The decision is unchanged after the start of this thesis mainly because the time costs on trying new SBCs: Since its first release on 2012, Raspberry Pi has upgraded its hardware models and software for multiple times, has accumluated a lot of working projects, and has maintained an active user community with a large number of experinced users behind it. All of them shows that using Raspberry Pi, I could cost less time on fixing the bugs of the SBC itself or on waiting for the answers from the community, because preivous users has asked and answered many questions and has found and fixed many problems. Besides that, its large number of users could also help on spreading the firewall project and help on pointing out security flaws of its new upgrades.
+
+\chapter{Operating system}
 \paragraph{}
 Due to its security-focused nature, OpenBSD would be a great choice when buiding a firewall. However, as a portable device, it is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most of Linux, Windows, BSD and MacOS could be supported. FreeBSD USB stack can run in device mode and provided 3 virtual network iterface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. Considering the large market share of Microsoft Windows, linux is decided as the base OS of this firewall device.
 
@@ -170,7 +174,7 @@ As the general principles, all traffics passed thorugh should be checked to agai
 \paragraph{}
 A modern browser can satisify most of needs to interact with internet for working. So, allowing HTTP and HTTPS connections could make most of works done when facing a hostile network environment. Thus, everyting unnecessray to make this done are blocked. The firewall rules should be carefully made to filter out as much as possible and as early as possible, because everything on all layers of the Open Systems Interconnection model (OSI model) is protentialy vulnerable and the less network traffic being passed to the following components, the less chance a vulnerability can affect the firewall.
 \paragraph{}
-Proxies should be used to forward network traffics. There are advantages of using a proxy than forwarding packets like a router. First, a proxy can run under user level while packets forwarding run at kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operatng system firewalls well. When the rules are not strict enough unexpected things may happen. In example, allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations. Third, the packets from the proxy will be encoded again by Linux network stack so the fingerprinting techniques that targeting TCP ad IP properties will useless to the devices under its protection.
+Proxies should be used to forward network traffics. There are advantages of using a proxy than forwarding packets like a router. First, a proxy can run under user level while packets forwarding run at kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operatng system firewalls well. When the rules are not strict enough unexpected things may happen. In example, allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations. Third, the packets from the proxy are encoded again by Linux network stack so the fingerprinting techniques that targeting TCP ad IP properties is useless to the devices under its protection.
 
 \section{Implementation}
 \paragraph{}
@@ -205,11 +209,11 @@ keywordstyle={\color{green}\bfseries}
 
 \section{Implementation}
 \paragraph{}
-NetworkManager is used to manage physical connections of the firewall. By adding 'ethernet.cloned-mac-address=random' and 'wifi.cloned-mac-address=random' to the 'connection' section of NetworkManager.conf, the MAC address randomization will be done by NetworkManager. The 'ifconfig interface link random' command can also randomize the MAC address of a interface manually.
+NetworkManager is used to manage physical connections of the firewall. By adding 'ethernet.cloned-mac-address=random' and 'wifi.cloned-mac-address=random' to the 'connection' section of NetworkManager.conf, the MAC address randomization is done by NetworkManager. The 'ifconfig interface link random' command can also randomize the MAC address of a interface manually.
 \paragraph{}
 Host names of the firewall device is random generated while starting the system. The relevant code is inside rc.local. The name is crafted to look normal. The pattern of default computer name of Microsoft Windows and common names like iPad are used. Since the implementation of the client of the protocol could also be vulnerable, the combination of AppArmor and dhclient to mitigate this problem.
 \paragraph{}
-Dnsmasq is used to assign IP address of the users of the firewall it will also tell the devices behind the firewall to use the firewall as the DNS resolver.
+Dnsmasq is used to assign IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
 
 \chapter{Domain Name System (DNS)}
 
@@ -236,13 +240,13 @@ A dnsmasq is started to resolve everything to the firewall device to make the fi
 \section{Management of certificates}
 
 \subsection{Introduction}
-All modern major operating systems managed a collection of trused certificates issued by certificate authorities (CAs) they choose. Those certificates are used to prove the validity of a public key. When makeing a TLS connection, local applications will check the path of the certificate provided by remote with local trusted collection to ensure secure connections.
+All modern major operating systems managed a collection of trused certificates issued by certificate authorities (CAs) they choose. Those certificates are used to prove the validity of a public key. When makeing a TLS connection, local applications check the path of the certificate provided by remote with local trusted collection to ensure secure connections.
 \subsubsection{The issue}
 \paragraph{}
-Almost all TLS clients do not alert its user when the remote website presented a different certificate, which gives CAs the power to do man in the middle (MITM) attacks. Even if  do not want to do evil, their private key could still have been stolen. Thus, none of them are strictly trustworthy. However, whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and things will be worse if without TLS.
+Almost all TLS clients do not alert its user when the remote website presented a different certificate, which gives CAs the power to do man in the middle (MITM) attacks. Even if  do not want to do evil, their private key could still have been stolen. Thus, none of them are strictly trustworthy. However, whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and if without TLS, things will only be worse.
 \subsubsection{Exsting solutions}
 \paragraph{}
-SSL-pinning can prevent MITM attacks from a trusted CA when the user know the remote endpoint should use the certificate from another authority. However, configuring SSL-pinning to all the enspoints is hard and time consuming to average users and without a basic trusted environment, it will be unable to certain whether the configuration has done correctly. Even if the configuration is correct, it is still not strange for an enspoint to switch to another CA. Thus, to a firewall, this technique cannot be used as a general solution of the issue that can be applied to all endpoints.
+SSL-pinning can prevent MITM attacks from a trusted CA when the user know the remote endpoint should use the certificate from another authority. However, configuring SSL-pinning to all the enspoints is hard and time consuming to average users and without a basic trusted environment, people unable to know whether the configuration has done correctly. Even if the configuration is correct, it is still not strange for an enspoint to switch to another CA. Thus, to a firewall, this technique cannot be used as a general solution of the issue that can be applied to all endpoints.
 \paragraph{}
 Removing suspecious CAs from the trusted list could protect people from MITM attacks initiated by those CA. However, some systems and devices do proide the function of untrusting a CA. In example, iPhone needs a computer to enable such configuration and most of Android variants.
 \subsection{Design}
@@ -266,7 +270,7 @@ An idea to save the clients that contain severe deficiencies is to attack from t
 Despite using MITM attack to insepect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the tls proxy used in this firewall should not implement the same functioality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disasteer to the devices behind it: the attacker will be able to easily modify the encrypted data transfered over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attack at all, the compromised still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
 \subsubsection{Filtering certificates}
 \paragraph{}
-The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy will handshake with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by certificate check connections.
+The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy handshakes with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by certificate check connections.
 
 \subsubsection{Checking connections}
 \paragraph{}
@@ -282,7 +286,7 @@ The proxy should parse handshake packets. It should check algorithms provided by
 \paragraph{Programming language}
 Since TLS proxy in charge of processing and forwarding the majority traffic of the firewall, c++ is used to develop the proxy due to its high performance capability.
 \paragraph{ClientHello}
-Upon receiving ClientHello from a client, the proxy at first check the version of the protocol, and the suppor\_versions extension to see if the client supports to establish a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, the ciphersuites field will also be checked, if it contains none of the value listed in \ref{lst:tls-ciphersuites} \citep{rfc:bstprc}, it will be considered unable to be safe and discarded. If the ClientHello passed all of the security checks, the proxy will extract the Server Name Indication (SNI) from ClientHello to dertermine the actual destination of the request.
+Upon receiving ClientHello from a client, the proxy at first check the version of the protocol, and the suppor\_versions extension to see if the client supports to establish a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, proxy checks ciphersuites field, if it contains none of the value listed in \ref{lst:tls-ciphersuites} \citep{rfc:bstprc}, it will be considered unable to be safe and discarded. If the ClientHello passed all of the security checks, the proxy will extract the Server Name Indication (SNI) from ClientHello to dertermine the actual destination of the request.
 
 \begin{table}[H]
   \begin{itemize}
@@ -299,7 +303,7 @@ Upon receiving ClientHello from a client, the proxy at first check the version o
 \end{table}
 
 \paragraph{Name resolving and trused endpoint}
-The proxy will at first check if there is any cached trused endpoints available, if not it uses a RPC call to hood-name-service.py to resolve the domain name. Then TLS handshakes following the the same restrictions to the ClientHello check will be made to all of the addresses returned from the name service. The handshake process will not only ensure remote endpoint meets the requirements (versions and ciphersuites) of applying the best practices described in rfc9325, it will also check whether the remote endpoint could provide a validate certificate of the hostname from a trusted CA of the firewall.
+The proxy at first check if there is any cached trused endpoints available, if not it uses a RPC call to hood-name-service.py to resolve the domain name. Then TLS handshakes following the the same restrictions to the ClientHello check is made to all of the addresses returned from the name service. The handshake process will not only ensure remote endpoint meets the requirements (versions and ciphersuites) of applying the best practices described in rfc9325, it will also check whether the remote endpoint could provide a validate certificate of the hostname from a trusted CA of the firewall.
 \paragraph{ServerHello} After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result to use unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
 
 
@@ -315,7 +319,7 @@ The proxy will at first check if there is any cached trused endpoints available,
 \section{HTTP}
 \subsection{Implementation}
 \paragraph{}
-hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected. The connections to other servers will be tunneled via TLS protocol through hood-tls-proxy service. See \cref{fig:ocsp-process-view,fig:http-process-view}.
+hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected. The connections to other servers are tunneled via TLS protocol through hood-tls-proxy service. See \cref{fig:ocsp-process-view,fig:http-process-view}.
 
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-ocsp-traffic.png}
@@ -347,7 +351,7 @@ Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response 
 
 \section{Implementation}
 \paragraph{}
-The tool is implemented in a python script named hood-timesync.py. It accepts two command line arguments as listed in \cref{tab:timesync_cmdarg}. It will at first try to receive a HTTP response through TLS connection from the domain name specified by host argument. If it failed, the reason could be the website is down or the system time is too different from the actual time and made a vailid certificate unable to pass the validation. Thus, a plaintext connection to the host name provided by the last resort address argument is made as the second attemept. After the second attempt, another attempt to receive time from the domain of the host argument via TLS connection will be made, because TLS has less chance to be attacked and because the reason why the first step failed could be the website is temporarily down, the reason could also be the huge time difference made the validation of the certificate failed. In both cases, a HTTPS request to the domain may become possible to success after the second attempt. An Epoch time is used as an 'achor' tim. Based on the assumption that time only moves forward, any time before this value will be rejected.
+The tool is implemented in a python script named hood-timesync.py. It accepts two command line arguments as listed in \cref{tab:timesync_cmdarg}. It at first try to receive a HTTP response through TLS connection from the domain name specified by host argument. If it failed, the reason could be the website is down or the system time is too different from the actual time and made a vailid certificate unable to pass the validation. Thus, a plaintext connection to the host name provided by the last resort address argument is made as the second attemept. After the second attempt, the tool starts another attempt to receive time from the domain of the host argument via TLS connection, because TLS has less chance to be attacked and because the reason why the first step failed could be the website is temporarily down, the reason could also be the huge time difference made the validation of the certificate failed. In both cases, a HTTPS request to the domain may become possible to success after the second attempt. An Epoch time is used as an 'achor' tim. Based on the assumption that time only moves forward, any time before this value will be rejected.
 
 \begin{table}[H]
   \centering
@@ -432,15 +436,15 @@ Action files are in JSON format. An action file contains an array of objects. Al
 \subsection{HoodExecutor}
 HoodExecutor is a general purpose multi-thread task executor for python. It can run and schedule tasks that has dependency relationships and delay requirements in parallel. It has a thread pool of workers to execute tasks and a single thread for scheduling delayed tasks. It is requred to simulate the paralleled requests sent out from real world browsers if without third party HTTP client based on asyncio. It is also the cornerstone of fullfilling all the execution requirements of the tasks and actions in an action file.
 
-\subsection{Browser}
-A fake browser is creted to simuluate network activities of browsing is a general purpose multi-thread task executor for python. It records the cookies specified in the HTTP response headers and sends them out like a real browser. It parses the HTML content of the webpage to extract the resources to be loaded and load them in parallel just like a real browser. It uses headers that used by real browsers and uses different headers on different resoures just like a real browser. Due to security concerns, and also to reduce the performance impacts caused by the actor, fake browser will neither render the webpage [CVE-2023-6707, CVE-2023-6351, CVE-2023-6869, CVE-2023-5170] nor evaluate scripts [CVE-2023-6702, CVE-2023-5997, CVE-2023-5728, CVE-2023-5723] used by the webpage.
+\subsection{Browser}\label{sec:browser}
+A fake browser is creted to simuluate network activities of browsing is a general purpose multi-thread task executor for python. It records the cookies specified in the HTTP response headers and sends them out like a real browser. It parses the HTML content of the webpage to extract the resources to be loaded and load them in parallel just like a real browser. It uses headers that used by real browsers and uses different headers on different resoures just like a real browser. Cookiesare stored in memory and used in the running session. However, Due to security concerns, and also to reduce the performance impacts caused by the actor, fake browser will neither render the webpage [CVE-2023-6707, CVE-2023-6351, CVE-2023-6869, CVE-2023-5170] nor evaluate scripts [CVE-2023-6702, CVE-2023-5997, CVE-2023-5728, CVE-2023-5723] used by the webpage.
 
 \subsection{Hood action script}
 \paragraph{}
 Hood action script is a script to describe actions to be done to the actor. Each line of the script can be seen as three parts: namespaces, command, and argument. For example, \newline "hood:browser:goto:http://www.example.com". "hood:browser:" is to refer browser namespace from hood namespace, "goto" is a command inside browser namespace to tell intepreter to use browser to load a webpage. "http://www.example.com" is the parameter of the "goto" command. In this example, it represents the url of the webpage to be loaded.
 \subsubsection{hood:browser:goto command}
 \paragraph{}
-Its usage is "hood:browser:goto URL". Its will to use a fake browser to load a URL, all static resource descripted in HTML will be loaded, cookies will be stored and used in the running session, but by design, dynamic things like JavaScript, will not be executed. When the special value "random\_link" is used as the argument, actor will randomly pick a link from the webpage currently loaded in the browser to go to, but nothing will be done if current webpage contains not links.
+Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \cref{sec:browser}) to load a URL. When the special value "random\_link" is used as the argument, actor randomly picks a link from the webpage currently loaded in the browser to go to, but nothing will be done if current webpage contains not links.
 \subsubsection{hood:loop command}
 \paragraph{}
 Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in CONDITION part by syntax "key=value[,key=value]". Currently only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has 33% chance of termination at the beginning of each loop, "0" means it will never has an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into python code. The COMMAND part is the hood action script to be executed in the loop.
@@ -453,47 +457,63 @@ Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multip
 
 \chapter{Dispatcher and firewall rules}\label{cha:dispatcher}
 \paragraph{}
-Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes of the network status or the system status to dynamically configure firewall rules and to start or stop netowrk services. It's callers are two sysrtemctl services: before-network.service (See \cref{sec:before-network-service}) and NetworkManager-dispatcher.service.
+Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes of the network status or the system status to dynamically configure firewall rules and to start or stop netowrk services. It's callers are two sysrtemctl services: before-network.service (See \cref{sec:before-network-service}), udev.service, and NetworkManager-dispatcher.service.
 
 \section{Initial state of firewall rules}
 \paragraph{}
 The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the deisgn of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPV4 and ARP protocol at layer 3. It allows anything to lo interface but reject anything else to communicate from 127.0.0.1 or to 127.0.0.1. It allows UDP/TCP packets in connection track established and related
 state. It allows the device to send or receive ICMP fragmentation-needed packets. Anything else is ignored.
 
+\section{On udev add event}
+\subsubsection{netdev filter}
+\paragraph{}
+A default netdev filter will be added to both LAN and WAN interfaces. It has to be added dynamically because both of its ingress and egress filter requires the name of the device. The filter accepts only ARP and IP packets to passthrough. The firewall rules from other places already achieved the same thing but it is added because it is the earliest place to filter out a packet and the earlier a packet to be filtered the less chance the packet to cause a problem.
 
 \section{On system startup}
 \paragraph{}
 Upon system startup, dispatcher will be called by before-network.service. It will start two dmesg instances one is for redirecting firewall related logs to a log file another is for formatting the log to a more human readable form. In iptables era, it was used for inititalizing iptables rules.
+\paragraph{}
+Since the udev event could be triggered at very early stage of the startup, so early that the nftables service may not available and adding rules may fail. Dispatcher try to add a netdev filter on all available network instances again because the timing before-network.service is sufficient to ensure the availability of nftables.service.
 
 \section{On NetworkManager-dispatcher pre-up event}
 \paragraph{}
-This event means that a network interface is connected to the network but is not yet fully activated. The dispatcher will check the device path with the device specified during the installation process to know whether it is a WAN port. Devie path is the realpath of the network device. For example, on Linux, the device path of eth0 is the result of "realpath /sys/class/net/eth0".
+This event means that a network interface is connected to the network but is not yet fully activated. The dispatcher checks the device path with the device specified during the installation process to know whether it is a WAN port. Devie path is the realpath of the network device. For example, on Linux, the device path of eth0 is the result of "realpath /sys/class/net/eth0".
+\subsubsection{WAN port}
 \paragraph{}
-If the network interface is the WAN port. The dispatcher will allow,
+For the WAN port network interface, the dispatcher allows UDP packets to be sent out from local 68 port to remote 67 port and to be received from remote 67 port to local 68 port for DHCP protocol.
+\subsubsection{LAN port}
+\paragraph{}
+For LAN port network interfaces, the dispatcher at first pick a randomized start number \(\in [2, 255]\) as the third byte of the IPV4 address, and all following LAN ports use the result of \[2 + (Last Used Number - 1) \mod 254\] as the third byte. The randomization of the start number is made after each system start. LAN subnet randomization could help increase the difficulty of a malicious code to detect the firewall from LAN port.
+\paragraph{}
+After randomization, following firewall rules is added:
 \begin{table}[H]
-  \centering
-  \begin{tabular}{|p{23mm}|p{24mm}|p{78mm}|}
-    \hline
-    Event          & Caller                 & Action                                               \\
-    \hline
-    system startup & before-network.service & network pre-up                                       \\
-    network pre-up & NetworkManager         & Name of the task, must be unique in current file     \\
-    before         & list of strings        & Names of tasks that should run no earlier than this. \\
-    after          & list of strings        & Names of tasks that should run before this.          \\
-    actions        & list of strings        & list hood action script                              \\
-    \hline
-  \end{tabular}
-  \caption{"task" object of action file}
-  \label{tab:dispatcher_actions}
+  \begin{itemize}
+    \item Accept the incoming TCP connections through the LAN interface if the destination IP address is the LAN IP address and the destination port is 80 or 443. For hood-http-handler.py and hood-tls-proxy
+    \item Accept the incoming UDP packets through the LAN interface if the destination IP address is the LAN IP address and the destination port is 53. For the dnsmasq instance.
+    \item Allow UDP packets to be sent out from local 67 port to remote 68 port and to be received from remote 68 port to local 68 port. For the dnsmasq instance.
+  \end{itemize}
+  \caption{Firewall rules to be added for LAN ports}
+  \label{lst:LAN-rules}
 \end{table}
+\paragraph{}
+A dnsmasq instance is started for this network interface, to assign IP addresses to connected devices, to let connected devices use the IP address of the LAN port of the firewall as the DNS server, and to respond the IP address of the LAN port for DNS requests.
+
+\section{On NetworkManager-dispatcher up event}
+Dispatcher only reacts to this event for the WAN port. It at first waits for DHCP to finish. After DHCP is done, dispatcher removes DHCP related accept rules from nftables and add a rule to accept outbound TCP connections from WAN instance with the source address as the DHCP result to remote 80 and 443 ports. This rule is for HTTP and HTTPS protocols. After that, dispatcher restarts the hood-network-services.service (\cref{sec:hood-network-services.service}). It will also check the existance of /do\_upgrade or /run\_once files to do system upgrade or to run the script.
+
+\section{On NetworkManager-dispatcher down event}
+Dispatcher removes the firewall rules dynamically added for this instance and kills the dnsmasq instances for this interface.
 
 \chapter{Installation}
 \chapter{Reasons of not to use}
+\paragraph{}
+In most cases, the reason to not use something is to reduce the attack surface.
 
 \section{IPV6}
 \section{WiFi}
 \section{Bluetooth}
 \section{GPU}
+\section{Honeypot}
 
 \chapter{Conclusions}
 
@@ -585,10 +605,14 @@ define something weird based on the BPEL specification
 \appendix %optional, use only if you have an appendix
 
 \chapter{Simple scripts and services created by firewall}
+
 \section{before-network.service}\label{sec:before-network-service}
 before-network.service is a systemd service being enabled during installation process and run before network is available to system. It is created to trigger dispatcher (See \cref{cha:dispatcher}) to initialize firewall rules and network configurations.
-\section{nftables.conf}\label{sec:nftables.conf}
 
+\section{hood-network-services.service}\label{sec:hood-network-services.service}
+It is a service for running hood network services. It runs hood-network-services-runner.sh which starts hood-http-handler.py, hood-name-service.py, hood-tls-proxy, and a dnsmasq client for DNS queries made from the firewall system.
+
+\section{nftables.conf}\label{sec:nftables.conf}
 \begin{lstlisting}{language=conf}
 #!/usr/sbin/nft -f
 
