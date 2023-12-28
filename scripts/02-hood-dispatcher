@@ -4,6 +4,8 @@ logfile=/var/log/hood-dispatcher.log
 echo $1 $2 $3 start | tee -a $logfile >  /dev/tty1
 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 
+mkdir -p /tmp/hood
+
 function add_default_netdev_filter_on(){
   if ! sudo nft list ruleset netdev | grep -q "\b${1}\b"; then
     nft add chain netdev filter ${1}ingress { type filter hook ingress device $1 priority filter\; policy drop\;}
@@ -19,9 +21,12 @@ function add_default_netdev_filter_on(){
   fi
 }
 
+function nft_handle_to_file(){
+  nft -a -e "${@:2}"|head -n 1|sed "s/.*# handle //">>$1
+}
+
 function proxy_access_on(){
   echo "give proxy access on " $1 | tee -a $logfile >  /dev/tty1
-  mkdir -p /tmp/hood
   touch /tmp/hood/counter.lock
   exec {counter_lock_fd}<>/tmp/hood/counter.lock
   flock $counter_lock_fd
@@ -38,10 +43,11 @@ function proxy_access_on(){
   ip address flush $1
   ip address add $interface_address/24 dev $1
   echo $interface_address > /tmp/hood/$1-address
-  nft insert rule ip filter input index 5 iif $1 ip daddr $interface_address tcp dport {80, 443} accept
-  nft insert rule ip filter input index 5 iif $1 ip daddr $interface_address udp dport {53} accept
-  nft insert rule ip filter input index 5 iif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
-  nft insert rule ip filter output index 5 oif $1 udp sport {67} udp dport {68} log prefix \"[HOOD A]\" flags all accept
+
+  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr $interface_address tcp dport {80, 443} accept
+  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr $interface_address udp dport {53} accept
+  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
+  nft_handle_to_file /tmp/hood/$1_proxy_o_rule insert rule ip filter output index 5 oif $1 udp sport {67} udp dport {68} log prefix \"[HOOD A]\" flags all accept
   nohup /usr/sbin/dnsmasq --pid-file=/tmp/hood/dnsmasq-$1.pid --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=$1 --except-interface=lo --clear-on-reload --strict-order --listen-address=$interface_address --bind-interfaces --no-poll --address=/#/$interface_address --cache-size=0  --dhcp-range=$interface_address,10.0.${counter}.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/hood/dnsmasq-$1.lease --dhcp-option=option:dns-server,$interface_address > /tmp/hood/dnsmasq-$1.log &2>1  &
   disown
 }
@@ -50,41 +56,64 @@ function proxy_access_on(){
 function revoke_proxy_access_on(){
   echo "revoke proxy access on " $1 | tee -a $logfile >  /dev/tty1
   interface_address=$(cat /tmp/hood/$1-address)
-  nft insert rule ip filter input index 5 iif $1 ip daddr $interface_address tcp dport {80, 443} accept
-  nft insert rule ip filter input index 5 iif $1 ip daddr $interface_address udp dport {53} accept
-  nft insert rule ip filter input index 5 iif $1 udp dport {68} udp sport {67} log prefix \"[HOOD A]\" flags all accept
-  nft insert rule ip filter output index 5 oif $1 udp sport {67} udp dport {68} log prefix \"[HOOD A]\" flags all accept
+  while read handle; do
+    nft delete rule ip filter input handle $handle
+  done < /tmp/hood/$1_proxy_i_rule
+  rm /tmp/hood/$1_proxy_i_rule
+  while read handle; do
+    nft delete rule ip filter output handle $handle
+  done < /tmp/hood/$1_proxy_o_rule
+  rm /tmp/hood/$1_proxy_o_rule
   kill $(cat /tmp/hood/dnsmasq-$1.pid)
 }
 
+function add_arp_access_on(){
+  nft_handle_to_file /tmp/hood/$1_arp_i_rule add rule arp filter input iif $1 log prefix \"[HOOD A]\" flags all accept
+  nft_handle_to_file /tmp/hood/$1_arp_o_rule add rule arp filter output oif $1 log prefix \"[HOOD A]\" flags all accept
+}
+function revoke_arp_access_on(){
+  while read handle; do
+    nft delete rule arp filter input handle $handle
+  done < /tmp/hood/$1_arp_i_rule
+  rm /tmp/hood/$1_arp_i_rule
+  while read handle; do
+    nft delete rule arp filter output handle $handle
+  done < /tmp/hood/$1_arp_o_rule
+  rm /tmp/hood/$1_arp_o_rule
+}
 function add_dhcp_client_access_on(){
   echo "add dhcp access on " $1 | tee -a $logfile >  /dev/tty1
-  nft insert rule ip filter input index 5 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept
-  nft insert rule ip filter output index 5 oif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
-  nft insert rule arp filter input index 0 iif $1 log prefix \"[HOOD A]\" flags all accept
-  nft insert rule arp filter output index 0 oif $1 log prefix \"[HOOD A]\" flags all accept
+  nft_handle_to_file /tmp/hood/$1_dhcp_ip_i_rule insert rule ip filter input index 5 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept
+  nft_handle_to_file /tmp/hood/$1_dhcp_ip_o_rule insert rule ip filter output index 5 oif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
 }
 
 function revoke_dhcp_client_access_on(){
   echo "revoke dhcp access on " $1 | tee -a $logfile >  /dev/tty1
   #sudo nft delete chain netdev filter eth0ingress
-  nft delete rule ip filter input iif "$1" udp dport {67} udp sport {68} accept notrack
-  nft delete rule ip filter output oif "$1" udp sport {68} udp dport {67} accept notrack
-  nft delete rule arp filter input iif $1 log prefix \"[HOOD A]\" flags all accept notrack
-  nft delete rule arp filter output oif $1 log prefix \"[HOOD A]\" flags all accept notrack
+  while read handle; do
+    nft delete rule ip filter input handle $handle
+  done < /tmp/hood/$1_dhcp_ip_i_rule
+  rm /tmp/hood/$1_dhcp_ip_i_rule
+  while read handle; do
+    nft delete rule ip filter output handle $handle
+  done < /tmp/hood/$1_dhcp_ip_o_rule
+  rm /tmp/hood/$1_dhcp_ip_o_rule
 }
 
 function internet_access_on(){
   echo "internet access on " $1 | tee -a $logfile >  /dev/tty1
   ip addr show eth0|grep inet -m 1|sed -r "s/    inet ([0-9\.]*).*/\1/">/tmp/hood/wan_ip
   wan_ip=$(cat /tmp/hood/wan_ip)
-  nft insert rule ip filter output index 5 oif $1 ip saddr $wan_ip/32 tcp dport {80, 443} accept
+  nft_handle_to_file /tmp/hood/$1_internet_o_rule insert rule ip filter output index 5 oif $1 ip saddr $wan_ip/32 tcp dport {80, 443} accept
 }
 
 function revoke_internet_access_on(){
   echo "revoke internet access on " $1 | tee -a $logfile >  /dev/tty1
-  wan_ip=$(cat /tmp/hood/wan_ip)
-  nft delete rule ip filter output oif $1 ip saddr $wan_ip/32 tcp dport {80, 443} accept
+
+  while read handle; do
+    nft delete rule ip filter output handle $handle
+  done < /tmp/hood/$1_internet_o_rule
+  rm /tmp/hood/$1_internet_o_rule
 }
 
 #dhcp server 67 client 68
@@ -134,6 +163,16 @@ function wait_dhcp_success(){
     echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
     sleep 1
   done
+  return 0
+  while ! ip route|head -n 1 |grep -q default; do
+    echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
+    sleep 1
+  done
+  gateway=$(ip route|head -n 1|sed -r "s/default via ([0-9\.]*).*/\1/")
+  while ! ip neigh|grep $gateway|grep -q lladdr; do
+    echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
+    sleep 1
+  done
 }
 
 function http_timesync(){
@@ -150,6 +189,7 @@ elif [ "$2" = "pre-up" ]; then
   #ifconfig $1 link random
   if is_wan_port $1; then
     add_dhcp_client_access_on $1 $2
+    add_arp_access_on $1 $2
   else
     if ! test -f /var/lib/hood/flags/usb_tether; then
       exit
@@ -164,6 +204,7 @@ elif [ "$2" = "up" ]; then
     revoke_dhcp_client_access_on $1 $2
     internet_access_on $1 $2
     http_timesync
+    revoke_arp_access_on $1 $2
     systemctl restart hood-network-services.service
 
     if test -f /var/lib/hood/flags/usb_tether; then
@@ -197,6 +238,7 @@ elif [ "$2" = "down" ]; then
   if is_wan_port $1; then
     del /tmp/hood/$1-is-wan-port
     revoke_dhcp_client_access_on $1 $2
+    revoke_arp_access_on $1 $2
     revoke_internet_access_on $1 $2
   else
     revoke_proxy_access_on $1 $2
