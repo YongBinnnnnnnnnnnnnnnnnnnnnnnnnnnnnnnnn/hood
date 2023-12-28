@@ -83,6 +83,10 @@ function revoke_arp_access_on(){
 }
 function add_dhcp_client_access_on(){
   echo "add dhcp access on " $1 | tee -a $logfile >  /dev/tty1
+  # This log has never printed on my device
+  # Today I found that someone was swapping the SD card of my Pi while I was going to toilet
+  # So, it could be someone installed something strange in kernel of my Pi and did something to this rule.
+  # Not sure 
   nft_handle_to_file /tmp/hood/$1_dhcp_ip_i_rule insert rule ip filter input index 5 iif $1 udp dport {67} udp sport {68} log prefix \"[HOOD A]\" flags all accept
   nft_handle_to_file /tmp/hood/$1_dhcp_ip_o_rule insert rule ip filter output index 5 oif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
 }
