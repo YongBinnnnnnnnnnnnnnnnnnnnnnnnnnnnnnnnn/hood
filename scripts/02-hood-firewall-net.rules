@@ -1,0 +1,2 @@
+SUBSYSTEM=="net", ACTION=="add", PROGRAM="/etc/NetworkManager/dispatcher.d/02-hood-dispatcher $name udev-add"
+SUBSYSTEM=="net", ACTION=="remove", PROGRAM="/etc/NetworkManager/dispatcher.d/02-hood-dispatcher $name udev-remove"

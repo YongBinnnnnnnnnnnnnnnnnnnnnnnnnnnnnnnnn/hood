@@ -250,6 +250,8 @@ sudo ln -sf /etc/NetworkManager/dispatcher.d/02-hood-dispatcher $prefix/etc/Netw
 sudo ln -sf /etc/NetworkManager/dispatcher.d/02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/pre-down.d/02-hood-dispatcher
 sudo chmod 0755 $prefix/etc/NetworkManager/dispatcher.d/02-hood-dispatcher
 
+sudocpcontent 02-hood-firewall-net.rules $prefix/etc/udev/rules.d/
+
 sudo ln -sf /etc/NetworkManager/dnsmasq.d/dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
 sudo cp update_eeprom $prefix/
 sudo chmod +x $prefix/update_eeprom
