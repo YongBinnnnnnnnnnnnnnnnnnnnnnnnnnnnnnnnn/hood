@@ -77,11 +77,15 @@ cd hood/scripts
 ```
 
 Commandline options available to the install script:
- - no_usb_tether
- - harden_only
- - no_rfkill
- - no_gpukill
- - target=
+
+|Name                  |Default                                               |Description                                                                   |
+|----------------------|------------------------------------------------------|------------------------------------------------------------------------------|
+|usb_tether=           |1                                                     |Share network to computer via USB cable                                       |
+|harden_only=          |0                                                     | Only apply hardening parts. Let the target SBC can still used as a computer. |
+|disable_wireless=     |1                                                     |Disable WiFi and Bluetooth.                                                   |
+|disable_gpu=          |1                                                     |Disable GPU.                                                                  |
+|target=               |/                                                     |The target root/device to install firewall.                                   |
+|wan_port_device_path= |/sys/devices/platform/scb/fd580000.ethernet/net/eth0  | The path of the device to be used as WAN port.                               |
 
 ## License
 
