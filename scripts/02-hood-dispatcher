@@ -139,7 +139,7 @@ function initial_firewall_rules(){
 
 function is_wan_port() {
   if test -d /sys/class/net/$1; then
-    if [ "$(realpath /sys/class/net/$1)" = "$(cat /var/lib/hood/wan_port_device_path)" ]; then
+    if realpath /sys/class/net/$1 | grep -q "$(cat /var/lib/hood/wan_port_device_path)"; then
       touch /tmp/hood/$1-is-wan-port
       return 0
     fi
