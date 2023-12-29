@@ -73,7 +73,7 @@ Then, start to install (replace sdX with SD card device name)
 
 ```shell
 cd hood/scripts
-./mntinstall.sh sdX
+./install.sh target=sdX
 ```
 
 Commandline options available to the install script:
@@ -81,7 +81,7 @@ Commandline options available to the install script:
  - harden_only
  - no_rfkill
  - no_gpukill
- - prefix=
+ - target=
 
 ## License
 

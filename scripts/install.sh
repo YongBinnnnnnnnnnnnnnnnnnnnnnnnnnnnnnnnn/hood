@@ -12,34 +12,67 @@ elif [ $machine = "Linux" ]; then
 fi
 
 harden_only=0
-rfkill=1
-gpukill=1
+disable_wireless=1
+disable_gpu=1
 target_instrument_set="arm64"
 usb_tether=1
 wan_port_device_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0"
 
 prefix=""
+target="/"
 for arg in "$@"; do
   case $arg in 
-    no_usb_tether) usb_tether=0;;
-    harden_only) harden_only=1;;
-    no_rfkill) rfkill=0;;
-    no_gpukll) gpukill=0;;
-    prefix=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
+    usb_tether=*) usb_tether=$(echo $arg|sed "s/[^=]*=//");;
+    harden_only=*) harden_only=$(echo $arg|sed "s/[^=]*=//");;
+    disable_wireless=*) disable_wireless=$(echo $arg|sed "s/[^=]*=//");;
+    disable_gpu=*) disable_gpu=$(echo $arg|sed "s/[^=]*=//");;
+    target=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
   esac
 done
 
+f
+if ! test -d $target; then
+  echo "Target is not a directory, try to mount it"
+  if ! test -e $target; then
+    echo "Target does not exist, try append /dev/ prefix"
+    target=/dev/$target
+  fi
+  machine=$(uname -s)
+
+  if [ $machine = "FreeBSD" ]; then
+    sudo lklfuse -o allow_other,type=ext4 ${target}s2 /tmp/hood-install/mnt
+    sudo mkdir -p /tmp/hood-install/mnt/boot/firmware
+    sudo mount -t msdos ${target}s1 /tmp/hood-install/mnt/boot/firmware
+  elif [ $machine = "Linux" ]; then
+    sudo mount ${target}2 /tmp/hood-install/mnt
+    sudo mkdir -p /tmp/hood-install/mnt/boot/firmware
+    sudo mount ${target}1 /tmp/hood-install/mnt/boot/firmware
+  fi
+  if [ $? -ne 0]; then
+    echo "Failed to mount " $target
+    sudo umount /tmp/hood-install/mnt/boot/firmware
+    sudo umount /tmp/hood-install/mnt
+    exit 1
+  fi
+  prefix=$/tmp/hood-install/mnt
+else
+  prefix=$target
+fi
 
 if file $prefix/usr/bin/ls| grep -q "armhf"; then
   target_instrument_set="armhf"
 fi
 
 
-echo $harden_only $usb_tether $rfkill $prefix $target_instrument_set
+echo $harden_only $usb_tether $disable_wireless $prefix $target_instrument_set
 
 if ! grep -q dtparam $prefix/boot/firmware/config.txt; then
   echo "target location unlikely to be a raspberry pi system mount"
+  if ! test -d $target; then
+    sudo umount /tmp/hood-install/mnt/boot/firmware
+    sudo umount /tmp/hood-install/mnt
+  fi
   exit 1
 fi
 
@@ -101,7 +134,7 @@ if ! grep -q "apparmor" $prefix/boot/firmware/cmdline.txt; then
   sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" $prefix/boot/firmware/cmdline.txt
 fi
 
-sudo tee /etc/modprobe.d/bin-y-blacklist.conf > /dev/null <<EOF
+sudo tee $prefix/etc/modprobe.d/bin-y-blacklist.conf > /dev/null <<EOF
 blacklist ipv6
 blacklist hci_uart
 blacklist i2c_brcmstb
@@ -114,14 +147,14 @@ enable_uart=0
 EOF
 fi
 
-if [ $rfkill -eq 1 ]; then
+if [ $disable_wireless -eq 1 ]; then
   if ! grep -q disable-bt $prefix/boot/firmware/config.txt; then
     sudo tee -a $prefix/boot/firmware/config.txt <<EOF
 dtoverlay=disable-bt
 dtoverlay=disable-wifi
 EOF
   fi
-  sudo tee $prefix/etc/modprobe.d/bin-y-rfkill-blacklist.conf > /dev/null <<EOF
+  sudo tee $prefix/etc/modprobe.d/bin-y-disable-wireless-blacklist.conf > /dev/null <<EOF
 blacklist bluetooth
 blacklist btbcm
 blacklist hci_uart
@@ -132,11 +165,11 @@ blacklist brcmutil
 blacklist cfg80211
 EOF
   sudo rm $prefix/lib/firmware/brcm/*
-  find /lib/linux-image*/broadcom -type f|xargs sudo rm
+  find $prefix/lib/linux-image*/broadcom -type f|xargs sudo rm
   find $prefix/usr/lib/modules/ -name bluetooth |xargs -I {} find {} -type f|xargs sudo rm
 fi
 
-if [ $gpukill -eq 1 ]; then
+if [ $disable_gpu -eq 1 ]; then
   if grep -q kms-v3d $prefix/boot/firmware/config.txt; then
     sudosedi "s/dtoverlay=vc4-f?kms-v3d//g" $prefix/boot/firmware/config.txt
   fi
@@ -153,9 +186,12 @@ if [ $gpukill -eq 1 ]; then
     echo "hdmi_group=2"
     echo "hdmi_mode=82"
   fi
-  sudo tee $prefix/etc/modprobe.d/bin-y-rfkill-blacklist.conf > /dev/null <<EOF
+  sudo tee $prefix/etc/modprobe.d/bin-y-disable-gpu-blacklist.conf > /dev/null <<EOF
 blacklist v3d
+blacklist drm
+blacklist drm_panel_orientation_quirks
 EOF
+  find /usr/lib/modules/ -name "gpu" -type d|sudo xargs rm -r
 fi
 
 sudocpcontent ./rc.local $prefix/etc/
@@ -188,7 +224,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   mkdir -p ~/.pki/
   cp -r $prefix/etc/pki/nssdb ~/.pki/
   sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
-  ln -s /etc/pki/nssdb/cert9.db ~/.pki/nssdb/key4.db
+  ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
 fi
 
 sudo chmod -x  $prefix/etc/*.conf
@@ -257,3 +293,9 @@ sudo cp update_eeprom $prefix/
 sudo chmod +x $prefix/update_eeprom
 sudo ln -sf /update_eeprom $prefix/run_once
 #sudo touch $prefix/do_init
+
+if ! test -d $target; then
+  sudo umount /tmp/hood-install/mnt/boot/firmware
+  sudo umount /tmp/hood-install/mnt
+fi
+exit 0
