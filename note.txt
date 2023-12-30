@@ -1,3 +1,5 @@
+use this in install https://askubuntu.com/questions/69363/mount-single-partition-from-image-of-entire-disk-device
+
 use chains and priorities instead of rule index
 use dtoverlay=vc4-fkms-v3d for buggy new kernel
 
