@@ -61,7 +61,7 @@ def set_date(date):
   command = ['sudo', 'date', '-s', date]
   if os.getuid() == 0:
     command.pop(0)
-  return subprocess.run(command).returncode == 0
+  return subprocess.call(command) == 0
 
 def fetch(host, https=True):
   try:
