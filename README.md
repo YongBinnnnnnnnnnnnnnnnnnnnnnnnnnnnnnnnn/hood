@@ -33,14 +33,14 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 
 If you already know how to write raspberrypi os image to a SD card, goto step 3
 
-### Step 1. Download the latest raspberrypi image (64bit)
+### Step 1. Download the latest raspberrypi OS lite image (64bit)
 ```shell
-curl -L -O -C - https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/2023-12-05-raspios-bookworm-arm64.img.xz
+curl -L -O -C - https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
 ```
 ### Step 2. Write the image to a SD card
 
 ```shell
-xz -c -d 2023-12-05-raspios-bookworm-arm64.img.xz | sudo dd of=/dev/sdX bs=4M status=progress
+xz -c -d 2023-12-11-raspios-bookworm-arm64-lite.img.xz | sudo dd of=/dev/sdX bs=4M status=progress
 ```
 You may need `lsblk` command to locate the device name of your SD card.
 
