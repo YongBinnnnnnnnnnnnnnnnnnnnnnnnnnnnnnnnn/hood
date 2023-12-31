@@ -18,7 +18,7 @@ morecomment=[l]{//s},
 
 
 
-\title{Design and implementation of a hardware firewall} %compulsory
+\title{Design and implementation of a firewall system} %compulsory
 \mastermajor{Financial Technology and Computing}%optional
 \specialization{main track}
 %\subtitle{Subtitle: Reinventing the World} %optional 
@@ -47,7 +47,7 @@ morecomment=[l]{//s},
 
 \begin{abstract}
   \paragraph{}
-  Design and implementation of a firewall device based on Raspberry Pi. The firewall will monitor and encrypt network activities. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
+  Design and implementation of a firewall system based on Raspberry Pi. The firewall will monitor and encrypt network activities. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
 
 \end{abstract}
 
@@ -64,15 +64,27 @@ morecomment=[l]{//s},
 
 \chapter{Introduction}
 \paragraph{}
-Hacking and surveillance tools are widely deployed The goal of this work is to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device works as a strict firewall which limits network activities and applies encryption standards to increase the difficulty of eavesdropping, and also to reduce the attack surface of fingerprinting. The device run a TLS proxy to supervise and manage TLS connections. It uses a screen to display selected real-time internet activities.
+With the development of surveillance and management tools, people are losing controls of their own devices. Here are some facts that general publics may underestimated their impcats:
+
+\begin{table}[H]
+  \begin{enumerate}
+    \item Any device with a microphone (sometimes a speaker may do the same) can know what sounds people are making around.
+    \item Any device with a camera can 'see' what is happening around
+    \item Any device connected to internet can upload what they know and receive commands from remote.
+    \item Any device may have been hacked and functioning as not what they are designed.
+    \item Some devices are designed with surveillance functionality.
+  \end{enumerate}
+  \caption{Some facts}
+  \label{lst:facts}
+\end{table}
+Based on the facts above, some devices are naturally born with surveillance abilities. Take smartphones and smart speakers for example, they both hear voices and communicate with internet. Average people could not know what they actually uploaded to a remote server. They may only visually respond to "Hi, Siri." or "Hey, Alexa.", but they have to hear every sound happened around to achieve it. What if they keep uploading all of your conversations? Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and
+Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. It's obvious that they are made for management, a function that is unnecessray to most personal owners. According to their official documents. "its power stats are indpendent" means that simply powering off computer could not disable this management. "up before the main operating system" means that most users could not even notice it and can do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN", check \cref{lst:facts}. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." means there is almost no escape. The details of its documents also shows the capability of running remote commands (Serial Over Local-Area Network), the capability of accessing local storage "Universial Serial Bus Redirect", "Keyboard, Video and Mouse" remote control over network.
+\paragraph{}
+So many things are out of control of the actual owners of the devices. People needs something to restrict the management and to show what is happening to the network. The goal of this work is to help on that. It is aimed to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device limits network activities and applies encryption standards to increase the difficulty of eavesdropping, and to reduce the attack surface of fingerprinting. It uses a screen to display selected real-time internet activities.
 \paragraph{}
 Using a hardware as a firewall has several advantages. Firstly, hardware
-firewall can provide complete isolation between highly unsafe code,
-like a browser, and firewall software (fun fact: I was hacked repeatedly
-through personally harddened latest version of firefox while writing this
-thesis). This could also work as a mitigation of CPU/BIOS level threats:
-Firmware malwares, bootkits, and doubtable proprietray technologies like
-Intel ME and the AMD PSP. Second, it also provide convenience to the
+firewall is completely isolated between highly unsafe code,
+like a browser, a video player, or a PDF reader. (fun fact: I was hacked repeatedly through personally harddened latest version of firefox while writing this thesis). This could also work as a mitigation of CPU/BIOS level threats: Firmware malwares, bootkits, and doubtable proprietray technologies like Intel ME and the AMD PSP. Second, it also provide convenience to the
 user: the configuration of this portable device is applied to protect
 everything behind it, so people do not need to do the time consuming
 configuration work on different softwares and operating systems one by one.
@@ -347,7 +359,7 @@ A problem of using a hardware like a Raspberry Pi is that it does not have a bat
 \paragraph{}
 Many of operating systems are pre-configured to use a NTP server which having a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
 \paragraph{}
-Both the unique port number (UDP 123) and the unique domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org) makes NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. The different in NTP behavior between different operatiing systems has been used in OS fingerprinting and tethering detection {osandtether}. Not to mention that the operating system being exposed by the domain name can also help an attacker to target the NTP client being used by the device.
+Both the unique port number (UDP 123) and the unique domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org) makes NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. The different in NTP behavior between different operating systems has been used in OS fingerprinting and tethering detection {osandtether}. Not to mention that the operating system being exposed by the domain name can also help an attacker to target the NTP client being used by the device.
 
 \section{Design}
 \paragraph{}

@@ -1,4 +1,7 @@
-use this in install https://askubuntu.com/questions/69363/mount-single-partition-from-image-of-entire-disk-device
+https://www.intel.com/content/dam/www/public/us/en/security-advisory/documents/intel-csme-security-white-paper.pdf
+https://www.intel.com/content/www/us/en/support/articles/000008927/software/chipset-software.html
+https://www.kaspersky.com/about/press-releases/2023_kaspersky-discloses-iphone-hardware-feature-vital-in-operation-triangulation-case
+https://software.intel.com/sites/manageability/AMT_Implementation_and_Reference_Guide/default.htm
 
 use chains and priorities instead of rule index
 use dtoverlay=vc4-fkms-v3d for buggy new kernel
