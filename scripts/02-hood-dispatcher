@@ -208,7 +208,6 @@ elif [ "$2" = "up" ]; then
     revoke_dhcp_client_access_on $1 $2
     internet_access_on $1 $2
     http_timesync
-    revoke_arp_access_on $1 $2
     systemctl restart hood-network-services.service
 
     if test -f /var/lib/hood/flags/usb_tether; then
