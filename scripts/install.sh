@@ -17,6 +17,7 @@ disable_gpu=1
 target_instrument_set="arm64"
 usb_tether=1
 wan_port_device_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0"
+lodevice=""
 
 prefix=""
 target="/"
@@ -26,36 +27,52 @@ for arg in "$@"; do
     harden_only=*) harden_only=$(echo $arg|sed "s/[^=]*=//");;
     disable_wireless=*) disable_wireless=$(echo $arg|sed "s/[^=]*=//");;
     disable_gpu=*) disable_gpu=$(echo $arg|sed "s/[^=]*=//");;
-    target=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
+    target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
   esac
 done
 
-f
+echo "$@"
+echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
+
 if ! test -d $target; then
   echo "Target is not a directory, try to mount it"
   if ! test -e $target; then
     echo "Target does not exist, try append /dev/ prefix"
     target=/dev/$target
   fi
+  if test -f $target; then
+    echo "Target is a file, try mount as disk image"
+    target=$(sudo losetup --find --show --partscan $target)
+    lodevice=$target
+    if [ $? -ne 0 ]; then
+      echo "losetup failed"
+      exit 1
+    fi
+  fi
   machine=$(uname -s)
 
+  mkdir -p /tmp/hood-install/mnt
+  
   if [ $machine = "FreeBSD" ]; then
     sudo lklfuse -o allow_other,type=ext4 ${target}s2 /tmp/hood-install/mnt
     sudo mkdir -p /tmp/hood-install/mnt/boot/firmware
     sudo mount -t msdos ${target}s1 /tmp/hood-install/mnt/boot/firmware
   elif [ $machine = "Linux" ]; then
+    case $target in /dev/loop*)
+      target=${target}p
+    esac
     sudo mount ${target}2 /tmp/hood-install/mnt
     sudo mkdir -p /tmp/hood-install/mnt/boot/firmware
     sudo mount ${target}1 /tmp/hood-install/mnt/boot/firmware
   fi
-  if [ $? -ne 0]; then
+  if [ $? -ne 0 ]; then
     echo "Failed to mount " $target
     sudo umount /tmp/hood-install/mnt/boot/firmware
     sudo umount /tmp/hood-install/mnt
     exit 1
   fi
-  prefix=$/tmp/hood-install/mnt
+  prefix=/tmp/hood-install/mnt
 else
   prefix=$target
 fi
@@ -65,10 +82,11 @@ if file $prefix/usr/bin/ls| grep -q "armhf"; then
 fi
 
 
-echo $harden_only $usb_tether $disable_wireless $prefix $target_instrument_set
+echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
 
 if ! grep -q dtparam $prefix/boot/firmware/config.txt; then
   echo "target location unlikely to be a raspberry pi system mount"
+  exit 0
   if ! test -d $target; then
     sudo umount /tmp/hood-install/mnt/boot/firmware
     sudo umount /tmp/hood-install/mnt
@@ -297,5 +315,9 @@ sudo ln -sf /update_eeprom $prefix/run_once
 if ! test -d $target; then
   sudo umount /tmp/hood-install/mnt/boot/firmware
   sudo umount /tmp/hood-install/mnt
+fi
+
+if [ "$lodevice" != "" ]; then
+  sudo losetup -d $lodevice
 fi
 exit 0
