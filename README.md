@@ -22,7 +22,7 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 ### Todo
  1. Show realtime network activities on a screen
  2. Support HTTP3 QUIC 
-
+ 3. Apply this https://maimai.cn/web/feed_detail?fid=1733012779&efid=ntnLQCMgu6NRj1NgHnQ5gA
 
 ## Graphics to show the concept
 
