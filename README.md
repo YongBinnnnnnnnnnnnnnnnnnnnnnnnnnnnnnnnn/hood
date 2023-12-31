@@ -1,5 +1,5 @@
 # hood
-Things of my MSc thesis about A firewall device
+Things of my MSc thesis about a hardware firewall
 
 It's not hard to point out someone is wearing a hood, but the hood makes it harder to say who is wearing it.
 ## Table of Contents
