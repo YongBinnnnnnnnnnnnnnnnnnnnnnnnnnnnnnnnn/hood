@@ -328,7 +328,7 @@ The proxy first checks if there are any cached trusted endpoints available, if n
 \section{HTTP}
 \subsection{Implementation}
 \paragraph{}
-hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy check the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocatoin List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually to be OCSP over HTTP connections, which have no reason to be protected. The connections to other servers are tunneled via TLS protocol through hood-tls-proxy service. See \cref{fig:ocsp-process-view,fig:http-process-view}.
+hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocation List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. See \cref{fig:ocsp-process-view,fig:http-process-view}.
 
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-ocsp-traffic.png}
@@ -345,22 +345,22 @@ hood-http-handler.py is the proxy created to filter and protect HTTP plaintext c
 \chapter{Date time synchornization}
 \section{Introduction}
 \paragraph{}
-A correct time is required for TLS protocol to check certificates. Network Time Protocol (NTP) is used by most of modern systems to synchornize the clock with a remote server.
+A correct time is required for TLS protocol to check certificates. Network Time Protocol (NTP) is used by most modern systems to synchronize the clock with a remote server.
 \subsection{The issue}
 \paragraph{}
-A problem of using a hardware like a Raspberry Pi is that it does not have a battery to keep the clock ticking after the power source is cut. So a time synchornization mechanism is a must for this firewall.
+A problem with using hardware like a Raspberry Pi is that it does not have a battery to keep the clock ticking after the power source is cut. So a time synchronization mechanism is a must for this firewall.
 \paragraph{}
-Many of operating systems are pre-configured to use a NTP server which having a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
+Many operating systems are pre-configured to use an NTP server which has a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
 \paragraph{}
-Both the unique port number (UDP 123) and the unique domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org) makes NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. The different in NTP behavior between different operating systems has been used in OS fingerprinting and tethering detection {osandtether}. Not to mention that the operating system being exposed by the domain name can also help an attacker to target the NTP client being used by the device.
+Both the unique port number (UDP 123) and the unique domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org) make NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. The difference in NTP behavior between different operating systems has been used in OS fingerprinting and tethering detection {osandtether}. Not to mention that the operating system information being exposed by an NTP domain name can also help an attacker target the NTP client being used by the device.
 
 \section{Design}
 \paragraph{}
-Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response of a HTTP server to synchornize date time in an acceptable accuracy. In order to hide from security detections, the attack vectors targeted to HTTP/HTTPS protocol usuall do not want to make mistakes in the header. Even if an attacker targeted to the method used by hood firewall, It's hard to say whether this request is made for time synchornization. Thus the date field of a HTTP response is generally trustworthy.
+Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response of an HTTP server to synchronize date time with acceptable accuracy. To hide from security detections, the attack vectors targeted to HTTP/HTTPS protocol usually do not want to make mistakes in the header. Even if an attacker targeted the method used by the hood firewall, It's hard to say whether this request is made for time synchronization. Thus the date field of an HTTP response is generally trustworthy.
 
 \section{Implementation}
 \paragraph{}
-The tool is implemented in a python script named hood-timesync.py. It accepts two command line arguments as listed in \cref{tab:timesync_cmdarg}. It at first try to receive a HTTP response through TLS connection from the domain name specified by host argument. If it failed, the reason could be the website is down or the system time is too different from the actual time and made a vailid certificate unable to pass the validation. Thus, a plaintext connection to the host name provided by the last resort address argument is made as the second attemept. After the second attempt, the tool starts another attempt to receive time from the domain of the host argument via TLS connection, because TLS has less chance to be attacked and because the reason why the first step failed could be the website is temporarily down, the reason could also be the huge time difference made the validation of the certificate failed. In both cases, a HTTPS request to the domain may become possible to success after the second attempt. An Epoch time is used as an 'achor' tim. Based on the assumption that time only moves forward, any time before this value will be rejected.
+The tool is implemented in a Python script named hood-timesync.py. It accepts two command line arguments as listed in \cref{tab:timesync_cmdarg}. It at first tries to receive an HTTP response through a TLS connection from the domain name specified by the host argument. If it fails, the reason could be the website is down or the system time is too different from the actual time and made a valid certificate unable to pass the validation. Thus, a plaintext connection to the host name provided by the last resort address argument is made as the second attempt. After the second attempt, the tool starts another attempt to receive time from the domain of the host argument via TLS connection, because TLS has less chance to be attacked and because the reason why the first step failed could be the website is temporarily down, the reason could also be the huge time difference made the validation of the certificate failed. In both cases, a HTTPS request to the domain may become possible to succeed after the second attempt. An Epoch time is used as an 'anchor' time. Based on the assumption that time only moves forward, any time before this value will be rejected.
 
 \begin{table}[H]
   \centering
