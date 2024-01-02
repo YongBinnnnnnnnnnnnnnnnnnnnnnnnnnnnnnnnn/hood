@@ -7,7 +7,7 @@ git config --global user.email yongb@usi.ch
 sudo apt -y autoremove --purge bluez bluez-firmware avahi-daemon
 # cups
 if curl 1.1.1.1; then
-  sudo apt -y install firefox chromium-browser vlc linux-compiler-gcc-12-arm --upgrade 
+  #sudo apt -y install firefox chromium-browser vlc linux-compiler-gcc-12-arm --upgrade 
   sudo apt -y install texlive-font-utils texlive latexmk texlive-fonts-extra texlive-extra-utils
 fi
 
