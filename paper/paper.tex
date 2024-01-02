@@ -515,7 +515,7 @@ The dispatcher removes the firewall rules dynamically added for this instance an
 
 \chapter{Installation}
 \paragraph{}
-Installation now can only be done from Linux. install.sh is the shell script that in charge of the installation process. It copies and applies the scripts, executables, and configuration files to the target Raspberry Pi OS filesystem. It accepts the command line arguments listed in \cref{tab:install_arg}.
+Installation now can only be done from Linux. install.sh is the shell script that is in charge of the installation process. It copies and applies the scripts, executables, and configuration files to the target Raspberry Pi OS filesystem. It accepts the command line arguments listed in \cref{tab:install_arg}.
 
 \begin{table}[H]
   \centering
@@ -536,10 +536,10 @@ Installation now can only be done from Linux. install.sh is the shell script tha
 \end{table}
 
 \section{Checking target system}
-Multiple checks to the target path are done before the beginning of the installation process to avoid potential harms to the user computer when they specified a wrong target path. It at first check the type of the target, if target path is not a directory target will be treated as a device or file and will be mounted as the pattern of a live system of Raspberry Pi OS. If target does not exist, "/dev/" prefix will be added and will be treated as a name of a device. Then if the content of /boot/firmware/config.txt of the target does not contain the string "dtparam", the target will not be treated as a Raspberry Pi OS filesystem and the installation process will be aborted.
+Multiple checks to the target path are done before the beginning of the installation process to avoid potential harm to the user's computer when they specify a wrong target path. It first checks the type of the target, if the target path is not a directory target will be treated as a device or file and will be mounted as the pattern of a live system of Raspberry Pi OS. If the target is a file, then the target will be mounted as a disk image. If the target does not exist, "/dev/" prefix will be added and will be treated as a name of a device. Then if the content of /boot/firmware/config.txt of the target does not contain the string "dtparam", the target will not be treated as a Raspberry Pi OS filesystem and the installation process will be aborted.
 
 \section{Disable wireless}
-Multiple methods are used to ensure complete disable of wireless devices. See \cref{tab:config_disable_wireless,tab:delete_disable_wireless}.
+Multiple methods are used to ensure the complete disablement of wireless devices. See \cref{tab:config_disable_wireless,tab:delete_disable_wireless}.
 
 \begin{table}[H]
   \centering
@@ -567,7 +567,7 @@ Multiple methods are used to ensure complete disable of wireless devices. See \c
 \end{table}
 
 \section{Disable GPU}
-Multiple methods are used to ensure complete disable of GPU. See \cref{tab:config_disable_gpu,tab:delete_disable_gpu}.
+Multiple methods are used to ensure complete disablement of GPU. See \cref{tab:config_disable_gpu,tab:delete_disable_gpu}.
 
 \begin{table}[H]
   \centering
@@ -604,13 +604,13 @@ Multiple methods are used to ensure complete disable of GPU. See \cref{tab:confi
       /etc/modprobe.d/bin-y-blacklist.conf                                                     & Added:\newline blacklist ipv6\newline blacklist hci\_uart\newline blacklist i2c\_brcmstb\newline blacklist i2c\_dev & disable IPv6, i2c, and UART                                                        \\
       /boot/firmware/config.txt                                                                & Added:\newline enable\_uart=0                                                                                       & disable UART                                                                       \\
       /etc/nftables.conf                                                                       & See \cref{sec:nftables.conf}                                                                                        & nftables rules                                                                     \\
-      /etc/hosts                                                                               & OMITTED                                                                                                             & provide addresss of some DNS services                                              \\
+      /etc/hosts                                                                               & OMITTED                                                                                                             & provide address of some DNS services                                              \\
       /etc/sysctl.conf                                                                         & OMITTED                                                                                                             & sysctl related hardening                                                           \\
       /etc/rc.local                                                                            & OMITTED                                                                                                             & host name randomization                                                            \\
       /etc/pki/nssdb/cert9.db\newline /etc/pki/nssdb/key4.db\newline /etc/ca-certificates.conf & OMITTED                                                                                                             & manage trusted certificates                                                        \\
       /etc/NetworkManager/NetworkManager.conf                                                  & OMITTED                                                                                                             & MAC address randomization                                                          \\
       /etc/apt/sources.list\newline /etc/apt/sources.list.d/raspi.list                         & OMITTED                                                                                                             & use HTTPS mirrors for apt                                                          \\
-      files related to systemd services                                                        & OMITTED                                                                                                             & enable hood services, enable required system services, and disable unsafe serivces \\
+      files related to systemd services                                                        & OMITTED                                                                                                             & enable hood services, enable required system services, and disable unsafe services \\
       \hline
     \end{tabular}
     \caption{Configurations modified to target to disable GPU}
