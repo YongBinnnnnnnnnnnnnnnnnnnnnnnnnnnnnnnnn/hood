@@ -453,7 +453,7 @@ A fake browser is created to simulate network activities of browsing. It records
 A hood action script is a script to describes actions to be done to the actor. Each line of the script can be seen as three parts: namespaces, commands, and arguments. For example, \newline "hood:browser:goto:http://www.example.com". "hood:browser:" is to refer browser namespace from the hood namespace, "goto" is a command inside the browser namespace to tell the interpreter to use the browser to load a webpage. "http://www.example.com" is the parameter of the "goto" command. In this example, it represents the URL of the webpage to be loaded.
 \subsubsection{hood:browser:goto command}
 \paragraph{}
-Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \cref{sec:browser}) to load a URL. When the special value "random\_link" is used as the argument, the actor randomly picks a link from the webpage currently loaded in the browser to go to, but nothing will be done if the current webpage contains no links.
+Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \cref{sec:browser}) to load a URL. When the special value "random\_link" is used as the argument, the actor randomly picks a link from current webpage of the browser to go to, but nothing will be done if the current webpage contains no links.
 \subsubsection{hood:loop command}
 \paragraph{}
 Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in the CONDITION part by syntax "key=value[,key=value]". Currently, only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has a 33\% chance of termination at the beginning of each loop, "0" means it will never have an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into Python code. The COMMAND part is the hood action script to be executed in the loop.
@@ -567,7 +567,7 @@ Multiple methods are used to ensure the complete disablement of wireless devices
 \end{table}
 
 \section{Disable GPU}
-Multiple methods are used to ensure complete disablement of GPU. See \cref{tab:config_disable_gpu,tab:delete_disable_gpu}.
+Multiple methods are used to ensure the complete disablement of GPU. See \cref{tab:config_disable_gpu,tab:delete_disable_gpu}.
 
 \begin{table}[H]
   \centering
