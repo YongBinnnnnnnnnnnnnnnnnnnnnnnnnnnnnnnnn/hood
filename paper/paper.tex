@@ -46,8 +46,8 @@ morecomment=[l]{//s},
 \frontmatter %generates the frontmatter, this is FIXED
 
 \begin{abstract}
-  \paragraph{}
-  Design and implementation of a firewall system based on Raspberry Pi. The firewall will monitor and encrypt network activities. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
+\paragraph{}
+Design and implementation of a firewall system based on Raspberry Pi. The firewall will monitor and encrypt network activities. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
 
 \end{abstract}
 
@@ -64,30 +64,25 @@ morecomment=[l]{//s},
 
 \chapter{Introduction}
 \paragraph{}
-With the development of surveillance and management tools, people are losing controls of their own devices. Here are some facts that general publics may underestimated their impcats:
+With the development of surveillance and management tools, people are losing controls of their own devices. Here are some facts that general publics may have underestimated their impcats:
 
 \begin{table}[H]
   \begin{enumerate}
     \item Any device with a microphone (sometimes a speaker may do the same) can know what sounds people are making around.
-    \item Any device with a camera can 'see' what is happening around
+    \item Any device with a camera can 'see' what is happening in front of the camera
     \item Any device connected to internet can upload what they know and receive commands from remote.
-    \item Any device may have been hacked and functioning as not what they are designed.
+    \item Any device may have been hacked and functioning as not what they were designed.
     \item Some devices are designed with surveillance functionality.
   \end{enumerate}
   \caption{Some facts}
   \label{lst:facts}
 \end{table}
-Based on the facts above, some devices are naturally born with surveillance abilities. Take smartphones and smart speakers for example, they both hear voices and communicate with internet. Average people could not know what they actually uploaded to a remote server. They may only visually respond to "Hi, Siri." or "Hey, Alexa.", but they have to hear every sound happened around to achieve it. What if they keep uploading all of your conversations? Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and
-Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. It's obvious that they are made for management, a function that is unnecessray to most personal owners. According to their official documents. "its power stats are indpendent" means that simply powering off computer could not disable this management. "up before the main operating system" means that most users could not even notice it and can do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN", check \cref{lst:facts}. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." means there is almost no escape. The details of its documents also shows the capability of running remote commands (Serial Over Local-Area Network), the capability of accessing local storage "Universial Serial Bus Redirect", "Keyboard, Video and Mouse" remote control over network.
+Based on the facts above, some devices are naturally born with surveillance abilities. In example, both smartphones and smart speakers can hear voices and can access internet. To achieve the interaction of responding phrases like "Hi, Siri." or "Hey, Alexa.", smart devices need to process all sounds received when they are quiet. Most people do not have the skills to investigate and monitor what their devices actually uploaded to a remote server. Some examples are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and
+Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT). It's obvious that they are made for management, a function that is unnecessray to most individual owners. According to their official documents. TODO: add ref "its power stats are indpendent" means that simply powering off computer could not stop this management. "up before the main operating system" means that most users could not even notice it and can do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN", check \cref{lst:facts}. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." means there is almost no escape in their ecosystem. The details of its documents also shows the capability of running remote commands (Serial Over Local-Area Network), the capability of accessing local storage "Universial Serial Bus Redirect", "Keyboard, Video and Mouse" remote control over network.
 \paragraph{}
-So many things are out of control of the actual owners of the devices. People needs something to restrict the management and to show what is happening to the network. The goal of this work is to help on that. It is aimed to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. The device limits network activities and applies encryption standards to increase the difficulty of eavesdropping, and to reduce the attack surface of fingerprinting. It uses a screen to display selected real-time internet activities.
+So many things are out of control of the actual owners of the devices. People needs something to restrict the management and to show what is happening to the network. The goal of this work is to help on that. It aims to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. It provides an easy way to see what is happening to the network. This firewall system limits network activities, applies encryption standards, and uses a screen to display selected real-time internet activities.
 \paragraph{}
-Using a hardware as a firewall has several advantages. Firstly, hardware
-firewall is completely isolated between highly unsafe code,
-like a browser, a video player, or a PDF reader. (fun fact: I was hacked repeatedly through personally harddened latest version of firefox while writing this thesis). This could also work as a mitigation of CPU/BIOS level threats: Firmware malwares, bootkits, and doubtable proprietray technologies like Intel ME and the AMD PSP. Second, it also provide convenience to the
-user: the configuration of this portable device is applied to protect
-everything behind it, so people do not need to do the time consuming
-configuration work on different softwares and operating systems one by one.
+Using a hardware as a firewall has several advantages. Firstly, hardware firewall runs completely independent to highly risky user devices, where unsafety thervives: CPU with possible hidden instruments, device with possible firmware malwares, motherboard with doubtable proprietray management technologies, operating system with possible builtin backdoors, and applications with possible hidden surveillance and unpublished vulnerabilities. (fun fact: I was hacked repeatedly through personally harddened latest version of firefox while writing this thesis). Second, it brings convenience to the user: the configuration of this portable device restricts everything behind it, so people do not need to do the time consuming configuration work on different softwares and operating systems one by one.
 \paragraph{}
 Even things that could not be configured is under the restriction of the firewall. In example, people cannot untrust a built-in trusted root certificate from iPhone via Settings app.
 
@@ -177,11 +172,11 @@ Despite the firewall implemented in this paper is not a general purpose firewall
 
 \section{Choosing Raspberry Pi}
 \paragraph{}
-The historical reason why Raspberry Pi is used is because it is the only single board computer (SBC) I have when this firewall started as a hobby project to solve the aggarsive hack problem that I was facing. The decision is unchanged after the start of this thesis mainly because the time costs on trying new SBCs: Since its first release on 2012, Raspberry Pi has upgraded its hardware models and software for multiple times, has accumluated a lot of working projects, and has maintained an active user community with a large number of experinced users behind it. All of them shows that using Raspberry Pi, I could cost less time on fixing the bugs of the SBC itself or on waiting for the answers from the community, because preivous users has asked and answered many questions and has found and fixed many problems. Besides that, its large number of users could also help on spreading the firewall project and help on pointing out security flaws of its new upgrades.
+The historical reason why Raspberry Pi is used is because it is the only single board computer (SBC) I have when this firewall started as a hobby project to solve the aggressive hack problem that I was facing. The decision is unchanged after the start of this thesis mainly because of the time costs of trying new SBCs: Since its first release in 2012, Raspberry Pi has upgraded its hardware models and software multiple times, has accumulated a lot of work projects, and has maintained an active user community with a large number of experienced users behind it. All of them show that by using Raspberry Pi, I could spend less time fixing the bugs of the SBC itself or waiting for the answers from the community because previous users have asked and answered many questions and have found and fixed many problems. Besides that, its large number of users could also help in spreading the firewall project and help in pointing out security flaws of its new upgrades.
 
 \chapter{Operating system}
 \paragraph{}
-Due to its security-focused nature, OpenBSD would be a great choice when buiding a firewall. However, as a portable device, it is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most of Linux, Windows, BSD and MacOS could be supported. FreeBSD USB stack can run in device mode and provided 3 virtual network iterface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. Considering the large market share of Microsoft Windows, Linux is decided as the base OS of this firewall device.
+Due to its security-focused nature, OpenBSD would be a great choice when building a firewall. However, as a portable device, Hood is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most of Linux, Windows, BSD, and MacOS could be supported. FreeBSD USB stack can run in device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. To support as much devices as possible, Linux is selected as the base OS of this firewall device.
 
 \chapter{Packet filtering and forwarding}
 \section{Design}
