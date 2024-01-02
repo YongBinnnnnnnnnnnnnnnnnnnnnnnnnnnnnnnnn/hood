@@ -277,14 +277,14 @@ An idea to save the clients that contain severe deficiencies is to attack their 
 \section{Proxy}
 \subsubsection{MITM attack}
 \paragraph{}
-Despite using MITM attack to insepect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the tls proxy used in this firewall should not implement the same functioality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disasteer to the devices behind it: the attacker will be able to easily modify the encrypted data transfered over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attack at all, the compromised still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
+Despite using MITM attack to inspect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the TLS proxy used in this firewall should not implement the same functionality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disaster to the devices behind it: the attacker will be able to easily modify the encrypted data transferred over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attacks at all, the compromised firewall is still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
 \subsubsection{Filtering certificates}
 \paragraph{}
-The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, in order to filter certificates, the proxy handshakes with remote server with a sepearate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delay caused by certificate check connections.
+The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, to filter certificates, the proxy handshakes with the remote server with a separate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delays caused by certificate check connections.
 
 \subsubsection{Checking connections}
 \paragraph{}
-The proxy should parse handshake packets. It should check algorithms provided by ClientHello and ServerHello, to ensure strong encryption. Strenghten the connection by modifing handshake packets without MITM is not possible because the HMAC of all handshake packets is used for encryption.
+The proxy should parse handshake packets. It should check algorithms provided by ClientHello and ServerHello, to ensure strong encryption. Strengthen the connection by modifying handshake packets without MITM is not possible because the HMAC of all handshake packets is used for encryption.
 \subsubsection{Implementation}
 
 \begin{figure}[H]
@@ -294,9 +294,9 @@ The proxy should parse handshake packets. It should check algorithms provided by
 \end{figure}
 
 \paragraph{Programming language}
-Since TLS proxy in charge of processing and forwarding the majority traffic of the firewall, c++ is used to develop the proxy due to its high performance capability.
+Since TLS proxy is in charge of processing and forwarding the majority of the traffic of the firewall, c++ is used to develop the proxy due to its high-performance capability.
 \paragraph{ClientHello}
-Upon receiving ClientHello from a client, the proxy at first check the version of the protocol, and the suppor\_versions extension to see if the client supports to establish a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, proxy checks ciphersuites field, if it contains none of the value listed in \ref{lst:tls-ciphersuites} \citep{rfc:bstprc}, it will be considered unable to be safe and discarded. If the ClientHello passed all of the security checks, the proxy will extract the Server Name Indication (SNI) from ClientHello to dertermine the actual destination of the request.
+Upon receiving ClientHello from a client, the proxy first checks the version of the protocol, and the suppor\_versions extension to see if the client supports establishing a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, the proxy checks the ciphersuites field, if it contains none of the values listed in \ref{lst:tls-ciphersuites} \citep{rfc:bstprc}, it will be considered unable to be safe and discarded. If the ClientHello passes all of the security checks, the proxy will extract the Server Name Indication (SNI) from ClientHello to determine the actual destination of the request.
 
 \begin{table}[H]
   \begin{itemize}
@@ -312,10 +312,9 @@ Upon receiving ClientHello from a client, the proxy at first check the version o
   \label{lst:tls-ciphersuites}
 \end{table}
 
-\paragraph{Name resolving and trused endpoint}
-The proxy at first check if there is any cached trused endpoints available, if not it uses a RPC call to hood-name-service.py to resolve the domain name. Then TLS handshakes following the the same restrictions to the ClientHello check is made to all of the addresses returned from the name service. The handshake process will not only ensure remote endpoint meets the requirements (versions and ciphersuites) of applying the best practices described in rfc9325, it will also check whether the remote endpoint could provide a validate certificate of the hostname from a trusted CA of the firewall.
-\paragraph{ServerHello} After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result to use unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
-
+\paragraph{Name resolving and trusted endpoint}
+The proxy first checks if there are any cached trusted endpoints available, if not it uses a RPC call to hood-name-service.py to resolve the domain name. Then TLS handshakes following the same restrictions to the ClientHello check are made to all of the addresses returned from the name service. The handshake process will not only ensure remote endpoint meets the requirements (versions and ciphersuites) of applying the best practices described in rfc9325, it will also check whether the remote endpoint could provide a valid certificate of the hostname from a trusted CA of the firewall.
+\paragraph{ServerHello} After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
 
 \section{Process view of traffic}
 \begin{figure}[H]
