@@ -71,7 +71,7 @@ With the development of surveillance and management tools, people are losing con
     \item Any device with a microphone (sometimes a speaker may do the same) can know what sounds people are making around.
     \item Any device with a camera can 'see' what is happening around
     \item Any device connected to internet can upload what they know and receive commands from remote.
-    \item Any device may have been hacked and functioning as not what they are designed.
+    \item Any device may have been hacked and functioning as not what they were designed.
     \item Some devices are designed with surveillance functionality.
   \end{enumerate}
   \caption{Some facts}
@@ -188,9 +188,9 @@ Proxies should be used to forward network traffic. There are advantages of using
 
 \section{Implementation}
 \paragraph{}
-Nftables is integrated in modern Linux systems. It can classify and filter network traffic. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed from users to the firewall device for DNS requests, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffic. All other packets are filtered as early as possible.
+Nftables is integrated into modern Linux systems. It can classify and filter network traffic. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed from users to the firewall device for DNS requests, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffic. All other packets are filtered as early as possible.
 \paragraph{}
-Different proxies and RPC services are created to check connections, to forward traffcs, and to apply encryptions. Details are included in the chapters of the corresponding protocol. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}.
+Different proxies and services are created to check connections, to forward traffic, and to apply encryptions. Details are included in the chapters of the corresponding protocol. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}.
 
 \chapter{Dynamic Host Configuration Protocol (DHCP)}
 
@@ -200,11 +200,11 @@ DHCP is widely used to dynamically assign a ip address to a new device connected
 
 \subsection{The issue}
 \paragraph{}
-A client can expose its host name to the network from the 'client identifier' option or 'sname' field in the protocol. When in the same local network, the host name exposed by the DHCP protocol and other protocols can be used to locate the devices of the victim. If the name of a computer is straightforward enough, like "Yongbin's MacBoook Pro", the network administrator will be able to know the name of the owner of the computer from the first glance. The hardware address exposed to the network can also expose more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reversly lookup the manufacturer and the manufacturer can help identify the owner. In example, the network administrator may lookup the MAC address of the a device to find out the manufacturer is company A and if the company A only sell its products in Country B and if C is the only person come from Country B then the chance that the device belongs to C would be high.
+A client can expose its host name to the network from the 'client identifier' option or 'sname' field in the protocol. When in the same local network, the host name exposed by the DHCP protocol and other protocols can be used to locate the devices of the victim. If the name of a computer is straightforward enough, like "Yongbin's MacBook Pro", the network administrator will be able to know the name of the owner of the computer at first glance. The hardware address exposed to the network can also expose more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reverse lookup the manufacturer and the manufacturer can help identify the owner. For example, the network administrator may look at the MAC address of the device to find out that the manufacturer is company A and if company A only sells its products in Country B and if C is the only person who came from Country B then the chance that the device belongs to C would be high.
 
 \section{Design}
 \paragraph{}
-Firewall should randomize both host name and MAC address. The randomized computer name should look normal to prevent being identified by potential attackers.
+Firewall should randomize both host name and MAC address. The randomized computer name should look normal to prevent being identified easily.
 
 \lstdefinelanguage{conf}{
 basicstyle=\ttfamily\small,
@@ -219,31 +219,31 @@ keywordstyle={\color{green}\bfseries}
 
 \section{Implementation}
 \paragraph{}
-NetworkManager is used to manage physical connections of the firewall. By adding 'ethernet.cloned-mac-address=random' and 'wifi.cloned-mac-address=random' to the 'connection' section of NetworkManager.conf, the MAC address randomization is done by NetworkManager. The 'ifconfig interface link random' command can also randomize the MAC address of a interface manually.
+NetworkManager is used to manage physical connections of the firewall. By adding 'ethernet.cloned-mac-address=random' and 'wifi.cloned-mac-address=random' to the 'connection' section of NetworkManager.conf, the MAC address randomization is done by NetworkManager. The 'ifconfig interface link random' command can also randomize the MAC address of an interface manually.
 \paragraph{}
-Host names of the firewall device is random generated while starting the system. The relevant code is inside rc.local. The name is crafted to look normal. The pattern of default computer name of Microsoft Windows and common names like iPad are used. Since the implementation of the client of the protocol could also be vulnerable, the combination of AppArmor and dhclient to mitigate this problem.
+Host names of the firewall device are randomly generated while starting the system. The relevant code is inside rc.local. The name is crafted to look normal. The pattern of default computer names of Microsoft Windows and common names like iPad are used. Since the implementation of the client of the protocol could also be vulnerable, the combination of AppArmor and dhclient to mitigate this problem.
 \paragraph{}
-Dnsmasq is used to assign IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
+Dnsmasq is used to assign the IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
 
 \chapter{Domain Name System (DNS)}
 
 \section{Introduction}
-DNS is a protocol that translates the human readable domain names to the ip addresses of the remote server. The default configuration of many devices are to use plaintexts to do requests, which could easily be monitored by simply recording the packets and be attacked by methods like DNS spoofing.
+DNS is a protocol that translates the human-readable domain names to the IP addresses of the remote server. The default configuration of many devices is to use plaintexts to do requests, which could easily be monitored by simply recording the packets and could easily be attacked by methods like DNS spoofing.
 
 \section{Design}
 \paragraph{}
-From the network administrator's view, all DNS queries sent out from firewall shoul be encrypted. From the user's view, nothing should be specially configured.
+From the network administrator's view, all DNS queries sent out from the firewall should be encrypted. From the user's view, nothing should be specially configured.
 
 \section{Implementation}
 \subsection{Outgoing requests}
 \paragraph{}
-A name resoving service is created to resolve domain name queries from firewall serices. It is a local RPC service that resolve domain name queries via public DNS-over-HTTPS (DoH) services. DoH can mitigate both passive surveillance and DNS spoofing attacks\citep{rfc:doh8}. DoT (DNS-over-TLS) is another DNS encryption standard that can do almost the same as DoH. The reason why use DoH instead of DoT is that DoT uses a unique server port number, 853, that can be easily filtered and identified as an encrypted DNS connection, while DoH, with the help of using the same port number and protocol as HTTPS, makes it much harder to be identified and filtered than DoT.
+hood-name-service.py is a name-resolving service created to resolve domain name queries from firewall services. It is a local RPC service that resolves domain name queries via public DNS-over-HTTPS (DoH) services. DoH can mitigate both passive surveillance and DNS spoofing attacks\citep{rfc:doh8}. DoT (DNS-over-TLS) is another DNS encryption standard that can do almost the same as DoH. The reason why use DoH instead of DoT is that DoT uses a unique server port number, 853, that can be easily filtered and identified as an encrypted DNS connection, while DoH, with the help of using the same port number and protocol as HTTPS, makes it much harder to be identified and filtered than DoT.
 \subsection{Inside firewall}
 \paragraph{}
-A dnsmasq is started locally to resolve everything to localhost to make the firewall proxy to be applied as system-wide.
+A dnsmasq is started locally to resolve everything to localhost to make the firewall proxies system-wide.
 \subsection{Incoming requests}
 \paragraph{}
-A dnsmasq is started to resolve everything to the firewall device to make the firewall proxy to be applied to devices behind it.
+A dnsmasq is started to resolve everything to the firewall device to make the firewall proxies apply to devices behind it.
 
 \chapter{Transport Layer Security (TLS)}
 
