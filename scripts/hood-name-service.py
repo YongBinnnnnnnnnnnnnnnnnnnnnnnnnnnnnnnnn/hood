@@ -8,6 +8,39 @@ Bin Yong all rights reserved.
 import sys
 import asyncio
 import socket
+import struct
+
+with open("/var/lib/hood/ip_subnet_blacklist.txt") as f:
+  ip_subnet_blacklist = f.readlines()
+
+def __parse_blacklist(line):
+  [address, length] = line.split("/")
+  address = socket.inet_pton(socket.AF_INET, address)
+  length = int(length)
+  assert length <= 32
+  address = struct.unpack(">I", address)
+  cursor_bit = 1 << 31
+  mask = 0
+  while length:
+    mask = mask | cursor_bit
+    length = length - 1
+    cursor_bit = cursor_bit >> 1
+  return (address, mask)
+
+ip_subnet_blacklist = tuple(map(__parse_blacklist, ip_subnet_blacklist))
+
+def IsAddressInBlacklist(address):
+  try:
+    address = socket.inet_pton(socket.AF_INET, address)
+    address = struct.unpack(">I", address)
+    for subnet in ip_subnet_blacklist:
+      if subnet[0] == (address & subnet[1]):
+        return True
+      
+  except Exception:
+    pass
+  return False
+
 if __name__ == '__main__':
   import ssl
   import urllib.parse

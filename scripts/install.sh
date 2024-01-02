@@ -96,8 +96,8 @@ fi
 
 sudo mkdir -p $prefix/usr/local/lib/hood
 sudo mkdir -p $prefix/var/lib/hood/flags
-sudo mkdir -p $prefix/etc/hood/
-echo "${wan_port_device_path}" | sudo tee $prefix/var/lib/hood/wan_port_device_path
+echo "${wan_port_device_path}" | sudo tee $prefix/var/lib/hood/wan_port_device_path.txt
+sudocpcontent ./ip_subnet_blacklist.txt $prefix/var/lib/hood/
 
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/lib/hood/flags/harden_only
@@ -146,7 +146,6 @@ sudo chmod 0755 $prefix/usr/local/lib/hood/hood-network-services-runner.sh
 sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/lib/hood/hood-tls-proxy
 sudo chmod 0755 $prefix/usr/local/lib/hood/hood-tls-proxy
 sudocpcontent ./hood_proxy.conf $prefix/etc/
-
 
 if ! grep -q "apparmor" $prefix/boot/firmware/cmdline.txt; then 
   sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" $prefix/boot/firmware/cmdline.txt
@@ -254,8 +253,6 @@ sudo chmod -x  $prefix/etc/NetworkManager/dnsmasq.d/dnsmasq.conf
 sudo ln -s /etc/NetworkManager/dnsmasq.d/dnsmasq.conf $prefix/etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
 sudocpcontent ./NetworkManager.conf $prefix/etc/NetworkManager/NetworkManager.conf
 sudo cp firewall $prefix/etc/init.d/
-sudocpcontent ./timesyncd.conf $prefix/etc/systemd/
-sudo chmod -x $prefix/etc/systemd/timesyncd.conf
 #https://mirrors.ircam.fr/pub/raspbian/raspbian
 #https://mirror.ps.kz/raspbian/raspbian
 #https://goddess-gate.com/archive.raspberrypi.com/raspbian
