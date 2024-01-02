@@ -466,52 +466,52 @@ Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multip
 
 \chapter{Dispatcher and firewall rules}\label{cha:dispatcher}
 \paragraph{}
-Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes of the network status or the system status to dynamically configure firewall rules and to start or stop netowrk services. It's callers are two sysrtemctl services: before-network.service (See \cref{sec:before-network-service}), udev.service, and NetworkManager-dispatcher.service.
+Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes in the network status or the system status to dynamically configure firewall rules and to start or stop network services. Its callers are three systemctl services: before-network.service (See \cref{sec:before-network-service}), udev.service, and NetworkManager-dispatcher.service.
 
 \section{Initial state of firewall rules}
 \paragraph{}
-The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the deisgn of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPv4 and ARP protocol at layer 3. It allows anything to lo interface but reject anything else to communicate from 127.0.0.1 or to 127.0.0.1. It allows UDP/TCP packets in connection track established and related
+The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the design of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPv4 and ARP protocol at layer 3. It allows anything to lo interface but rejects anything else to communicate from 127.0.0.1 or to 127.0.0.1. It allows UDP/TCP packets in connection track established and related
 state. It allows the device to send or receive ICMP fragmentation-needed packets. Anything else is ignored.
 
 \section{On udev add event}
 \subsubsection{netdev filter}
 \paragraph{}
-A default netdev filter will be added to both LAN and WAN interfaces. It has to be added dynamically because both of its ingress and egress filter requires the name of the device. The filter accepts only ARP and IP packets to passthrough. The firewall rules from other places already achieved the same thing but it is added because it is the earliest place to filter out a packet and the earlier a packet to be filtered the less chance the packet to cause a problem.
+A default netdev filter will be added to both LAN and WAN interfaces. It has to be added dynamically because both its ingress and egress filters require the name of the device. The filter accepts only ARP and IP packets to pass through. The firewall rules from other places already achieved the same thing but it is added because it is the earliest place to filter out a packet and the earlier a packet is filtered the less chance the packet to cause a problem.
 
 \section{On system startup}
 \paragraph{}
-Upon system startup, dispatcher will be called by before-network.service. It will start two dmesg instances one is for redirecting firewall related logs to a log file another is for formatting the log to a more human readable form. In iptables era, it was used for inititalizing iptables rules.
+Upon system startup, the dispatcher will be called by before-network.service. It will start two dmesg instances one is for redirecting firewall-related logs to a log file another is for formatting the log to a more human-readable form. In the iptables era, it was used for initializing iptables rules.
 \paragraph{}
-Since the udev event could be triggered at very early stage of the startup, so early that the nftables service may not available and adding rules may fail. Dispatcher try to add a netdev filter on all available network instances again because the timing before-network.service is sufficient to ensure the availability of nftables.service.
+Since the udev event could be triggered at a very early stage of the startup, so early that the nftables service may not be available, and adding rules may fail. The dispatcher tries to add a netdev filter on all available network instances again because the timing before-network.service is sufficient to ensure the availability of nftables.service.
 
 \section{On NetworkManager-dispatcher pre-up event}
 \paragraph{}
-This event means that a network interface is connected to the network but is not yet fully activated. The dispatcher checks the device path with the device specified during the installation process to know whether it is a WAN port. Devie path is the realpath of the network device. For example, on Linux, the device path of eth0 is the result of "realpath /sys/class/net/eth0".
+This event means that a network interface is connected to the network but is not yet fully activated. The dispatcher checks the device path with the device specified during the installation process to know whether it is a WAN port. The device path is the real path of the network device. For example, on Linux, the device path of eth0 is the result of "realpath /sys/class/net/eth0".
 \subsubsection{WAN port}
 \paragraph{}
-For the WAN port network interface, the dispatcher allows UDP packets to be sent out from local 68 port to remote 67 port and to be received from remote 67 port to local 68 port for DHCP protocol.
+For the WAN port network interface, the dispatcher allows UDP packets to be sent out from the local 68 port to the remote 67 port and to be received from the remote 67 port to the local 68 port for DHCP protocol.
 \subsubsection{LAN port}
 \paragraph{}
-For LAN port network interfaces, the dispatcher at first pick a randomized start number \(\in [2, 255]\) as the third byte of the IPv4 address, and all following LAN ports use the result of \[2 + (Last Used Number - 1) \mod 254\] as the third byte. The randomization of the start number is made after each system start. LAN subnet randomization could help increase the difficulty of a malicious code to detect the firewall from LAN port.
+For LAN port network interfaces, the dispatcher at first picks a randomized start number \(\in [2, 255]\) as the third byte of the IPv4 address, and all following LAN ports use the result of \[2 + (Last Used Number - 1) \mod 254\] as the third byte. The randomization of the start number is made after each system starts. LAN subnet randomization could help increase the difficulty of malicious code in detecting the firewall from the LAN port.
 \paragraph{}
-After randomization, following firewall rules is added:
+After randomization, the following firewall rules are added:
 \begin{table}[H]
   \begin{itemize}
     \item Accept the incoming TCP connections through the LAN interface if the destination IP address is the LAN IP address and the destination port is 80 or 443. For hood-http-handler.py and hood-tls-proxy
     \item Accept the incoming UDP packets through the LAN interface if the destination IP address is the LAN IP address and the destination port is 53. For the dnsmasq instance.
-    \item Allow UDP packets to be sent out from local 67 port to remote 68 port and to be received from remote 68 port to local 68 port. For the dnsmasq instance.
+    \item Allow UDP packets to be sent out from the local 67 port to the remote 68 port and to be received from the remote 68 port to the local 67 port. For the dnsmasq instance.
   \end{itemize}
   \caption{Firewall rules to be added for LAN ports}
   \label{lst:LAN-rules}
 \end{table}
 \paragraph{}
-A dnsmasq instance is started for this network interface, to assign IP addresses to connected devices, to let connected devices use the IP address of the LAN port of the firewall as the DNS server, and to respond the IP address of the LAN port for DNS requests.
+A dnsmasq instance is started for this network interface, to assign IP addresses to connected devices, to let connected devices use the IP address of the LAN port of the firewall as the DNS server, and to respond to the IP address of the firewall LAN port for DNS requests.
 
 \section{On NetworkManager-dispatcher up event}
-Dispatcher only reacts to this event for the WAN port. It at first waits for DHCP to finish. After DHCP is done, dispatcher removes DHCP related accept rules from nftables and add a rule to accept outbound TCP connections from WAN instance with the source address as the DHCP result to remote 80 and 443 ports. This rule is for HTTP and HTTPS protocols. After that, dispatcher restarts the hood-network-services.service (\cref{sec:hood-network-services.service}). It will also check the existance of /do\_upgrade or /run\_once files to do system upgrade or to run the script.
+The dispatcher only reacts to this event for the WAN port. It at first waits for DHCP to finish. After DHCP is done, the dispatcher removes DHCP related accept rules from nftables and adds a rule to accept outbound TCP connections from the WAN instance with the source address as the DHCP result to remote 80 and 443 ports. This rule is for HTTP and HTTPS protocols. After that, the dispatcher restarts the hood-network-services.service (\cref{sec:hood-network-services.service}). It will also check the existence of /do\_upgrade or /run\_once files to do a system upgrade or to run the script.
 
 \section{On NetworkManager-dispatcher down event}
-Dispatcher removes the firewall rules dynamically added for this instance and kills the dnsmasq instances for this interface.
+The dispatcher removes the firewall rules dynamically added for this instance and kills the dnsmasq instances for this interface.
 
 \chapter{Installation}
 \paragraph{}
