@@ -47,7 +47,7 @@ morecomment=[l]{//s},
 
 \begin{abstract}
 \paragraph{}
-Design and implementation of a firewall system based on Raspberry Pi. The firewall will monitor and encrypt network activities. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
+Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities and encrypts some plaintext traffic. It helps device owners take back control of their own devices. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
 
 \end{abstract}
 
@@ -64,35 +64,34 @@ Design and implementation of a firewall system based on Raspberry Pi. The firewa
 
 \chapter{Introduction}
 \paragraph{}
-With the development of surveillance and management tools, people are losing controls of their own devices. Here are some facts that general publics may have underestimated their impcats:
+With the development of surveillance and management tools, people are losing controls of their own devices. Here are some facts that general publics may underestimated their impcats:
 
 \begin{table}[H]
   \begin{enumerate}
     \item Any device with a microphone (sometimes a speaker may do the same) can know what sounds people are making around.
-    \item Any device with a camera can 'see' what is happening in front of the camera
+    \item Any device with a camera can 'see' what is happening around
     \item Any device connected to internet can upload what they know and receive commands from remote.
-    \item Any device may have been hacked and functioning as not what they were designed.
+    \item Any device may have been hacked and functioning as not what they are designed.
     \item Some devices are designed with surveillance functionality.
   \end{enumerate}
   \caption{Some facts}
   \label{lst:facts}
 \end{table}
-Based on the facts above, some devices are naturally born with surveillance abilities. In example, both smartphones and smart speakers can hear voices and can access internet. To achieve the interaction of responding phrases like "Hi, Siri." or "Hey, Alexa.", smart devices need to process all sounds received when they are quiet. Most people do not have the skills to investigate and monitor what their devices actually uploaded to a remote server. Some examples are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and
-Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT). It's obvious that they are made for management, a function that is unnecessray to most individual owners. According to their official documents. TODO: add ref "its power stats are indpendent" means that simply powering off computer could not stop this management. "up before the main operating system" means that most users could not even notice it and can do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN", check \cref{lst:facts}. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." means there is almost no escape in their ecosystem. The details of its documents also shows the capability of running remote commands (Serial Over Local-Area Network), the capability of accessing local storage "Universial Serial Bus Redirect", "Keyboard, Video and Mouse" remote control over network.
+Based on the facts above, some devices are naturally born with surveillance abilities. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to know what they actually uploaded to a remote server. To make them able to respond to "Hi, Siri." or "Hey, Alexa.", those devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. It's obvious that they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "its power stats are independent" means that simply powering off the computer could not stop this management. "up before the main operating system" means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN", check \cref{lst:facts}. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." means there is almost no escape in their ecosystem. The details of its documents also show the capability of running remote commands (Serial Over Local-Area Network), the capability of accessing local storage "Universial Serial Bus Redirect", "Keyboard, Video and Mouse" remote control over network.
 \paragraph{}
-So many things are out of control of the actual owners of the devices. People needs something to restrict the management and to show what is happening to the network. The goal of this work is to help on that. It aims to increase the chance of survival of the user from hacking, evasdropping, and digital fingerprinting. It provides an easy way to see what is happening to the network. This firewall system limits network activities, applies encryption standards, and uses a screen to display selected real-time internet activities.
+So many things are out of the control of the owners of the devices. People need something to restrict the management and to show what is happening to the network. The goal of this work is to help with that. It aims to increase the chance of survival of the user from hacking, eavesdropping, digital fingerprinting, and unwanted management. It uses a screen to display selected real-time internet activities. The device limits network activities and applies encryption standards.
 \paragraph{}
-Using a hardware as a firewall has several advantages. Firstly, hardware firewall runs completely independent to highly risky user devices, where unsafety thervives: CPU with possible hidden instruments, device with possible firmware malwares, motherboard with doubtable proprietray management technologies, operating system with possible builtin backdoors, and applications with possible hidden surveillance and unpublished vulnerabilities. (fun fact: I was hacked repeatedly through personally harddened latest version of firefox while writing this thesis). Second, it brings convenience to the user: the configuration of this portable device restricts everything behind it, so people do not need to do the time consuming configuration work on different softwares and operating systems one by one.
-\paragraph{}
-Even things that could not be configured is under the restriction of the firewall. In example, people cannot untrust a built-in trusted root certificate from iPhone via Settings app.
+Using hardware firewalls has several advantages over software firewalls. Firstly, a hardware
+firewall runs completely independent to high-risk user devices, where unsafety thrives: CPU with possible hidden instruments, firmware with possible infections, motherboards with doubtable proprietary management technologies, and applications with possible surveillance or unpublished vulnerabilities. Second, it brings convenience to the
+user: the configuration of this portable device restricts everything behind it, so people do not need to do the time-consuming configuration work on different software and operating systems repeatedly. Third, it brings possibilities: Without the help of a firewall, untrusting a built-in root certificate on mobile devices is hard and the methods with root or jailbreak involved may void the warranty. With the help of a firewall, managing certificates is no longer a problem.
 
 \chapter{Hardware}
 \section{Theory of the cost}
 \paragraph{}
-Commercial firewalls are usually more expensive than development boards that contains the same level of hardware functioality. One one hand, It's acceptable because they provided addtional values throught their software and services and all of the development and maintainance of the product, the service, and the company itself are costing money. On the other hand, it also indicates that an open-source solution like the tool introduced in this paper would reduce lower bound of the cost of accessing a hardware firewall.
+Commercial firewalls are usually more expensive than development boards that contain the same level of hardware functionality. On one hand, It's acceptable because they provided additional value through their software and services and all of the development and maintenance of the product, the service, and the company itself are costing money. On the other hand, it also indicates that an open-source solution would reduce the lower bound of the cost of accessing a hardware firewall.
 \section{Market research on commercial firewalls}
 \paragraph{}
-Despite the firewall implemented in this paper is not a general purpose firewall, the difference in cost between market products is still worth knowing. From \cref{tab:amazon-search,tab:amazon-search-stat}, the prices of a firewall devices are around the price 250.74 EURO, and most of them are more expensive than the price of a Raspberry Pi 4B (68.79 EURO) selling on the same website. Only one exception: TP-LINK ER605. It's price is 55.5 euro which is still higher than the price of a Raspberry P 3B on the same website. After seeking into the details of this exception, its central management design and the corresponding cloud-based controller both showing that it is desigend for a totally different threat model and the its exceptional price could be explained, because it is under the control of that company and when people are motivated to spend money on a hardware firewall, their requirement to information security usually do not want to give full control of their firewall to a company. As a conclusion, using Raspberry Pi would cost less than usual general purpose firewalls.
+Despite the firewall implemented in this paper is not a general-purpose firewall, the difference in cost between market products is still worth knowing. From \cref{tab:amazon-search,tab:amazon-search-stat}, the prices of hardware firewalls are centered around 250.74 EURO and most of them are more expensive than the price of a Raspberry Pi 4B (68.79 EURO) selling at the same website. Only one exception: TP-LINK ER605. Its price is 55.5 EURO which is still higher than the price of a Raspberry P 3B on the same website. After checking the details of this exception, its central management design and the corresponding cloud-based controller both show that it is designed for a totally different threat model. Its exceptional price could be explained as it is under the control of that company. However, spending money on a hardware firewall usually implies the reluctance to give control of their things to a company. To sum up, using Raspberry Pi would cost less than usual general-purpose firewalls.
 
 \iffalse
   >>> x=[55.49,188.99,259.00,279.99,146.53,279.00,102.53,284.87,221.99,265.00,520.90,288.99,318.09,173.5,242.99,384.00]
@@ -176,20 +175,20 @@ The historical reason why Raspberry Pi is used is because it is the only single 
 
 \chapter{Operating system}
 \paragraph{}
-Due to its security-focused nature, OpenBSD would be a great choice when building a firewall. However, as a portable device, Hood is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most of Linux, Windows, BSD, and MacOS could be supported. FreeBSD USB stack can run in device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. To support as much devices as possible, Linux is selected as the base OS of this firewall device.
+Due to its security-focused nature, OpenBSD would be a great choice when building a firewall. However, as a portable device, Hood is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most Linux, Windows, BSD, and MacOS could be supported. FreeBSD USB stack can run in device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. To support as many devices as possible, Linux is selected as the base OS of this firewall device.
 
 \chapter{Packet filtering and forwarding}
 \section{Design}
 \paragraph{}
-As the general principles, all traffics passed thorugh should be checked to against evasdropping. A plaintext connection should be channeled through strong encryptions or be discarded if unable to ensure its integrity.
+As the general principle, all traffic passed through should be checked against eavesdropping. Plaintext protocols should be channeled through strong encryptions or discarded if unable to ensure their integrity.
 \paragraph{}
-A modern browser can satisify most of needs to interact with internet for working. So, allowing HTTP and HTTPS connections could make most of works done when facing a hostile network environment. Thus, everyting unnecessray to make this done are blocked. The firewall rules should be carefully made to filter out as much as possible and as early as possible, because everything on all layers of the Open Systems Interconnection model (OSI model) is protentialy vulnerable and the less network traffic being passed to the following components, the less chance a vulnerability can affect the firewall.
+A modern browser can satisfy most of the needs to interact with the internet for work. So, allowing HTTP and HTTPS connections could make most of the work done when facing a hostile network environment. Thus, everything unnecessary to get this done is blocked. The firewall rules should be carefully made to filter out as much as possible and as early as possible, because everything on all layers of the Open Systems Interconnection model (OSI model) is potentially vulnerable and the less network traffic being passed to the following components, the less chance a vulnerability can affect the firewall.
 \paragraph{}
-Proxies should be used to forward network traffics. There are advantages of using a proxy than forwarding packets like a router. First, a proxy can run under user level while packets forwarding run at kernel level. When there is a vulnerability, a userland one naturally to be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operatng system firewalls well. When the rules are not strict enough unexpected things may happen. In example, allowing any connection to 127.0.0.1 to success without a log, could cause potential problems if a malicious dhcp server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make http request over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increased the difficulty of their operations. Third, the packets from the proxy are encoded again by Linux network stack so the fingerprinting techniques that targeting TCP ad IP properties is useless to the devices under its protection.
+Proxies should be used to forward network traffic. There are advantages of using a proxy rather than forwarding packets like a router. First, a proxy can run at the user level while packet forwarding runs at the kernel level. When there is a vulnerability, a userland one naturally be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operating system firewalls well. When the rules are not strict enough unexpected things may happen. For example, allowing any connection to 127.0.0.1 to succeed without a log, could cause potential problems if a malicious DHCP server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make HTTP requests over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increases the difficulty of their operations. Third, the packets from the proxy are encoded again by the Linux network stack so the fingerprinting techniques that target TCP and IP properties are useless to the devices under its protection.
 
 \section{Implementation}
 \paragraph{}
-Nftables is integrated in modern Linux systems. It can classify and filter network traffics. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed from users to the firewall device for DNS requests, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffics. All other packets are filtered as early as possible.
+Nftables is integrated in modern Linux systems. It can classify and filter network traffic. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed from users to the firewall device for DNS requests, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffic. All other packets are filtered as early as possible.
 \paragraph{}
 Different proxies and RPC services are created to check connections, to forward traffcs, and to apply encryptions. Details are included in the chapters of the corresponding protocol. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}.
 
@@ -318,10 +317,10 @@ The proxy at first check if there is any cached trused endpoints available, if n
 \paragraph{ServerHello} After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result to use unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
 
 
-\section{Process view of traffics}
+\section{Process view of traffic}
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-tls-traffic.png}
-  \caption{Process view of TLS traffics from user}
+  \caption{Process view of TLS traffic from user}
   \label{fig:tls-process-view}
 \end{figure}
 
@@ -334,13 +333,13 @@ hood-http-handler.py is the proxy created to filter and protect HTTP plaintext c
 
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-ocsp-traffic.png}
-  \caption{Process view of OCSP over HTTP traffics from user}
+  \caption{Process view of OCSP over HTTP traffic from user}
   \label{fig:ocsp-process-view}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-http-traffic.png}
-  \caption{Process view of normal HTTP traffics from user}
+  \caption{Process view of normal HTTP traffic from user}
   \label{fig:http-process-view}
 \end{figure}
 
@@ -386,7 +385,7 @@ In previous chapters, the fact that network activities can be used to detect the
 
 \section{Design}
 \paragraph{}
-A service to simuluate different network activities is designed to solve ths issue. The goal is to hide user network activities inside the flood of fake network activities to increase the difficulty of an analyzer to produce useful reports. However, the risk of using this service is to produce a false alarm immediately and make the user blocked for tethering, make the user fired for browsing unrelated websites, etc.. To avoid the firewall to be compromised from browser vulnerabilities, browser-based simulation tools, like puppeteer, should not be used for implementation. It should also make plaintext traffics to attaract attentions from attackers and evasdroppers to make them less focused on the actual user traffics.
+A service to simuluate different network activities is designed to solve ths issue. The goal is to hide user network activities inside the flood of fake network activities to increase the difficulty of an analyzer to produce useful reports. However, the risk of using this service is to produce a false alarm immediately and make the user blocked for tethering, make the user fired for browsing unrelated websites, etc.. To avoid the firewall to be compromised from browser vulnerabilities, browser-based simulation tools, like puppeteer, should not be used for implementation. It should also make plaintext traffic to attaract attentions from attackers and evasdroppers to make them less focused on the actual user traffic.
 
 \section{Implementation}
 \paragraph{}
