@@ -190,7 +190,7 @@ Proxies should be used to forward network traffic. There are advantages of using
 \paragraph{}
 Nftables is integrated into modern Linux systems. It can classify and filter network traffic. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed from users to the firewall device for DNS requests, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffic. All other packets are filtered as early as possible.
 \paragraph{}
-Different proxies and services are created to check connections, to forward traffic, and to apply encryptions. Details are included in the chapters of the corresponding protocol. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}.
+Different proxies and services are created to check connections, to forward traffic, and to apply encryptions. Details are included in the chapters of the corresponding protocol. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}. Several configuration files are created for blocking IP subnets and domain names, they will be processed by proxies and services. See \cref{sec:domain_blacklist.txt,sec:ip_subnet_blacklist.txt}.
 
 \chapter{Dynamic Host Configuration Protocol (DHCP)}
 
@@ -669,6 +669,12 @@ before-network.service is a systemd service being enabled during installation pr
 
 \section{hood-network-services.service}\label{sec:hood-network-services.service}
 It is a service for running hood network services. It runs hood-network-services-runner.sh which starts hood-http-handler.py, hood-name-service.py, hood-tls-proxy, and a dnsmasq client for DNS queries made from the firewall system.
+
+\section{domain_blacklist.txt}\label{sec:domain_blacklist.txt}
+It is a text file with lines of regular expressions. Lines starting with \# are treated as comments and are ignored. Domains matching any one of the regular expressions in the file will be blocked. 
+
+\section{ip_subnet_blacklist.txt}\label{sec:ip_subnet_blacklist.txt}
+It is a text file with lines of IP subnets. Lines starting with \# are treated as comments and are ignored. IP addresses matching any one of the subnets in the file will be blocked. 
 
 \section{nftables.conf}\label{sec:nftables.conf}
 \begin{lstlisting}{language=conf}
