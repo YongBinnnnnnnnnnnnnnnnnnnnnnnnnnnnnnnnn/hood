@@ -5,7 +5,7 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam componentStyle rectangle
 
-title Process view of normal HTTP traffics from user
+title Process view of normal HTTP traffic from user
 
 participant "Client" as CLIENT
 participant "dnsmasq on LAN port" as DNSLAN

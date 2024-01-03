@@ -5,7 +5,7 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam componentStyle rectangle
 
-title Process view of TLS traffics
+title Process view of TLS traffic
 
 participant "Client" as CLIENT
 participant "dnsmasq on LAN port" as DNSLAN

@@ -46,8 +46,8 @@ morecomment=[l]{//s},
 \frontmatter %generates the frontmatter, this is FIXED
 
 \begin{abstract}
-\paragraph{}
-Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities and encrypts some plaintext traffic. It helps device owners take back control of their own devices. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
+  \paragraph{}
+  Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities and encrypts some plaintext traffic. It helps device owners take back control of their own devices. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
 
 \end{abstract}
 
@@ -604,7 +604,7 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
       /etc/modprobe.d/bin-y-blacklist.conf                                                     & Added:\newline blacklist ipv6\newline blacklist hci\_uart\newline blacklist i2c\_brcmstb\newline blacklist i2c\_dev & disable IPv6, i2c, and UART                                                        \\
       /boot/firmware/config.txt                                                                & Added:\newline enable\_uart=0                                                                                       & disable UART                                                                       \\
       /etc/nftables.conf                                                                       & See \cref{sec:nftables.conf}                                                                                        & nftables rules                                                                     \\
-      /etc/hosts                                                                               & OMITTED                                                                                                             & provide address of some DNS services                                              \\
+      /etc/hosts                                                                               & OMITTED                                                                                                             & provide address of some DNS services                                               \\
       /etc/sysctl.conf                                                                         & OMITTED                                                                                                             & sysctl related hardening                                                           \\
       /etc/rc.local                                                                            & OMITTED                                                                                                             & host name randomization                                                            \\
       /etc/pki/nssdb/cert9.db\newline /etc/pki/nssdb/key4.db\newline /etc/ca-certificates.conf & OMITTED                                                                                                             & manage trusted certificates                                                        \\
@@ -670,11 +670,11 @@ before-network.service is a systemd service being enabled during installation pr
 \section{hood-network-services.service}\label{sec:hood-network-services.service}
 It is a service for running hood network services. It runs hood-network-services-runner.sh which starts hood-http-handler.py, hood-name-service.py, hood-tls-proxy, and a dnsmasq client for DNS queries made from the firewall system.
 
-\section{domain_blacklist.txt}\label{sec:domain_blacklist.txt}
-It is a text file with lines of regular expressions. Lines starting with \# are treated as comments and are ignored. Domains matching any one of the regular expressions in the file will be blocked. 
+\section{domain\_blacklist.txt}\label{sec:domain_blacklist.txt}
+It is a text file with lines of regular expressions. Lines starting with \# are treated as comments and are ignored. Domains matching any one of the regular expressions in the file will be blocked.
 
-\section{ip_subnet_blacklist.txt}\label{sec:ip_subnet_blacklist.txt}
-It is a text file with lines of IP subnets. Lines starting with \# are treated as comments and are ignored. IP addresses matching any one of the subnets in the file will be blocked. 
+\section{ip\_subnet\_blacklist.txt}\label{sec:ip_subnet_blacklist.txt}
+It is a text file with lines of IP subnets. Lines starting with \# are treated as comments and are ignored. IP addresses matching any one of the subnets in the file will be blocked.
 
 \section{nftables.conf}\label{sec:nftables.conf}
 \begin{lstlisting}{language=conf}
