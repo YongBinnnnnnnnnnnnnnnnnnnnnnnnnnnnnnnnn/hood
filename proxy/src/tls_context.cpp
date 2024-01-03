@@ -156,9 +156,7 @@ Context::TlsMessageReader::NextStep Context::HandleServerMessage(
   auto next_step = TlsMessageReader::NextStep::Read;
   if (reason != TlsMessageReader::Reason::NEW_MESSAGE) {
     LOG_TRACE("ignore reason:" << static_cast<int>(reason));
-    if (reason == TlsMessageReader::Reason::IO_ERROR) {
-      Stop();
-    }
+    Stop();
     return next_step;
   }
   if (!data || !data_size) {
@@ -237,9 +235,13 @@ void Context::DoConnectHost(
     const std::vector<boost::asio::ip::tcp::endpoint>& endpoints) {
   if (endpoints.empty()) {
     LOG_ERROR("No endpoints " << host_name_);
+    Stop();
     return;
   }
   LOG_INFO("Connecting to " << host_name_);
+  // TODO: maybe repeat Handshake several times before forwarding
+  // ClientHello to remote to make the attacker harder to predict a correct
+  // attack chance
   auto socket = std::make_shared<tcp::socket>(Engine::get().GetExecutor());
   auto handler = [this, _ = shared_from_this(), socket](
                      const boost::system::error_code& error,
