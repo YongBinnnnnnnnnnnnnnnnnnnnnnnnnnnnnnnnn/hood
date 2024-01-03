@@ -20,7 +20,7 @@ def load_hood_name_service():
   spec.loader.exec_module(module)
   return module
 
-HoodResolve = load_hood_name_service().HoodResolve
+hood_name_service = load_hood_name_service()
 
 
 parser = argparse.ArgumentParser(
@@ -103,6 +103,12 @@ async def handle_connection(client_reader, client_writer):
     do_resolve = True
     host=re.sub(":\d+$", "", host)
     
+    if hood_name_service.IsAddressInBlacklist(host)\
+      or hood_name_service.IsDomainInBlacklist(host):
+      print(host, "is in blacklist")
+      client_writer.close()
+      return
+
     if host not in ocsp_or_crl_hosts:
       port=443
       ssl_context = ssl.create_default_context()
@@ -113,9 +119,10 @@ async def handle_connection(client_reader, client_writer):
         do_resolve = False
 
     if do_resolve:
-      host_addresses = await HoodResolve(host)
+      host_addresses = await hood_name_service.HoodResolve(host)
       if not host_addresses:
         print("Unable to resolve", host)
+        client_writer.close()
         return
       host = host_addresses[0]
 

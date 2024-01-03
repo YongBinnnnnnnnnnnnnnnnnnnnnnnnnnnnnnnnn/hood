@@ -34,22 +34,28 @@ def __parse_subnet_blacklist(line):
 ip_subnet_blacklist = filter(__filter_blacklist, ip_subnet_blacklist)
 ip_subnet_blacklist = tuple(map(__parse_subnet_blacklist, ip_subnet_blacklist))
 
+def IsAddressInBlacklist(address):
+  try:
+    address = socket.inet_pton(socket.AF_INET, address)
+    address = struct.unpack(">I", address)[0]
+    for subnet in ip_subnet_blacklist:
+      if subnet[0] == (address & subnet[1]):
+        return True
+  except Exception:
+    pass
+  return False
+
 with open("/var/lib/hood/domain_blacklist.txt") as f:
   domain_blacklist = f.read().splitlines()
 
 domain_blacklist = filter(__filter_blacklist, domain_blacklist)
 domain_blacklist = tuple(map(re.compile, domain_blacklist))
 
-def IsAddressInBlacklist(address):
-  try:
-    address = socket.inet_pton(socket.AF_INET, address)
-    address = struct.unpack(">I", address)
-    for subnet in ip_subnet_blacklist:
-      if subnet[0] == (address & subnet[1]):
-        return True
-      
-  except Exception:
-    pass
+def IsDomainInBlacklist(domain, log=print):
+  for line in domain_blacklist:
+    if line.fullmatch(domain):
+      log(domain, "is blocked by blacklist entry", line)
+      return True
   return False
 
 if __name__ == '__main__':
@@ -87,9 +93,9 @@ if __name__ == '__main__':
       self.host_name = host_name
       self.chunked_transfer = False
       self.default_headers = ("Host: "  + self.host_name + "\r\n").encode("utf-8")
-      self.default_headers += "Accept: application/dns-json\r\n".encode("utf-8")
-      self.default_headers += "Connection: keep-alive\r\n".encode("utf-8")
-      self.default_headers += "\r\n".encode("utf-8")
+      self.default_headers += b"Accept: application/dns-json\r\n"\
+                              b"Connection: keep-alive\r\n"\
+                              b"\r\n"
       self.busy = False
     
     async def write(self, data):
@@ -179,6 +185,8 @@ if __name__ == '__main__':
     async def resolve(self, name_stack):
       try:
         name = name_stack[len(name_stack) - 1]
+        if IsDomainInBlacklist(name):
+          return
         if name in self.cache:
           cache = self.cache[name]
           if time.monotonic_ns() < cache["expire_at"]:
@@ -208,6 +216,8 @@ if __name__ == '__main__':
           if "TTL" not in record:
             continue
           address = record["data"]
+          if IsAddressInBlacklist(address):
+            continue
           try:
             cname = address
             socket.inet_pton(socket.AF_INET, address)

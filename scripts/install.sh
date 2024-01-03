@@ -30,13 +30,9 @@ for arg in "$@"; do
     disable_gpu=*) disable_gpu=$(echo $arg|sed "s/[^=]*=//");;
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
-    yongbin) yongbin=1;;
+    yongbin) yongbin=1;harden_only=1;;
   esac
 done
-
-if [ $yongbin -eq 1 ]; then
-  harden_only=1
-fi
 
 echo "$@"
 echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
@@ -214,6 +210,17 @@ if [ $disable_gpu -eq 1 ]; then
     echo "hdmi_group=2"
     echo "hdmi_mode=82"
   fi
+
+  if [ $yongbin -eq 1 ]; then
+    sudo tee -a /boot/firmware/config.txt <<EOF
+framebuffer_width=1920
+framebuffer_height=1080
+hdmi_force_hotplug=1
+hdmi_group=2
+hdmi_mode=82
+EOF
+  fi
+
   sudo tee $prefix/etc/modprobe.d/bin-y-disable-gpu-blacklist.conf > /dev/null <<EOF
 blacklist v3d
 blacklist drm
@@ -221,8 +228,6 @@ blacklist drm_panel_orientation_quirks
 EOF
   find /usr/lib/modules/ -name "gpu" -type d|sudo xargs rm -r
 fi
-
-if [ $yongbin -eq 1 ]; then
 
 
 sudocpcontent ./rc.local $prefix/etc/
