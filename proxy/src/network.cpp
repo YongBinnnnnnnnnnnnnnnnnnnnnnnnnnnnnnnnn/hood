@@ -39,30 +39,45 @@ static const auto local_network_240 =
 static const auto local_network_255255255255 =
     boost::asio::ip::make_network_v4("255.255.255.255/32");
 
-static inline bool is_address_in_network(
+static inline bool IsAddressInNetwork(
     const boost::asio::ip::network_v4& network,
     const boost::asio::ip::address_v4& address) {
-  return network.address().to_uint() ==
+  return network.canonical().address().to_uint() ==
          (address.to_uint() & network.netmask().to_uint());
 }
 
 bool IsLocalAddress(const boost::asio::ip::address_v4& address) {
-  return is_address_in_network(local_network_0, address) ||
-         is_address_in_network(local_network_10, address) ||
-         is_address_in_network(local_network_10064, address) ||
-         is_address_in_network(local_network_127, address) ||
-         is_address_in_network(local_network_169254, address) ||
-         is_address_in_network(local_network_17216, address) ||
-         is_address_in_network(local_network_192, address) ||
-         is_address_in_network(local_network_19202, address) ||
-         is_address_in_network(local_network_1928899, address) ||
-         is_address_in_network(local_network_192168, address) ||
-         is_address_in_network(local_network_192188, address) ||
-         is_address_in_network(local_network_19851100, address) ||
-         is_address_in_network(local_network_2030113, address) ||
-         is_address_in_network(local_network_233252, address) ||
-         is_address_in_network(local_network_240, address) ||
-         is_address_in_network(local_network_255255255255, address);
+  return IsAddressInNetwork(local_network_0, address) ||
+         IsAddressInNetwork(local_network_10, address) ||
+         IsAddressInNetwork(local_network_10064, address) ||
+         IsAddressInNetwork(local_network_127, address) ||
+         IsAddressInNetwork(local_network_169254, address) ||
+         IsAddressInNetwork(local_network_17216, address) ||
+         IsAddressInNetwork(local_network_192, address) ||
+         IsAddressInNetwork(local_network_19202, address) ||
+         IsAddressInNetwork(local_network_1928899, address) ||
+         IsAddressInNetwork(local_network_192168, address) ||
+         IsAddressInNetwork(local_network_192188, address) ||
+         IsAddressInNetwork(local_network_19851100, address) ||
+         IsAddressInNetwork(local_network_2030113, address) ||
+         IsAddressInNetwork(local_network_233252, address) ||
+         IsAddressInNetwork(local_network_240, address) ||
+         IsAddressInNetwork(local_network_255255255255, address);
+}
+
+const std::vector<boost::asio::ip::network_v4>* blocked_subnets_ = nullptr;
+
+bool IsBlockedAddress(const boost::asio::ip::address_v4& address) {
+  if (blocked_subnets_ == nullptr) {
+    blocked_subnets_ = &Configuration::get("hood_ip_subset_blacklist")
+                            .as<std::vector<boost::asio::ip::network_v4>>();
+  }
+  for (const auto& network : *blocked_subnets_) {
+    if (IsAddressInNetwork(network, address)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 }  // namespace network

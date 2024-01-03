@@ -15,14 +15,16 @@ namespace hood_proxy {
 namespace network {
 
 bool IsLocalAddress(const boost::asio::ip::address_v4& address);
-static inline void RemoveV6AndLocalEndpoints(
+bool IsBlockedAddress(const boost::asio::ip::address_v4& address);
+
+static inline void RemoveV6AndBlockedEndpoints(
     std::vector<boost::asio::ip::tcp::endpoint>& endpoints) {
   endpoints.erase(
       std::remove_if(endpoints.begin(), endpoints.end(),
                      [](const boost::asio::ip::tcp::endpoint& endpoint) {
                        auto address = endpoint.address();
                        return address.is_v6() ||
-                              IsLocalAddress(address.to_v4());
+                              IsBlockedAddress(address.to_v4());
                      }),
       endpoints.end());
 }

@@ -70,11 +70,11 @@ class Configuration {
                                       configurations),
                variables_);
     bpo::notify(variables_);
-    return 0;
+    return LoadHoodSystemConfiguration();
   }
 
  private:
-  int ParseConfigurationFile();
+  static int LoadHoodSystemConfiguration();
   static boost::program_options::variables_map variables_;
 };
 

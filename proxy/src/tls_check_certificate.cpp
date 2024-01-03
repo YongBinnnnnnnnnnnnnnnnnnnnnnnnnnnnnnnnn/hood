@@ -119,7 +119,7 @@ static void DoResolve(std::string host_name) {
           WorkerResultHandler(host_name, dummy_endpoint, error_finish_flags);
           return;
         }
-        network::RemoveV6AndLocalEndpoints(endpoints);
+        network::RemoveV6AndBlockedEndpoints(endpoints);
         if (endpoints.size() == 0) {
           if (!ends_with(host_name, Configuration::proxy_domain)) {
             DoResolve(host_name + Configuration::proxy_domain.data());
@@ -131,9 +131,10 @@ static void DoResolve(std::string host_name) {
         }
 
 #ifdef NO_CHECK_CERTIFICATE
-        WorkerResultHandler(host_name, endpoints[0], CertificateCheckWorker::Flags::good |
-             CertificateCheckWorker::Flags::finished);
-             return;
+        WorkerResultHandler(host_name, endpoints[0],
+                            CertificateCheckWorker::Flags::good |
+                                CertificateCheckWorker::Flags::finished);
+        return;
 #endif
         auto worker = CertificateCheckWorker::create(host_name, endpoints,
                                                      WorkerResultHandler);
