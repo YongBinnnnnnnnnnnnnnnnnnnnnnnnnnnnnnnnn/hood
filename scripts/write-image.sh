@@ -6,8 +6,8 @@ echo Verifying
 image_size=$(stat -c "%s" $1)
 count=$(($image_size / 1024 / 1024 / 4))
 echo Hash of new disk:
-dd if=$2 bs=4M count=$count|sha256sum 
+sudo dd if=$2 bs=4M count=$count|sha256sum 
 if test -f $1.sha256; then
-  echo Hash of new disk:
+  echo Hash of image:
   cat $1.sha256
 fi
