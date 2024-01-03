@@ -9,25 +9,36 @@ import sys
 import asyncio
 import socket
 import struct
+import re
 
 with open("/var/lib/hood/ip_subnet_blacklist.txt") as f:
-  ip_subnet_blacklist = f.readlines()
+  ip_subnet_blacklist = f.read().splitlines()
 
-def __parse_blacklist(line):
+def __filter_blacklist(line):
+  return line and line[0] != "#"
+
+def __parse_subnet_blacklist(line):
   [address, length] = line.split("/")
   address = socket.inet_pton(socket.AF_INET, address)
   length = int(length)
   assert length <= 32
-  address = struct.unpack(">I", address)
+  address = struct.unpack(">I", address)[0]
   cursor_bit = 1 << 31
   mask = 0
   while length:
     mask = mask | cursor_bit
     length = length - 1
     cursor_bit = cursor_bit >> 1
-  return (address, mask)
+  return (address & mask, mask)
 
-ip_subnet_blacklist = tuple(map(__parse_blacklist, ip_subnet_blacklist))
+ip_subnet_blacklist = filter(__filter_blacklist, ip_subnet_blacklist)
+ip_subnet_blacklist = tuple(map(__parse_subnet_blacklist, ip_subnet_blacklist))
+
+with open("/var/lib/hood/domain_blacklist.txt") as f:
+  domain_blacklist = f.read().splitlines()
+
+domain_blacklist = filter(__filter_blacklist, domain_blacklist)
+domain_blacklist = tuple(map(re.compile, domain_blacklist))
 
 def IsAddressInBlacklist(address):
   try:

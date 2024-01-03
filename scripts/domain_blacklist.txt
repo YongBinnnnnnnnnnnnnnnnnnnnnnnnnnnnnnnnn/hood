@@ -1,0 +1,6 @@
+analytics\.[^\.]+\.com
+(.*\.)?doubleclick\.net
+(.*\.)?googlesyndication\.com
+redirector\.gvt1\.com
+#safebrowsing\.googleapis\.com
+#safebrowsing\.urlsec\.qq\.com

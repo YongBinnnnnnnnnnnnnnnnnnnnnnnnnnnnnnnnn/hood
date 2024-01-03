@@ -18,6 +18,7 @@ target_instrument_set="arm64"
 usb_tether=1
 wan_port_device_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0"
 lodevice=""
+yongbin=0
 
 prefix=""
 target="/"
@@ -29,8 +30,13 @@ for arg in "$@"; do
     disable_gpu=*) disable_gpu=$(echo $arg|sed "s/[^=]*=//");;
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
+    yongbin) yongbin=1;;
   esac
 done
+
+if [ $yongbin -eq 1 ]; then
+  harden_only=1
+fi
 
 echo "$@"
 echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
@@ -98,6 +104,11 @@ sudo mkdir -p $prefix/usr/local/lib/hood
 sudo mkdir -p $prefix/var/lib/hood/flags
 echo "${wan_port_device_path}" | sudo tee $prefix/var/lib/hood/wan_port_device_path.txt
 sudocpcontent ./ip_subnet_blacklist.txt $prefix/var/lib/hood/
+sudocpcontent ./domain_blacklist.txt $prefix/var/lib/hood/
+
+if [ $yongbin -eq 1 ]; then
+  sudosedi "s/#//g" $prefix/var/lib/hood/domain_blacklist.txt
+fi
 
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/lib/hood/flags/harden_only
@@ -210,6 +221,9 @@ blacklist drm_panel_orientation_quirks
 EOF
   find /usr/lib/modules/ -name "gpu" -type d|sudo xargs rm -r
 fi
+
+if [ $yongbin -eq 1 ]; then
+
 
 sudocpcontent ./rc.local $prefix/etc/
 sudocpcontent ./hosts $prefix/etc/
