@@ -1,7 +1,12 @@
 #!/bin/bash
 
+log_device=/dev/tty1
+if test -f /var/lib/hood/flags/harden_only; then
+  log_device=/dev/tty8
+fi
+
 logfile=/var/log/hood-dispatcher.log
-echo $1 $2 $3 start | tee -a $logfile >  /dev/tty1
+echo $1 $2 $3 start | tee -a $logfile > $log_device
 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 
 mkdir -p /tmp/hood
@@ -26,7 +31,7 @@ function nft_handle_to_file(){
 }
 
 function proxy_access_on(){
-  echo "give proxy access on " $1 | tee -a $logfile >  /dev/tty1
+  echo "give proxy access on " $1 | tee -a $logfile > $log_device
   touch /tmp/hood/counter.lock
   exec {counter_lock_fd}<>/tmp/hood/counter.lock
   flock $counter_lock_fd
@@ -54,7 +59,7 @@ function proxy_access_on(){
 
 
 function revoke_proxy_access_on(){
-  echo "revoke proxy access on " $1 | tee -a $logfile >  /dev/tty1
+  echo "revoke proxy access on " $1 | tee -a $logfile > $log_device
   interface_address=$(cat /tmp/hood/$1-address)
   while read handle; do
     nft delete rule ip filter input handle $handle
@@ -82,7 +87,7 @@ function revoke_arp_access_on(){
   rm /tmp/hood/$1_arp_o_rule
 }
 function add_dhcp_client_access_on(){
-  echo "add dhcp access on " $1 | tee -a $logfile >  /dev/tty1
+  echo "add dhcp access on " $1 | tee -a $logfile > $log_device
   # This log has never printed on my device
   # Today I found that someone was swapping the SD card of my Pi while I was going to toilet
   # So, it could be someone installed something strange in kernel of my Pi and did something to this rule.
@@ -92,7 +97,7 @@ function add_dhcp_client_access_on(){
 }
 
 function revoke_dhcp_client_access_on(){
-  echo "revoke dhcp access on " $1 | tee -a $logfile >  /dev/tty1
+  echo "revoke dhcp access on " $1 | tee -a $logfile > $log_device
   #sudo nft delete chain netdev filter eth0ingress
   while read handle; do
     nft delete rule ip filter input handle $handle
@@ -105,14 +110,14 @@ function revoke_dhcp_client_access_on(){
 }
 
 function internet_access_on(){
-  echo "internet access on " $1 | tee -a $logfile >  /dev/tty1
+  echo "internet access on " $1 | tee -a $logfile > $log_device
   ip addr show eth0|grep inet -m 1|sed -r "s/    inet ([0-9\.]*).*/\1/">/tmp/hood/wan_ip
   wan_ip=$(cat /tmp/hood/wan_ip)
   nft_handle_to_file /tmp/hood/$1_internet_o_rule insert rule ip filter output index 5 oif $1 ip saddr $wan_ip/32 tcp dport {80, 443} accept
 }
 
 function revoke_internet_access_on(){
-  echo "revoke internet access on " $1 | tee -a $logfile >  /dev/tty1
+  echo "revoke internet access on " $1 | tee -a $logfile > $log_device
 
   while read handle; do
     nft delete rule ip filter output handle $handle
@@ -126,7 +131,7 @@ function initial_firewall_rules(){
   sysctl net.netfilter.nf_conntrack_udp_timeout_stream=10
   nohup dmesg --color=never -w -e |grep "\[HOOD " | tee -a /var/log/hood-firewal.log &
   disown
-  nohup dmesg --color=never -w -e |grep "\[HOOD " | sed -r "s/.*IN=(\w+?) OUT=(\w+?) SRC=([^ ]+) DST=([^ ]+) .* PROTO=(\w+) SPT=(\w+) DPT=(\w+) (.*)/\2->\1 \5 \3:\6 -> \4:\7/g" |xargs -I {} date +"%Y-%m-%d %H:%M:%S "{} | tee -a /var/log/hood-firewal-readable.log > /dev/tty1 &
+  nohup dmesg --color=never -w -e |grep "\[HOOD " | sed -r "s/.*IN=(\w+?) OUT=(\w+?) SRC=([^ ]+) DST=([^ ]+) .* PROTO=(\w+) SPT=(\w+) DPT=(\w+) (.*)/\2->\1 \5 \3:\6 -> \4:\7/g" |xargs -I {} date +"%Y-%m-%d %H:%M:%S "{} | tee -a /var/log/hood-firewal-readable.log > $log_device &
   disown
   
   early_interfaces=($(ls -b /sys/class/net/))
@@ -156,25 +161,25 @@ function wait_internet_access(){
   if [ $1 ]; then
     url=$1
   fi
-  while ! curl --max-time 10 --compressed $url -H "User-Agent: ${user_agent}" 2>&1 > /dev/tty1; do
-    echo "Waiting for network connection" |tee -a $logfile > /dev/tty1
+  while ! curl --max-time 10 --compressed $url -H "User-Agent: ${user_agent}" 2>&1 > $log_device; do
+    echo "Waiting for network connection" |tee -a $logfile > $log_device
     sleep 1
   done
 }
 
 function wait_dhcp_success(){
-  while ! ip address show $1 |grep inet | grep -v "inet 127" 2>&1 > /dev/tty1; do
-    echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
+  while ! ip address show $1 |grep inet | grep -v "inet 127" 2>&1 > $log_device; do
+    echo "Waiting for dhcp result on $1"  |tee -a $logfile > $log_device
     sleep 1
   done
   return 0
   while ! ip route|head -n 1 |grep -q default; do
-    echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
+    echo "Waiting for dhcp result on $1"  |tee -a $logfile > $log_device
     sleep 1
   done
   gateway=$(ip route|head -n 1|sed -r "s/default via ([0-9\.]*).*/\1/")
   while ! ip neigh|grep $gateway|grep -q lladdr; do
-    echo "Waiting for dhcp result on $1"  |tee -a $logfile > /dev/tty1
+    echo "Waiting for dhcp result on $1"  |tee -a $logfile > $log_device
     sleep 1
   done
 }
@@ -223,17 +228,17 @@ elif [ "$2" = "up" ]; then
     
     if test -f /do_upgrade; then
       wait_internet_access
-      apt-get update |tee -a $logfile > /dev/tty1
-      apt-get full-upgrade -y|tee -a $logfile > /dev/tty1
+      apt-get update |tee -a $logfile > $log_device
+      apt-get full-upgrade -y|tee -a $logfile > $log_device
       rm /do_upgrade
       reboot
     fi
     if test -f /run_once; then
       wait_internet_access
-      echo "run once" |tee -a $logfile > /dev/tty1
+      echo "run once" |tee -a $logfile > $log_device
       rm /tmp/run_once
       mv /run_once /tmp/
-      /tmp/run_once |tee -a $logfile > /dev/tty1
+      /tmp/run_once |tee -a $logfile > $log_device
       reboot
     fi
   fi
@@ -252,6 +257,6 @@ if [ "$2" = "connectivity-change" ]; then
   exit 0;
 fi
 
-echo $1 $2 $3 end |tee -a $logfile > /dev/tty1
+echo $1 $2 $3 end |tee -a $logfile > $log_device
 
 exit 0
