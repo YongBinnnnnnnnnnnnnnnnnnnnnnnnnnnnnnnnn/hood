@@ -66,6 +66,9 @@ if __name__ == '__main__':
   import time
   import argparse
 
+  def LOG(*args):
+    print(*args, flush=True)
+
   parser = argparse.ArgumentParser(
     prog="hood-name-service",
     description="A name service sepecially designed for the hood firewall.",
@@ -129,7 +132,7 @@ if __name__ == '__main__':
       name = urllib.parse.unquote_plus(name)
       headers = ("GET " + dns_over_https_server_paths[self.host_name] + "?type=A&name="  + name + " HTTP/1.1 \r\n").encode("utf-8")
       headers += self.default_headers
-      #print(headers)
+      #LOG(headers)
       while self.busy:
         await asyncio.sleep(0)
       self.busy = True
@@ -152,16 +155,16 @@ if __name__ == '__main__':
           answer_size = int(line[16:-2], 10)
         if line == '\r\n':
           break;
-      #print(headers)
+      #LOG(headers)
       if not success:
-        print("Failure:", headers)
+        LOG("Failure:", headers)
         return 
       if self.chunked_transfer:
         answer_size = await self.readline() 
         answer_size = int(answer_size[:-2], 16)
-        print(answer_size)
+        LOG(answer_size)
       if answer_size > 65536 or answer_size < 2:
-        print(answer_size)
+        LOG(answer_size)
         return
       answer = (await self.readexactly(answer_size)).decode("utf-8")
       answer = json.loads(answer)
@@ -185,12 +188,12 @@ if __name__ == '__main__':
     async def resolve(self, name_stack):
       try:
         name = name_stack[len(name_stack) - 1]
-        if IsDomainInBlacklist(name):
+        if IsDomainInBlacklist(name, log=LOG):
           return
         if name in self.cache:
           cache = self.cache[name]
           if time.monotonic_ns() < cache["expire_at"]:
-            print(cache["expire_at"], time.monotonic_ns())
+            LOG(cache["expire_at"], time.monotonic_ns())
             return cache["result"]
           else:
             self.cache.pop(name, None)
@@ -223,7 +226,7 @@ if __name__ == '__main__':
             socket.inet_pton(socket.AF_INET, address)
             result.append(address)
             min_ttl = min(min_ttl, record["TTL"])
-            #print(record)
+            #LOG(record)
           except Exception:
             pass
         if not result and cname:
@@ -232,7 +235,7 @@ if __name__ == '__main__':
             return self.resolve(name_stack)
           return result
         if min_ttl > 30:
-          print(min_ttl)
+          LOG(min_ttl)
           if len(self.cache) > 512:
             now = time.monotonic_ns()
             for k, v in self.cache.items():
@@ -250,7 +253,7 @@ if __name__ == '__main__':
       except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(e, fname, exc_tb.tb_lineno)
+        LOG(e, fname, exc_tb.tb_lineno)
 
         
 
@@ -262,7 +265,7 @@ if __name__ == '__main__':
 
     def datagram_received(self, data, addr):
       self.addr = addr
-      print('%s -> %r' % (addr, data))
+      LOG('%s -> %r' % (addr, data))
       def reply_none():
         future = asyncio.Future()
         future.set_result(None)
@@ -277,7 +280,7 @@ if __name__ == '__main__':
 
     def name_resolved(self, future):
       result = future.result()
-      print('%s <- %r' % (self.addr, result))
+      LOG('%s <- %r' % (self.addr, result))
       if not result:
         result = "\0".encode()
       else:
@@ -285,7 +288,7 @@ if __name__ == '__main__':
       self.transport.sendto(result, self.addr)
 
   async def run_server():
-    print("Starting UDP server")
+    LOG("Starting UDP server")
 
     # Get a reference to the event loop as we plan to use
     # low-level APIs.
@@ -355,7 +358,7 @@ else:
       self.transport.close()
 
     def error_received(self, exc):
-      print('Error received:', exc)
+      LOG('Error received:', exc)
       self.set_result(None)
 
     def connection_lost(self, exc):

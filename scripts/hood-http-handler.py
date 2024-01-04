@@ -22,6 +22,8 @@ def load_hood_name_service():
 
 hood_name_service = load_hood_name_service()
 
+def LOG(*args):
+  print(*args, flush=True)
 
 parser = argparse.ArgumentParser(
   prog="hood-http-handler",
@@ -86,16 +88,16 @@ async def handle_connection(client_reader, client_writer):
       line = line.decode()
       if line.startswith("host:") or line.startswith("Host:"):
         if host:
-          print("multple host, discard")
+          LOG("multple host, discard")
           return
 
         host = line[5:].strip()
       if line == '\r\n':
         break;
     if not host:
-      print("host not found, discard")
+      LOG("host not found, discard")
       return
-    #print(host)
+    #LOG(host)
 
     port = 80
     ssl_context = None
@@ -104,8 +106,8 @@ async def handle_connection(client_reader, client_writer):
     host=re.sub(":\d+$", "", host)
     
     if hood_name_service.IsAddressInBlacklist(host)\
-      or hood_name_service.IsDomainInBlacklist(host):
-      print(host, "is in blacklist")
+      or hood_name_service.IsDomainInBlacklist(host, log=LOG):
+      LOG(host, "is in blacklist")
       client_writer.close()
       return
 
@@ -121,7 +123,7 @@ async def handle_connection(client_reader, client_writer):
     if do_resolve:
       host_addresses = await hood_name_service.HoodResolve(host)
       if not host_addresses:
-        print("Unable to resolve", host)
+        LOG("Unable to resolve", host)
         client_writer.close()
         return
       host = host_addresses[0]
@@ -132,7 +134,7 @@ async def handle_connection(client_reader, client_writer):
       ssl=ssl_context,
       server_hostname=server_hostname
     )
-    print(headers)
+    LOG(headers)
     host_writer.write(headers)
     await host_writer.drain()
     
@@ -169,10 +171,11 @@ async def handle_connection(client_reader, client_writer):
     await host_writer.wait_closed()
     await client_writer.wait_closed()
   except Exception as e:
-    print(e, e.args)
+    LOG(e, e.args)
 
 
 async def run_server():
+  LOG("Starting HTTP server")
   server = await asyncio.start_server(handle_connection, args_.address, args_.port)
   async with server:
     await server.serve_forever()
