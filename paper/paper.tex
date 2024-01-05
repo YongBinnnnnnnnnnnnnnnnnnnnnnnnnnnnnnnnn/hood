@@ -618,6 +618,27 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
   \end{table}
 \end{landscape}
 
+
+\chapter{Showing network activities}
+\paragraph{}
+Network activities of the firewall system are logged to multiple places by multiple services (see \cref{tab:network_log}). All logs are simplified to human-readable forms and aggregated to a tty device to let users access them easily. If the firewall was installed with the parameter harden_only=1, aggregated logs will be sent to tty8, and if the installation parameter harden_only was 0, aggregated logs will be sent to tty1.
+\begin{table}[H]
+  \rowcolors{2}{tablegray}{}
+  \begin{tabular}{|p{95mm}|p{95mm}|}
+    \hline
+    Service                                          & Log location                              \\
+    \hline
+    hood-name-service.py                             & /var/log/hood-name-service.log            \\
+    hood-http-handler.py                             & /var/log/hood-http-handler.log            \\
+    hood-tls-proxy                                   & /var/log/hood-tls-proxy.log               \\
+    hood-dispatcher                                  & /var/log/hood-dispatcher.log              \\
+    nftables                                         & dmesg                                     \\
+    \hline
+  \end{tabular}
+  \caption{Log locations of network services.}
+  \label{tab:network_log}
+\end{table}
+
 \chapter{Reasons of not to use}
 \paragraph{}
 In most cases, the reason to not use something is to reduce the attack surface.
