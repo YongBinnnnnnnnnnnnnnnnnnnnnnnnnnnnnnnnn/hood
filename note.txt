@@ -1,3 +1,4 @@
+improve logs with dnsmasq logs
 https://www.intel.com/content/dam/www/public/us/en/security-advisory/documents/intel-csme-security-white-paper.pdf
 https://www.intel.com/content/www/us/en/support/articles/000008927/software/chipset-software.html
 https://www.kaspersky.com/about/press-releases/2023_kaspersky-discloses-iphone-hardware-feature-vital-in-operation-triangulation-case
