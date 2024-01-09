@@ -11,10 +11,11 @@ if curl 1.1.1.1; then
   sudo apt -y install texlive-font-utils texlive latexmk texlive-fonts-extra texlive-extra-utils
 fi
 
-if ! grep -q .hood-proxy /etc/hosts; then
-  sudo tee -a /etc/hosts <<EOF
-127.0.0.1 example.com
-93.184.216.34 example.com.hood-proxy
+if ! grep -q "realpath ~" ~/.bashrc; then
+  tee -a ~/.bashrc <<EOF
+if [ `pwd` = `~` ]; then
+  cd /media/`whoami`/65F6-BE03/hood/scripts
+fi
 EOF
 fi
 cp -Rf $script_dir/../v/home/x/.mozilla ~/

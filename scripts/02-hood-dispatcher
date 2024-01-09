@@ -49,11 +49,11 @@ function proxy_access_on(){
   ip address add $interface_address/24 dev $1
   echo $interface_address > /tmp/hood/$1-address
 
-  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr $interface_address tcp dport {80, 443} accept
-  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr $interface_address udp dport {53} accept
+  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr ${interface_address}/32 tcp dport {80, 443} accept
+  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr ${interface_address}/32 udp dport 53 accept
   nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
   nft_handle_to_file /tmp/hood/$1_proxy_o_rule insert rule ip filter output index 5 oif $1 udp sport {67} udp dport {68} log prefix \"[HOOD A]\" flags all accept
-  nohup /usr/sbin/dnsmasq --pid-file=/tmp/hood/dnsmasq-$1.pid --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=$1 --except-interface=lo --clear-on-reload --strict-order --listen-address=$interface_address --bind-interfaces --no-poll --address=/#/$interface_address --cache-size=0  --dhcp-range=$interface_address,10.0.${counter}.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/hood/dnsmasq-$1.lease --dhcp-option=option:dns-server,$interface_address > /tmp/hood/dnsmasq-$1.log &2>1  &
+  nohup /usr/sbin/dnsmasq --pid-file=/tmp/hood/dnsmasq-$1.pid --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=$1 --except-interface=lo --clear-on-reload --strict-order --listen-address=$interface_address --bind-interfaces --no-poll --address=/#/$interface_address --cache-size=0  --dhcp-range=$interface_address,10.0.${counter}.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/hood/dnsmasq-$1.lease --dhcp-option=option:dns-server,$interface_address --log-queries > /tmp/hood/dnsmasq-$1.log 2>&1  &
   disown
 }
 
@@ -204,6 +204,7 @@ elif [ "$2" = "pre-up" ]; then
       exit
     fi
     proxy_access_on $1 $2
+    add_arp_access_on $1 $2
   fi
 elif [ "$2" = "timesync" ]; then
   http_timesync
@@ -250,6 +251,7 @@ elif [ "$2" = "down" ]; then
     revoke_internet_access_on $1 $2
   else
     revoke_proxy_access_on $1 $2
+    revoke_arp_access_on $1 $2
   fi
 fi
 
