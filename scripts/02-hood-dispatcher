@@ -200,9 +200,6 @@ elif [ "$2" = "pre-up" ]; then
     add_dhcp_client_access_on $1 $2
     add_arp_access_on $1 $2
   else
-    if ! test -f /var/lib/hood/flags/usb_tether; then
-      exit
-    fi
     proxy_access_on $1 $2
     add_arp_access_on $1 $2
   fi
