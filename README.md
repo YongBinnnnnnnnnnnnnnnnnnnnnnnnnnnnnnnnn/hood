@@ -17,7 +17,7 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 ### Operating systems to use the firewall
  - [x] Windows 10
  - [x] Linux
- - [x] Mac OS (needs an additional USB NIC)
+ - [x] Mac OS
 
 ### Todo
  1. Show realtime network activities on a screen
