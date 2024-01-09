@@ -1,3 +1,8 @@
+https://www.tu-chemnitz.de/informatik/ce/files/guideline_master_thesis.pdf
+https://www.uregina.ca/science/cs/graduate/theses/index.html
+https://www.cs7.tf.fau.eu/teaching/student-theses/writing-your-thesis/
+
+
 improve logs with dnsmasq logs
 https://www.intel.com/content/dam/www/public/us/en/security-advisory/documents/intel-csme-security-white-paper.pdf
 https://www.intel.com/content/www/us/en/support/articles/000008927/software/chipset-software.html
