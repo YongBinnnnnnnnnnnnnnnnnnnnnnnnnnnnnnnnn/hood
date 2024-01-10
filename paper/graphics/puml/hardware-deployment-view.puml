@@ -1,4 +1,5 @@
 @startuml
+title Default hardware deployment view
 node Computer {
 portout "USB port" as computerusb
 }
