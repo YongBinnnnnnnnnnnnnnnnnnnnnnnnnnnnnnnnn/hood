@@ -1,0 +1,20 @@
+@startuml
+
+node Computer {
+portout "USB port" as computerusb
+}
+frame hood #line.dashed {
+component "Raspberry Pi" as pi {
+portin "USB-C port" as piusb
+port "GPIO port" as gpiopi
+portout "ethernet port" as piethernet
+component Screen
+}
+}
+computerusb -- piusb : USB cable
+gpiopi - Screen : fixed
+node "Router / Switch / Modem" as router {
+port "ethernet port" as routerethernet
+}
+piethernet -- routerethernet : ethernet cable
+@endum
