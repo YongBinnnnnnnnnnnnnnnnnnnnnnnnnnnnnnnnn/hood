@@ -18,7 +18,7 @@ morecomment=[l]{//s},
 
 
 
-\title{Design and implementation of a firewall system for working in unsafe environments with strong opposing forces} %compulsory
+\title{Design and implementation of a firewall system for working in unsafe environments} %compulsory
 \mastermajor{Financial Technology and Computing}%optional
 \specialization{main track}
 %\subtitle{Subtitle: Reinventing the World} %optional 
@@ -47,13 +47,13 @@ morecomment=[l]{//s},
 
 \begin{abstract}
   \paragraph{}
-  Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities and encrypts some plaintext traffic. It helps device owners take back control of their own devices. It is designed for someone who would like to sacrifice some compatibility to pursue better security but still wants some balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
+  Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities and encrypts some plaintext traffic. It helps device owners take back control of their own devices. It is designed for someone who needs to work in unsafe environments. The system sacrificed some compatibility to pursue better security but still achieved a balance between security and convenience. A sensitive target, like an investigative journalist, could be a potential user of this device.
 
 \end{abstract}
 
 \begin{acknowledgements}
   \paragraph{}
-  This document is a draft version of a working thesis of Bin Yong.
+  This document is a draft version of a working thesis of Bin Yong. It is licensed under Creative Commons BY-NC-ND 4.0.
 \end{acknowledgements}
 
 \tableofcontents
@@ -68,8 +68,8 @@ With the development of surveillance and management tools, people are losing con
 
 \begin{table}[H]
   \begin{enumerate}
-    \item Any device with a microphone (sometimes a speaker may do the same) can know what sounds people are making around.
-    \item Any device with a camera can 'see' what is happening around
+    \item Any device with a microphone (sometimes a speaker may do the same) can 'hear' sounds people are making around.
+    \item Any device with a camera can 'see' what is happening around.
     \item Any device connected to internet can upload what they know and receive commands from remote.
     \item Any device may have been hacked and functioning as not what they were designed.
     \item Some devices are designed with surveillance functionality.
@@ -629,18 +629,18 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
 
 \chapter{Showing network activities}
 \paragraph{}
-Network activities of the firewall system are logged to multiple places by multiple services (see \cref{tab:network_log}). All logs are simplified to human-readable forms and aggregated to a tty device to let users access them easily. If the firewall was installed with the parameter harden_only=1, aggregated logs will be sent to tty8, and if the installation parameter harden_only was 0, aggregated logs will be sent to tty1.
+Network activities of the firewall system are logged to multiple places by multiple services (see \cref{tab:network_log}). All logs are simplified to human-readable forms and aggregated to a tty device to let users access them easily. If the firewall was installed with the parameter harden\_only=1, aggregated logs will be sent to tty8, and if the installation parameter harden\_only was 0, aggregated logs will be sent to tty1.
 \begin{table}[H]
   \rowcolors{2}{tablegray}{}
   \begin{tabular}{|p{95mm}|p{95mm}|}
     \hline
-    Service                                          & Log location                              \\
+    Service              & Log location                   \\
     \hline
-    hood-name-service.py                             & /var/log/hood-name-service.log            \\
-    hood-http-handler.py                             & /var/log/hood-http-handler.log            \\
-    hood-tls-proxy                                   & /var/log/hood-tls-proxy.log               \\
-    hood-dispatcher                                  & /var/log/hood-dispatcher.log              \\
-    nftables                                         & dmesg                                     \\
+    hood-name-service.py & /var/log/hood-name-service.log \\
+    hood-http-handler.py & /var/log/hood-http-handler.log \\
+    hood-tls-proxy       & /var/log/hood-tls-proxy.log    \\
+    hood-dispatcher      & /var/log/hood-dispatcher.log   \\
+    nftables             & dmesg                          \\
     \hline
   \end{tabular}
   \caption{Log locations of network services.}
