@@ -173,9 +173,17 @@ The historical reason why Raspberry Pi is used is that Pi is the only single boa
 \paragraph{}
 Joy-IT RB-TFT3.5 was the only screen that I had. The dtbo file of the Waveshare 35A screen also works with this hardware. Thus, the cheaper one in the market should be able to replace another. The resolution of 480x320 is enough to print logs. I do not have the material or the budget to try other screens with lower resolutions.
 
-\chapter{Operating system}
+\section{Deployment and operating system}
 \paragraph{}
-Due to its security-focused nature, OpenBSD would be a great choice when building a firewall. However, as a portable device, Hood is designed to work as a USB network device but OpenBSD does not contain a device mode in its USB stack. Linux provides USB gadget mode. Using the combination of ECM and RNDIS mode, most Linux, Windows, BSD, and MacOS could be supported. FreeBSD USB stack can run in device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. To support as many devices as possible, Linux is selected as the base OS of this firewall device.
+Hood is designed to work as a USB ethernet device so people do not need to connect many cables. See \cref{fig:hardware-deployment-view}.
+\begin{figure}[H]
+  \includegraphics[]{graphics/puml/hardware-deployment-view.png}
+  \caption{Hardware deployment view}
+  \label{fig:hardware-deployment-view}
+\end{figure}
+\paragraph{}
+To make Raspberry Pi work as a USB device, the support from operating systems (OS) is required. Linux provides USB gadget mode. Using the combination of CDC-ECM and RNDIS mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
+
 
 \chapter{Packet filtering and forwarding}
 \section{Design}
