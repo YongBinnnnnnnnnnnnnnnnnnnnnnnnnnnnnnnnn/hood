@@ -182,7 +182,7 @@ Hood is designed to work as a USB ethernet device by default, so people do not n
   \label{fig:hardware-deployment-view}
 \end{figure}
 \paragraph{}
-To make Raspberry Pi work as a USB device, the support from operating systems (OS) is required. Linux provides USB gadget mode. Using the combination of CDC-ECM and RNDIS mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
+To make Raspberry Pi work as a USB device, the support from operating systems (OS) is required. Linux provides USB gadget mode. Using the combination of CDC-ECM (See \cref{sec:CDC-ECM}) and RNDIS mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
 
 
 \chapter{Packet filtering and forwarding}
@@ -809,6 +809,9 @@ table arp filter {
 \backmatter
 
 \chapter{Glossary} %optional
+\section{CDC-ECM}\label{sec:CDC-ECM}
+\paragraph{}
+It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}.
 
 %\bibliographystyle{alpha}
 %\bibliographystyle{dcu}
