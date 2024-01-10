@@ -26,6 +26,7 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 
 ## Graphics to show the concept
 
+![Hardware deployment view](./paper/graphics/puml/hardware-deployment-view.png)
 ![HTTP traffic graph](./paper/graphics/puml/process-http-traffic.png)
 ![TLS traffic graph](./paper/graphics/puml/process-tls-traffic.png)
 
