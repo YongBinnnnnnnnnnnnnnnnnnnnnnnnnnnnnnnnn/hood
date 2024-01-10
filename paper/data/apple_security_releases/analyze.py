@@ -2,7 +2,7 @@ import json
 import pprint
 
 pp = pprint.PrettyPrinter(indent=2)
-with open("data.json", "r") as f:
+with open("data.json", "r", encoding='utf-8') as f:
   data = json.load(f);
 
 keywords = {
@@ -12,7 +12,7 @@ keywords = {
 statastics = {
 }
 total = len(data.keys())
-for k,v in data:
+for k, v in data.items():
   v = v.casefold()
   for keyword in keywords:
     if keyword in v:
@@ -21,7 +21,7 @@ for k,v in data:
       else:
         statastics[keyword] = 1
 
-for k,v in statastics.copy():
-  statastics[k]=[v, round(v / total, 2)
+for k, v in statastics.copy().items():
+  statastics[k]=[v, round(v / total, 2)]
 pp.pprint(statastics)
 
