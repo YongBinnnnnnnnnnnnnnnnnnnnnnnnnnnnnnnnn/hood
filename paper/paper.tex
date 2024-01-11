@@ -222,7 +222,7 @@ DHCP is widely used to dynamically assign an IP address to a new device connecte
 
 \subsection{The issue}
 \paragraph{}
-A client can expose its host name to the network from the 'client identifier' option or 'sname' field in the protocol. When in the same local network, the host name exposed by the DHCP protocol and other protocols can be used to locate the devices of the victim. If the name of a computer is straightforward enough, like "Yongbin's MacBook Pro", the network administrator will be able to know the name of the owner of the computer at first glance. The hardware address exposed to the network can also expose more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reverse lookup the manufacturer and the manufacturer can help identify the owner. For example, the network administrator may look at the MAC address of the device to find out that the manufacturer is company A and if company A only sells its products in Country B and if C is the only person who came from Country B then the chance that the device belongs to C would be high.
+A client can expose its host name to the network from the 'client identifier' option or 'sname' field in the protocol. When in the same local network, the host name exposed by the DHCP protocol and other protocols can be used to locate the devices of the victim. If the name of a computer is straightforward enough, like "Yongbin's MacBook Pro", the network administrator will be able to know the name of the owner of the computer at first glance. The hardware address exposed to the network can also reveal more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reverse lookup the manufacturer and the manufacturer can help identify the owner. For example, the network administrator may look at the MAC address of the device to find out that the manufacturer is company A and if company A only sells its products in Country B and if C is the only person who came from Country B then the chance that the device belongs to C would be high.
 
 \section{Design}
 \paragraph{}
@@ -307,8 +307,10 @@ The key\_share extension sometimes makes the certificate invisible to the proxy.
 \subsubsection{Checking connections}
 \paragraph{}
 The proxy should parse handshake packets. It should check algorithms provided by ClientHello and ServerHello, to ensure strong encryption. Strengthen the connection by modifying handshake packets without MITM is not possible because the HMAC of all handshake packets is used for encryption.
-\subsubsection{Implementation}
 
+\subsubsection{Implementation}
+\paragraph{}
+\cref{fig:tls-proxy-process-view} shows how hood-tls-proxy receives and processes TLS connections.
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{graphics/puml/process-tls-proxy.png}
   \caption{Process view of TLS proxy}
@@ -318,7 +320,7 @@ The proxy should parse handshake packets. It should check algorithms provided by
 \paragraph{Programming language}
 Since TLS proxy is in charge of processing and forwarding the majority of the traffic of the firewall, c++ is used to develop the proxy due to its high-performance capability.
 \paragraph{ClientHello}
-Upon receiving ClientHello from a client, the proxy first checks the version of the protocol, and the suppor\_versions extension to see if the client supports establishing a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, the proxy checks the ciphersuites field, if it contains none of the values listed in \ref{lst:tls-ciphersuites} \citep{rfc:bstprc}, it will be considered unable to be safe and discarded. If the ClientHello passes all of the security checks, the proxy will extract the Server Name Indication (SNI) from ClientHello to determine the actual destination of the request.
+Upon receiving ClientHello from a client, the proxy first checks the version of the protocol, and the suppor\_versions extension to see if the client supports establishing a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, the proxy checks the ciphersuites field, if it contains none of the values listed in \cref{lst:tls-ciphersuites}, it will be considered unable to be safe and discarded \citep{rfc:bstprc}. If a ClientHello passed all of the security checks, the proxy will extract the Server Name Indication (SNI) from the ClientHello to determine the actual destination of the request.
 
 \begin{table}[H]
   \begin{itemize}
@@ -339,6 +341,7 @@ The proxy first checks if there are any cached trusted endpoints available, if n
 \paragraph{ServerHello} After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
 
 \section{Process view of traffic}
+\cref{fig:tls-process-view} shows how a TLS connection interacts with the whole firewall system.
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-tls-traffic.png}
   \caption{Process view of TLS traffic from user}
