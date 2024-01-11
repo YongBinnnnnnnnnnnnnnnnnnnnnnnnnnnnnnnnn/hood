@@ -22,7 +22,6 @@ class Server {
   uint16_t listen_port_;
   boost::asio::ip::tcp::acceptor tls_proxy_acceptor_;
   boost::asio::ip::address tls_proxy_address_;
-  uint16_t tls_proxy_port_;
 
   bool stop_;
 
