@@ -195,7 +195,8 @@ Despite the firewall implemented in this paper is not a general-purpose firewall
 \end{table}
 
 \subsection{Conclusion}
-In conclusion, Raspberry Pi 4B has sufficient hardware and software support to make it work as the USB device designed in the previous section. Its price is also much lower than the majority of commercial firewalls. It is not the cheapest option that can fit the design, but it is a good choice after evaluating technical support and user base.
+\paragraph{}
+In conclusion, Raspberry Pi 4B has sufficient hardware and software support to make it work as the USB device designed in the first section. Its price is also much lower than the majority of commercial firewalls. It is not the cheapest option that can fit the design, but it is a good choice after evaluating technical support and user base.
 
 \chapter{Packet filtering and forwarding}
 \section{Design}
@@ -203,7 +204,7 @@ In conclusion, Raspberry Pi 4B has sufficient hardware and software support to m
 As the general principle, all traffic passed through firewall should be checked against eavesdropping. Plaintext protocols should be channeled through strong encryptions or discarded if unable to ensure their integrity. Firewall rules should filter out as much as possible and as early as possible because everything on the path of a packet is potentially vulnerable, and the less network traffic passed to the following components, the less chance a vulnerability can affect the firewall.
 
 \paragraph{}
-Implementation should use proxies to forward network traffic instead of kernel packet forwarding. The following content introduces the advantages of doing so. First, a proxy can run at the user level while packet forwarding runs at the kernel level. When there is a vulnerability, a userland one naturally be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operating system firewalls well. When the rules are not strict enough unexpected things may happen. For example, allowing any connection to 127.0.0.1 to succeed without a log, could cause potential problems if a malicious Dynamic Host Configuration Protocol (DHCP, see \cref{cha:dhcp}) server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee that allowed packets are used by the desired protocol. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols it can understand. For example, the chance of misconfigurations of a DNS proxy enabling HTTP requests to pass over that proxy is very rare. Attackers have to hack the firewall or create tunnels over those protocols to make their reverse shell bypass the firewall, which makes their operations more difficult. Third, the packets from the proxy are encoded again by the Linux network stack. Re-encoded packets have only Linux TCP and IP signatures, rendering fingerprinting techniques that target TCP and IP properties useless.
+Implementation should use proxies to forward network traffic instead of kernel packet forwarding. The following content introduces the advantages proxies. First, a proxy can run at the user level while packet forwarding runs at the kernel level. When there is a vulnerability, a userland one naturally be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operating system firewalls well. When the rules are not strict enough unexpected things may happen. For example, allowing any connection to 127.0.0.1 to succeed without a log, could cause potential problems if a malicious Dynamic Host Configuration Protocol (DHCP, see \cref{cha:dhcp}) server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee that allowed packets are used by the desired protocol. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols it can understand. For example, the chance of misconfigurations of a DNS proxy enabling HTTP requests to pass over that proxy is very rare. Attackers have to hack the firewall or create tunnels over those protocols to make their reverse shell bypass the firewall, which makes their operations more difficult. Third, the packets from the proxy are encoded again by the Linux network stack. Re-encoded packets have only Linux TCP and IP signatures, rendering fingerprinting techniques that target TCP and IP properties useless.
 
 \section{Implementation}
 \paragraph{}
@@ -211,7 +212,7 @@ The balance between compatibility and security: To maximize compatibility, the f
 \paragraph{}
 Nftables (see \cref{sec:nftables}) is integrated into modern Linux systems. It can classify and filter network traffic. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed from users to the firewall device for DNS requests, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffic. All other packets are filtered as early as possible.
 \paragraph{}
-Different proxies and services are created to check connections, to forward traffic, and to apply encryptions. Details are included in the chapters of the corresponding protocol. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}. Several configuration files are created for blocking IP subnets and domain names, they will be processed by proxies and services. See \cref{sec:domain_blacklist.txt,sec:ip_subnet_blacklist.txt}.
+Different proxies and services are created to check connections, to forward traffic, and to apply encryptions. Details are included in the chapters of corresponding protocols. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}. Several configuration files are created for blocking IP subnets and domain names, they are used by proxies and services. See \cref{sec:domain_blacklist.txt,sec:ip_subnet_blacklist.txt,sec:allowed_tls_ports.txt}.
 
 \chapter{Dynamic Host Configuration Protocol (DHCP)}\label{cha:dhcp}
 
@@ -711,6 +712,9 @@ before-network.service is a systemd service being enabled during installation pr
 
 \section{hood-network-services.service}\label{sec:hood-network-services.service}
 It is a service for running hood network services. It runs hood-network-services-runner.sh which starts hood-http-handler.py, hood-name-service.py, hood-tls-proxy, and a dnsmasq client for DNS queries made from the firewall system.
+
+\section{allowd\_tls\_ports.txt}\label{sec:allowed_tls_ports.txt}
+TLS is widely applied to secure protocols, not just for HTTP. This file is created to support more TLS-encrypted protocols in the future. It is a text file with lines of port numbers. Lines starting with \# are treated as comments and are ignored. Ports listed in the file will be allowed in nftables rules by the dispatcher and will be handled by hood-tls-proxy.
 
 \section{domain\_blacklist.txt}\label{sec:domain_blacklist.txt}
 It is a text file with lines of regular expressions. Lines starting with \# are treated as comments and are ignored. Domains matching any one of the regular expressions in the file will be blocked.
