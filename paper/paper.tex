@@ -98,7 +98,7 @@ Hood should work as a USB ethernet device by default, so people do not need to c
 \section{Implementation}
 \subsection{USB device}
 \paragraph{}
-To make computers recognize the firewall as a USB device, the support from both the development board and the operating systems (OS) are requiresd.
+To make computers recognize the firewall as a USB device, the support from both the development board and the operating systems (OS) are required.
 \paragraph{}
 For hardware, Raspberry Pi 4 is the first model in Raspberry Pi series that both supports USB device and contains a ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
 \paragraph{}
@@ -195,14 +195,14 @@ Despite the firewall implemented in this paper is not a general-purpose firewall
 \end{table}
 
 \subsection{Conclusion}
-In conclusion, Raspberry Pi 4B has sufficient hardware and software support to make it work as the USB device designed in the previous section. Its price is also much lower than the majority of commercial firewalls. It is not the cheapest option that can fit the design but it is a good choice after taking technical support and user base into consideration.
+In conclusion, Raspberry Pi 4B has sufficient hardware and software support to make it work as the USB device designed in the previous section. Its price is also much lower than the majority of commercial firewalls. It is not the cheapest option that can fit the design, but it is a good choice after evaluating technical support and user base.
 
 \chapter{Packet filtering and forwarding}
 \section{Design}
 \paragraph{}
 As the general principle, all traffic passed through should be checked against eavesdropping. Plaintext protocols should be channeled through strong encryptions or discarded if unable to ensure their integrity.
 \paragraph{}
-A modern browser can satisfy most of the needs to interact with the internet for work. So, allowing HTTP and HTTPS connections could make most of the work done when facing a hostile network environment. Thus, everything unnecessary to get this done is blocked. The firewall rules should be carefully made to filter out as much as possible and as early as possible, because everything on all layers of the network is potentially vulnerable and the less network traffic being passed to the following components, the less chance a vulnerability can affect the firewall.
+A modern browser can satisfy most of the needs of working. So, allowing HTTP and HTTPS connections could make most of the work done when facing a hostile network environment. Thus, everything unnecessary to get this done is blocked. Firewall rules should filter out as much as possible and as early as possible because everything on the path of a packet is potentially vulnerable, and the less network traffic passed to the following components, the less chance a vulnerability can affect the firewall.
 \paragraph{}
 Proxies should be used to forward network traffic. There are advantages of using a proxy rather than forwarding packets like a router. First, a proxy can run at the user level while packet forwarding runs at the kernel level. When there is a vulnerability, a userland one naturally be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operating system firewalls well. When the rules are not strict enough unexpected things may happen. For example, allowing any connection to 127.0.0.1 to succeed without a log, could cause potential problems if a malicious Dynamic Host Configuration Protocol (DHCP, see \cref{cha:dhcp}) server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee the packets being forwarded to the remote actually used by the protocols we are expecting. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols that it can understand. when you are configuring a DNS proxy, the chance that your misconfiguration makes an attacker able to make HTTP requests over this proxy is very rare. They have to hack the firewall or create tunnels over those protocols to make their reverse shell work, which increases the difficulty of their operations. Third, the packets from the proxy are encoded again by the Linux network stack so the fingerprinting techniques that target TCP and IP properties are useless to the devices under its protection.
 
