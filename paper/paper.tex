@@ -98,26 +98,23 @@ Hood should work as a USB ethernet device by default, so people do not need to c
 \section{Implementation}
 \subsection{USB device}
 \paragraph{}
-To make computers recognize firewall hardware as a USB device, the support from both the USB controller and the operating systems (OS) are requiresd.
+To make computers recognize the firewall as a USB device, the support from both the development board and the operating systems (OS) are requiresd.
 \paragraph{}
-For hardware, USB On-The-Go (OTG) is a feature that allows supporting USB devices with an appropriate OTG cable to configure themselves as USB hosts.
+For hardware, Raspberry Pi 4 is the first model in Raspberry Pi series that both supports USB device and contains a ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
 \paragraph{}
-This paragraph explains the background reasons of choosing Raspberry Pi. Raspberry Pi 4B was the only single board computer (SBC) I have when this firewall started as a hobby project to solve the aggressive hack problem that I was facing. The decision is unchanged after the start of this thesis mainly because of the time costs of trying new SBCs: Since its first release in 2012, Raspberry Pi has upgraded its hardware models and software multiple times, has accumulated a lot of real-world applications, and has maintained an active user community with a large number of experienced users behind it. All of them show that by using Raspberry Pi instead of a cheap new brand, reduced time cost could be expected on fixing the bugs of the SBC itself or waiting for the answers from the community because previous users have asked and answered many questions and have found and fixed many problems. Besides, its large number of users could also help in spreading the firewall project and help in pointing out security flaws of the new upgrades to the computer.
-\paragraph{}
-The hardware of the development 
+For OS, Linux has USB gadget mode. Using the combination of CDC-ECM (See \cref{sec:CDC-ECM}) and Remote Network Driver Interface Specification (RNDIS, see \cref{sec:RNDIS}) mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
 
+\subsection{Background Reasons}
+\paragraph{}
+This paragraph explains the background reasons of choosing Raspberry Pi. Raspberry Pi 4B was the only single board computer (SBC) that I have when this firewall started as a hobby project to solve the aggressive hack problem that I was facing. The decision is unchanged after the start of this thesis mainly because of the time costs of trying new SBCs: Since its first release in 2012, Raspberry Pi has upgraded its hardware models and software multiple times, has accumulated a lot of real-world applications, and has maintained an active user community with a large number of experienced users behind it. All of them show that by using Raspberry Pi instead of a cheap new brand, reduced time cost could be expected on fixing the bugs of the SBC itself or waiting for the answers from the community because previous users have asked and answered many questions and have found and fixed many problems. Besides, its large number of users could also help in spreading the firewall project and help in pointing out security flaws of the new upgrades to the computer.
 \paragraph{}
 Joy-IT RB-TFT3.5 was the only screen that I had. The dtbo file of the Waveshare 35A screen also works with this hardware. Thus, the cheaper one in the market should be able to replace another. The resolution of 480x320 is enough to print logs. I do not have the material or the budget to try other screens with lower resolutions.
-
-\subsection{Selecting Operating System}
-\paragraph{}
-To make Raspberry Pi work as a USB device, the support from is required. Linux provides USB gadget mode. Using the combination of CDC-ECM (See \cref{sec:CDC-ECM}) and Remote Network Driver Interface Specification (RNDIS, see \cref{sec:RNDIS}) mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
 
 \subsection{Theory of the cost}
 \paragraph{}
 Commercial firewalls are usually more expensive than development boards that contain the same level of hardware functionality. On one hand, It's acceptable because they provided additional value through their software and services and all of the development and maintenance of the product, the service, and the company itself are costing money. On the other hand, it also indicates that an open-source solution would reduce the lower bound of the cost of accessing a hardware firewall.
 
-\section{Market research on commercial firewalls}
+\subsection{Market research on commercial firewalls}
 \paragraph{}
 Despite the firewall implemented in this paper is not a general-purpose firewall, the difference in cost between market products is still worth knowing. From \cref{tab:amazon-search,tab:amazon-search-stat}, the prices of hardware firewalls are centered around 250.74 EURO and most of them are more expensive than the price of a Raspberry Pi 4B (68.79 EURO) selling at the same website. The only exception is TP-LINK ER605. Its price is 55.5 EURO which is still higher than the price of a Raspberry P 3B on the same website. After checking the details of this exception, its central management design and the corresponding cloud-based controller both show that it is designed for a totally different threat model. Its exceptional price could be explained as the device is under the control of the company. However, spending money on a hardware firewall usually implies the reluctance to give control of devices to a company. To sum up, using Raspberry Pi would cost less than usual general-purpose firewalls.
 
@@ -196,6 +193,9 @@ Despite the firewall implemented in this paper is not a general-purpose firewall
   \caption{Statistics of \cref{tab:amazon-search}}
   \label{tab:amazon-search-stat}
 \end{table}
+
+\subsection{Conclusion}
+In conclusion, Raspberry Pi 4B has sufficient hardware and software support to make it work as the USB device designed in the previous section. Its price is also much lower than the majority of commercial firewalls. It is not the cheapest option that can fit the design but it is a good choice after taking technical support and user base into consideration.
 
 \chapter{Packet filtering and forwarding}
 \section{Design}
