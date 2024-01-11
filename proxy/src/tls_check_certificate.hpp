@@ -9,7 +9,7 @@ namespace hood_proxy {
 namespace tls {
 using CheckCertificateResultHandler = std::function<void(
     const std::vector<boost::asio::ip::tcp::endpoint>& trusted_endpoints)>;
-void CheckCertificateOf(const std::string& host_name,
+void CheckCertificateOf(const std::string& host_name, uint16_t port,
                         CheckCertificateResultHandler&& handler);
 }  // namespace tls
 }  // namespace hood_proxy

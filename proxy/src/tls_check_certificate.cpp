@@ -94,12 +94,12 @@ void WorkerResultHandler(const std::string& host_name,
   }
 }
 
-static void DoResolve(std::string host_name) {
+static void DoResolve(std::string host_name, uint16_t port) {
   LOG_INFO("Resolving " << host_name);
   hood::name_service::Resolve(
       host_name,
-      [host_name](const boost::system::error_code& error,
-                  const std::vector<boost::asio::ip::address>& results) {
+      [host_name, port](const boost::system::error_code& error,
+                        const std::vector<boost::asio::ip::address>& results) {
         tcp::endpoint dummy_endpoint;
         constexpr const uintptr_t error_finish_flags =
             (CertificateCheckWorker::Flags::error |
@@ -112,7 +112,7 @@ static void DoResolve(std::string host_name) {
         }
         std::vector<tcp::endpoint> endpoints;
         for (const auto& result : results) {
-          endpoints.emplace_back(tcp::endpoint(result, 443));
+          endpoints.emplace_back(tcp::endpoint(result, port));
         }
         if (endpoints.size() == 0) {
           LOG_INFO("Unable to resolve " << host_name);
@@ -122,7 +122,7 @@ static void DoResolve(std::string host_name) {
         network::RemoveV6AndBlockedEndpoints(endpoints);
         if (endpoints.size() == 0) {
           if (!ends_with(host_name, Configuration::proxy_domain)) {
-            DoResolve(host_name + Configuration::proxy_domain.data());
+            DoResolve(host_name + Configuration::proxy_domain.data(), port);
             return;
           }
           LOG_INFO(<< host_name << " endpoints are not acceptable");
@@ -142,7 +142,7 @@ static void DoResolve(std::string host_name) {
       });
 }
 
-void CheckCertificateOf(const std::string& host_name,
+void CheckCertificateOf(const std::string& host_name, uint16_t port,
                         CheckCertificateResultHandler&& handler) {
   {
     auto pair = cached_results_.find(host_name);
@@ -166,7 +166,7 @@ void CheckCertificateOf(const std::string& host_name,
     pending_handlers_[host_name].emplace_back(std::move(handler));
   }
 
-  DoResolve(host_name);
+  DoResolve(host_name, port);
 }
 
 }  // namespace tls

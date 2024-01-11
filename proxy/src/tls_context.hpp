@@ -1,6 +1,7 @@
 #ifndef HOOD_PROXY_TLS_CONTEXT_H_
 #define HOOD_PROXY_TLS_CONTEXT_H_
 
+#include <atomic>
 #include <boost/asio.hpp>
 #include <cassert>
 #include <chrono>
@@ -8,7 +9,6 @@
 #include <memory>
 #include <queue>
 #include <vector>
-#include <atomic>
 
 #include "configuration.hpp"
 #include "engine.hpp"
@@ -27,12 +27,12 @@ class Context : public std::enable_shared_from_this<Context> {
 
   enum class Role { client, server };
   static pointer create(Role role) { return pointer(new Context(role)); }
-  
+
   struct WriteTask {
     Message message;
     std::vector<uint8_t> raw_message;
   };
-  
+
   template <typename TransportType>
   void Start(TransportType&& socket) {
     auto& executor = Engine::get().GetExecutor();
@@ -40,27 +40,28 @@ class Context : public std::enable_shared_from_this<Context> {
       executor.run_one();
     }
     active_instance_counter_++;
-    auto socket_ptr = std::make_shared<boost::asio::ip::tcp::socket>(std::move(socket));
+    local_port_ = socket.local_endpoint().port();
+    auto socket_ptr =
+        std::make_shared<boost::asio::ip::tcp::socket>(std::move(socket));
     socket_ = socket_ptr;
     static_assert(!std::is_same<TransportType, nullptr_t>::value,
                   "Can not start a proxy context with nullptr");
     TlsMessageReader::StreamHandlerTypeExample handler;
     if (role_ == Role::client) {
       handler = std::bind(&Context::HandleUserMessage, shared_from_this(),
-                             std::placeholders::_1, std::placeholders::_2,
-                             std::placeholders::_3);
-    }
-    else {
+                          std::placeholders::_1, std::placeholders::_2,
+                          std::placeholders::_3);
+    } else {
       handler = std::bind(&Context::HandleServerMessage, shared_from_this(),
-                             std::placeholders::_1, std::placeholders::_2,
-                             std::placeholders::_3);
+                          std::placeholders::_1, std::placeholders::_2,
+                          std::placeholders::_3);
     }
     message_reader_.Start(socket_ptr, std::move(handler));
     DoWrite();
   }
   void Pair(pointer another);
   void Queue(pointer from, std::shared_ptr<WriteTask> task);
-  
+
   void Stop();
 
   ~Context();
@@ -69,6 +70,7 @@ class Context : public std::enable_shared_from_this<Context> {
   static std::atomic<intptr_t> active_instance_counter_;
   std::variant<nullptr_t, SocketSharedPtr> socket_;
   TlsMessageReader message_reader_;
+  uint16_t local_port_;
   std::string host_name_;
   Role role_;
   pointer paired_;
@@ -85,14 +87,12 @@ class Context : public std::enable_shared_from_this<Context> {
   bool writing_ = false;
 
   Context(Role role)
-      : socket_(nullptr),
-        message_reader_(),
-        role_(role),
-        paired_(nullptr) {}
+      : socket_(nullptr), message_reader_(), role_(role), paired_(nullptr) {}
   TlsMessageReader::NextStep HandleUserMessage(TlsMessageReader::Reason reason,
                                                const uint8_t* data,
                                                uint16_t data_size);
-  void DoConnectHost(const std::vector<boost::asio::ip::tcp::endpoint>& endpoints);
+  void DoConnectHost(
+      const std::vector<boost::asio::ip::tcp::endpoint>& endpoints);
   TlsMessageReader::NextStep HandleServerMessage(
       TlsMessageReader::Reason reason, const uint8_t* data, uint16_t data_size);
   void LimitTaskQueueSize();

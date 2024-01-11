@@ -137,8 +137,9 @@ Context::TlsMessageReader::NextStep Context::HandleUserMessage(
           }
           host_name_ = host_name;
           CheckCertificateOf(
-              host_name, std::bind(&Context::DoConnectHost, shared_from_this(),
-                                   std::placeholders::_1));
+              host_name, local_port_,
+              std::bind(&Context::DoConnectHost, shared_from_this(),
+                        std::placeholders::_1));
         }
 
         return next_step;
