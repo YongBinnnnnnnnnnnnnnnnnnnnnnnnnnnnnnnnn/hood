@@ -105,6 +105,7 @@ sudocpcontent ./allowed_tls_ports.txt $prefix/var/lib/hood/
 
 if [ $yongbin -eq 1 ]; then
   sudosedi "s/#//g" $prefix/var/lib/hood/domain_blacklist.txt
+  echo "1935" | sudo tee -a $prefix/var/lib/hood/allowed_tls_ports.txt
 fi
 
 if [ $harden_only -eq 1 ]; then
