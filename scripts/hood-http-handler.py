@@ -78,6 +78,11 @@ ocsp_or_crl_hosts = set([
   "ocsp.comodoca.com"
 ])
 
+"""
+TODO:
+Remove unsafe headers like Sec-CH-UA-Platform
+"""
+
 async def handle_connection(client_reader, client_writer):
   try:
     headers = bytes()
