@@ -8,9 +8,9 @@ skinparam componentStyle rectangle
 title Process view of normal HTTP traffic from user
 
 participant "Client" as CLIENT
-participant "dnsmasq on LAN port" as DNSLAN
-participant "hood-http-handler.py on 0.0.0.0:80" as HOODHTTP
-participant "hood-tls-proxy on 0.0.0.0:443" as HOODTLS
+participant "dnsmasq" as DNSLAN
+participant "hood-http-handler.py\n 0.0.0.0:80" as HOODHTTP
+participant "hood-tls-proxy\n 0.0.0.0:443" as HOODTLS
 participant "hood-name-service.py" as HOODNAME
 participant "public DNS services" as PUBDNS
 participant "example.com:443" as HTTP
@@ -18,17 +18,17 @@ participant "example.com:443" as HTTP
 CLIENT -> DNSLAN: Ask example.com
 DNSLAN -> CLIENT: 10.0.33.1, for example
 CLIENT -> HOODHTTP: Connect to 10.0.33.1:80
-CLIENT -> HOODHTTP: HTTP requests, Host: example.com
-HOODHTTP -> HOODTLS: TLS Handshake, SNI: example.com
+CLIENT -> HOODHTTP: HTTP requests\nHost: example.com
+HOODHTTP -> HOODTLS: TLS Handshake\nSNI: example.com
 HOODTLS -> HOODNAME: Ask example.com
-HOODNAME <-> PUBDNS: Resolve example.com via DoH
+HOODNAME <-> PUBDNS: DNS over HTTPS
 HOODNAME -> HOODTLS: x.x.x.x
 HOODTLS -> HTTP: Connect to x.x.x.x:443
 HOODTLS <-> HOODHTTP: TLS Handshakes
 HOODTLS -> HOODTLS: Security checks
 HOODTLS <-> HTTP: TLS Handshakes
 HOODHTTP <-> HTTP: Handshake success through hood-tls-proxy
-HOODHTTP -> HOODTLS: Forward HTTP requests encoded as TLS packets
+HOODHTTP -> HOODTLS: Encoded HTTP requests TLS packets
 HOODTLS -> HTTP: TLS packets
 HTTP -> HOODTLS: HTTP reponses encoded as TLS packets
 HOODTLS -> HOODHTTP: TLS packets
