@@ -693,20 +693,7 @@ Spoof network stacks, like TCP stacks and TLS stacks, make the firewall and the 
 \paragraph{}
 Libcomposite can make the device show multiple roles to a host (a computer), which means the device can at the same time work as a USB mass storage device or as a USB CDROM, both of which can be used as a media of a Live DVD. Then the computer will be able to boot a live system from it. For a computer that is password protected to boot from USB, we can also use this small device as a PXE server to make that computer boot from the network of the USB device.
 
-\chapter{The attacks encountered during the time I was working on this thesis}
-
-\section{Malicious hardwares}
-\paragraph{}
-Normal attackers will use the network, Bluetooth, or WiFi for communications between malware and the host. For example, casting the screen to another device via WiFi or sending keyboard inputs via Bluetooth. Those kinds of attacks can be detected by an RF detector. RF shielding fabric, RF detectors, and signal jammers could be used to fight against such kinds of attacks.
-\paragraph{}
-However, there are still other methods. Some even without wireless communications. Despite I had already bought an RF detector to alert me of wireless communications between unknown hardware, unknown attackers still managed to monitor my progress with some modified hardware. Take the devices that I am using to develop this project for example. Raspberry 4B has a USB chip that can communicate with the power source. If the charger is specially crafted with the ability to forward the USB connection to the remote endpoint via power lines, then, with the help of the malware installed on the Pi itself, data can be leaked silently via power lines even without any network connections to the computer. The same story can also happen to the portable screen that I am using now. I have found two counter measurements to this kind of attack: One is to use a USB-C to DC adapter when connecting a USB-C charger to the laptop. Another is to tape the two pins in the middle of the male USB-A port to prevent data communications.
-
-\section{Sounds}
-
-\paragraph{}
-Another attack that can bypass a computer without a wireless device, is to use AI / ML to identify the sounds of keyboard hits. The detected types can be sent to remote via power lines or mobile phones. The sound could even be recorded from the room of a neighbor which makes this attack more stealthy than other methods. I use cardboards to extend the pillar of the key cap to shorten the key travel to lower the volume of the sound of the key hit to counter this attack but I am uncertain about the effect because I have no attack tools to test this. AliPay also used to use sound waves to transmit data between phones and vending machines. My Raspberry Pi recently started to emit strange noises from the speakers on the screen, which could be because of the same kind of technology being used by hackers.
-
-\appendix %optional, use only if you have an appendix
+\appendix 
 
 \chapter{Simple scripts and services created by firewall}
 
@@ -825,6 +812,20 @@ table arp filter {
   }
 }
 \end{lstlisting}
+
+\chapter{The attacks encountered during the time I was working on this thesis}
+
+\section{Malicious hardwares}
+\paragraph{}
+Normal attackers will use the network, Bluetooth, or WiFi for communications between malware and the host. For example, casting the screen to another device via WiFi or sending keyboard inputs via Bluetooth. Those kinds of attacks can be detected by an RF detector. RF shielding fabric, RF detectors, and signal jammers could be used to fight against such kinds of attacks.
+\paragraph{}
+However, there are still other methods. Some even without wireless communications. Despite I had already bought an RF detector to alert me of wireless communications between unknown hardware, unknown attackers still managed to monitor my progress with some modified hardware. Take the devices that I am using to develop this project for example. Raspberry 4B has a USB chip that can communicate with the power source. If the charger is specially crafted with the ability to forward the USB connection to the remote endpoint via power lines, then, with the help of the malware installed on the Pi itself, data can be leaked silently via power lines even without any network connections to the computer. The same story can also happen to the portable screen that I am using now. I have found two counter measurements to this kind of attack: One is to use a USB-C to DC adapter when connecting a USB-C charger to the laptop. Another is to tape the two pins in the middle of the male USB-A port to prevent data communications.
+
+\section{Sounds}
+
+\paragraph{}
+Another attack that can bypass a computer without a wireless device, is to use AI / ML to identify the sounds of keyboard hits. The detected types can be sent to remote via power lines or mobile phones. The sound could even be recorded from the room of a neighbor which makes this attack more stealthy than other methods. I use cardboards to extend the pillar of the key cap to shorten the key travel to lower the volume of the sound of the key hit to counter this attack but I am uncertain about the effect because I have no attack tools to test this. AliPay also used to use sound waves to transmit data between phones and vending machines. My Raspberry Pi recently started to emit strange noises from the speakers on the screen, which could be because of the same kind of technology being used by hackers.
+
 
 \backmatter
 
