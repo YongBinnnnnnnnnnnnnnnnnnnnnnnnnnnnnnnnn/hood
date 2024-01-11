@@ -45,7 +45,7 @@ class Configuration {
     bpo::options_description configurations("Configurations");
     auto add_configuration_option = configurations.add_options();
     add_configuration_option("tls-proxy-port",
-                             bpo::value<std::vector<int>>()->multitoken()->default_value(std::vector<int>{443}),
+                             bpo::value<std::vector<uint16_t>>()->multitoken()->default_value(std::vector<uint16_t>{443}),
                              "tls proxy port");
     add_configuration_option("listen-port",
                              bpo::value<uint16_t>()->default_value(443),
