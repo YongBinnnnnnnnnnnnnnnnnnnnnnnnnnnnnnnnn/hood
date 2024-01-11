@@ -101,6 +101,7 @@ sudo mkdir -p $prefix/var/lib/hood/flags
 echo "${wan_port_device_path}" | sudo tee $prefix/var/lib/hood/wan_port_device_path.txt
 sudocpcontent ./ip_subnet_blacklist.txt $prefix/var/lib/hood/
 sudocpcontent ./domain_blacklist.txt $prefix/var/lib/hood/
+sudocpcontent ./allowed_tls_ports.txt $prefix/var/lib/hood/
 
 if [ $yongbin -eq 1 ]; then
   sudosedi "s/#//g" $prefix/var/lib/hood/domain_blacklist.txt
