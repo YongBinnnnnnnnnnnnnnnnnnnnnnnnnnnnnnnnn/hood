@@ -49,7 +49,8 @@ function proxy_access_on(){
   ip address add $interface_address/24 dev $1
   echo $interface_address > /tmp/hood/$1-address
 
-  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr ${interface_address}/32 tcp dport {80, 443} accept
+  tls_ports = $(tr "\n" ","</var/lib/hood/allowed_tls_ports.txt)
+  nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr ${interface_address}/32 tcp dport {80, ${tls_ports}} accept
   nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 ip daddr ${interface_address}/32 udp dport 53 accept
   nft_handle_to_file /tmp/hood/$1_proxy_i_rule insert rule ip filter input index 5 iif $1 udp sport {68} udp dport {67} log prefix \"[HOOD A]\" flags all accept
   nft_handle_to_file /tmp/hood/$1_proxy_o_rule insert rule ip filter output index 5 oif $1 udp sport {67} udp dport {68} log prefix \"[HOOD A]\" flags all accept
@@ -113,7 +114,9 @@ function internet_access_on(){
   echo "internet access on " $1 | tee -a $logfile > $log_device
   ip addr show eth0|grep inet -m 1|sed -r "s/    inet ([0-9\.]*).*/\1/">/tmp/hood/wan_ip
   wan_ip=$(cat /tmp/hood/wan_ip)
-  nft_handle_to_file /tmp/hood/$1_internet_o_rule insert rule ip filter output index 5 oif $1 ip saddr $wan_ip/32 tcp dport {80, 443} accept
+  
+  tls_ports = $(tr "\n" ","</var/lib/hood/allowed_tls_ports.txt)
+  nft_handle_to_file /tmp/hood/$1_internet_o_rule insert rule ip filter output index 5 oif $1 ip saddr $wan_ip/32 tcp dport {80, ${tls_ports}} accept
 }
 
 function revoke_internet_access_on(){
