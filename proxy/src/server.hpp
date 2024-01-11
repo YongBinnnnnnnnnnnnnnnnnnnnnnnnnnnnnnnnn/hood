@@ -20,13 +20,13 @@ class Server {
   boost::asio::ip::tcp::acceptor acceptor_;
   boost::asio::ip::address listen_address_;
   uint16_t listen_port_;
-  boost::asio::ip::tcp::acceptor tls_proxy_acceptor_;
+  std::vector<boost::asio::ip::tcp::acceptor> tls_proxy_acceptors_;
   boost::asio::ip::address tls_proxy_address_;
 
   bool stop_;
 
   void DoAccept();
-  void DoAcceptTls();
+  void DoAcceptTls(boost::asio::ip::tcp::acceptor& acceptor);
   void DoAwaitStop();
 };
 

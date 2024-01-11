@@ -32,7 +32,6 @@ Server::Server()
       listen_address_(
           make_address(Configuration::get("listen-address").as<string>())),
       listen_port_(Configuration::get("listen-port").as<uint16_t>()),
-      tls_proxy_acceptor_(io_context_),
       tls_proxy_address_(
           make_address(Configuration::get("tls-proxy-address").as<string>())),
       stop_(false) {}
@@ -61,21 +60,23 @@ void Server::StartTls() {
   auto& ports =
       Configuration::get("tls-proxy-port").as<std::vector<uint16_t>>();
   for (auto port : ports) {
+    auto& acceptor = tls_proxy_acceptors_.emplace_back(io_context_);
+    acceptor.open(tcp::v4());
+    acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
     auto tls_endpoint = tcp::endpoint(tls_proxy_address_, port);
-    tls_proxy_acceptor_.open(tls_endpoint.protocol());
-    tls_proxy_acceptor_.set_option(
-        boost::asio::ip::tcp::acceptor::reuse_address(true));
-    tls_proxy_acceptor_.bind(tls_endpoint);
-    tls_proxy_acceptor_.listen();
-    DoAcceptTls();
+    acceptor.bind(tls_endpoint);
+    acceptor.listen();
     LOG_INFO("Listening on " << tls_proxy_address_ << ":" << port
                              << " TLS TCP");
   }
+  for (auto& acceptor : tls_proxy_acceptors_) {
+    DoAcceptTls(acceptor);
+  }
 }
 
-void Server::DoAcceptTls() {
-  tls_proxy_acceptor_.async_accept(
-      [this](error_code error, tcp::socket socket) {
+void Server::DoAcceptTls(boost::asio::ip::tcp::acceptor& acceptor) {
+  acceptor.async_accept(
+      [this, &acceptor](error_code error, tcp::socket socket) {
         if (stop_) {
           return;
         }
@@ -85,7 +86,7 @@ void Server::DoAcceptTls() {
           context->Start(std::move(socket));
         }
 
-        DoAcceptTls();
+        DoAcceptTls(acceptor);
       });
 }
 
