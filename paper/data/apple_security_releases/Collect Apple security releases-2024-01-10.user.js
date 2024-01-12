@@ -31,7 +31,9 @@
     if (!is_target_product) {
       continue;
     }
-    total += 1;
+    //if (name.indexOf("macOS Ventura 13.4.1 (a)") == -1) {
+    //  continue;
+    //}
     console.log(name);
     console.log(link.href);
     const response = await fetch(link.href);
@@ -52,5 +54,6 @@
     //console.log(renderer.innerText);
     unsafeWindow.yong[name] = update_text;
   }
-  document.body.innerText = JSON.stringify(unsafeWindow.yong);
+  document.write(JSON.stringify(unsafeWindow.yong));
 })();
+// count word freq
