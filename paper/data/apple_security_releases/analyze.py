@@ -15,10 +15,11 @@ for k, v in data.items():
     word = word.strip()
     count = statastics.get(word,0)
     statastics[word] = count + 1
+statastics["Wi-Fi + Bluetooth"] = statastics["Wi-Fi"] + statastics["Bluetooth"]
 statastics = {k: v for k, v in reversed(sorted(statastics.items(), key=lambda item: item[1]))}
 
 bar_width = 30
-word_width = 15
+word_width = 18
 def draw_bar(word, value, max):
   length = round(bar_width*value/max)
   if len(word) < word_width:
@@ -26,7 +27,7 @@ def draw_bar(word, value, max):
   print(word + ": |" + "█"*length + " "*(bar_width - length) + "| " + str(value)  )
 
 max_count = max(statastics.values())
-print("Max frequency                                   : " + str(max_count))
+print("Max frequency                                      : " + str(max_count))
 draw_count = 20
 for k, v in statastics.copy().items():
   draw_bar(k, v, max_count)
