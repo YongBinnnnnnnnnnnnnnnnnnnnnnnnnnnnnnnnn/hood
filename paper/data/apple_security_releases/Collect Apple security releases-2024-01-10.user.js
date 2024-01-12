@@ -49,11 +49,11 @@
     }
     renderer.innerHTML = update_text;
     update_text = renderer.innerText;
-    update_text = update_text.replace(/\s\s+/gm, "");
+    //update_text = update_text.replace(/\s\s+/gm, " ");
     //update_text = update_text.replace(/\n\n/gm, "\n");
-    //console.log(renderer.innerText);
+    //console.log(update_text);
     unsafeWindow.yong[name] = update_text;
   }
-  document.write(JSON.stringify(unsafeWindow.yong));
+  document.querySelector('html').outerHTML = JSON.stringify(unsafeWindow.yong);
 })();
 // count word freq
