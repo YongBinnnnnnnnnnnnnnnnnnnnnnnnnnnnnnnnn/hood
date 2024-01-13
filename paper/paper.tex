@@ -402,7 +402,7 @@ The tool is implemented in a Python script named hood-timesync.py. It accepts tw
   \label{tab:timesync_cmdarg}
 \end{table}
 
-\chapter{Behavioral simulation}
+\chapter{Network activity simulation}
 \section{Introduction}
 \paragraph{}
 In this chapter, the goal of the firewall changed to leaking fake information instead of preventing the information leakage because the sad truth is that the combination of all efforts on those protocols is not enough when facing a more sophisticated network analysis. For example, the connections to Windows update servers and App Store servers can be used to detect Windows and Apple devices \citep{osandtether}, but the firewall has no reason to stop those connections. Apart from that, the domain name leaked from TLS handshakes can also tell the eavesdroppers what websites a person is viewing and then may infer what the person is doing. Virtual private networks (VPNs) may prevent that information from being captured by local eavesdroppers but VPNs also have an egress, where could have other eavesdroppers. Thus, when visiting internet websites, the leak of information is inevitable.
@@ -664,18 +664,21 @@ Network activities of the firewall system are logged to multiple places by multi
   \label{tab:network_log}
 \end{table}
 
-\chapter{Reasons of not to use}
-\paragraph{}
-In most cases, the reason to not use something is to reduce the attack surface.
 
-\section{Analyzation to security events}
+
+\chapter{Analyzation to security events}
+\paragraph{}
+This chapter provides reasons of many things that could bring convenience were disabled in the firewall by analyzing security events.
+
 \begin{figure}[H]
   \includegraphics[scale=1]{data/apple_security_releases/result.png}
   \caption{Top 15 times of an component being mentioned in Apple security releases\newline from Januray 8th 2020 to Januray 12th 2024}
   \label{fig:apple-sec-release}
 \end{figure}
 \paragraph{}
-I collected texts of Apple security releases of its operating systems between Januray 8th 2020 and Januray 12th 2024 from Apple website and then counted the number of times of an component being mentioned in their security releases. See \cref{fig:apple-sec-release}. The result shows that 
+I collected texts of Apple security releases of its operating systems between Januray 8th 2020 and Januray 12th 2024 from Apple website and then counted the number of times of an component being mentioned in their security releases. See \cref{fig:apple-sec-release}. They are the top 15 mostly mentioned components with one exception: the number of "Wi-Fi + Bluetooth" is the sum of the two.
+\paragraph{}
+The result explains how dangerous a browser could be: WebKit, the underlying engine of Safari is the top 1 on the list, the browser Safari itself is the 9th place, and many things related to browsing are on the list: ImageIO, FontParser, CoreText, and WebRTC. Without the time spent on creating a 'fake' browser, the simulation of user browsing network activity may have to choose between crude bash scripts or dangerous browser-based tools.
 
 \section{IPv6}
 \section{WiFi}
