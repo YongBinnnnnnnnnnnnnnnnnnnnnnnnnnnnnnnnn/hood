@@ -468,7 +468,7 @@ Action files are in JSON format. An action file contains an array of objects. Al
 \end{table}
 
 \subsection{HoodExecutor}
-HoodExecutor is a general-purpose multi-thread task executor for Python. It can run and schedule tasks that have dependency relationships and delay requirements in parallel. It has a thread pool of workers to execute tasks and a single thread for scheduling delayed tasks. It is required to simulate the paralleled requests sent out from real-world browsers without a third-party HTTP client based on asyncio. It is also the cornerstone of fulfilling all the execution requirements of the tasks and actions in an action file.
+HoodExecutor is a general-purpose multi-thread task executor for Python. It can run and schedule in parallel tasks that have dependency relationships and delay requirements. It has a thread pool of workers to execute tasks and a single thread for scheduling delayed tasks. It is required to simulate the paralleled requests sent out from real-world browsers without a third-party HTTP client based on asyncio. It is also the cornerstone of fulfilling all the execution requirements of the tasks and actions in an action file.
 
 \subsection{Browser}\label{sec:browser}
 A fake browser is created to simulate network activities of browsing. It records the cookies specified in the HTTP response headers and sends them out like a real browser. It parses the HTML content of the webpage to extract the resources to be loaded and load them in parallel just like a real browser. It uses headers that are used by real browsers and uses different headers on different resources just like a real browser. Cookies are stored in memory and used in the running session. However, due to security concerns, and also to reduce the performance impacts caused by the actor, the fake browser will neither render the webpage [CVE-2023-6707, CVE-2023-6351, CVE-2023-6869, CVE-2023-5170] nor evaluate scripts [CVE-2023-6702, CVE-2023-5997, CVE-2023-5728, CVE-2023-5723] used by the webpage.
@@ -675,7 +675,7 @@ In most cases, the reason to not use something is to reduce the attack surface.
   \label{fig:apple-sec-release}
 \end{figure}
 \paragraph{}
-I collected texts of Apple security releases between Januray 8th 2020 and Januray 12th 2024 from Apple website and then counted the times of an component being mentioned in their security releases. See \cref{fig:apple-sec-release}. The result shows that 
+I collected texts of Apple security releases of its operating systems between Januray 8th 2020 and Januray 12th 2024 from Apple website and then counted the number of times of an component being mentioned in their security releases. See \cref{fig:apple-sec-release}. The result shows that 
 
 \section{IPv6}
 \section{WiFi}
