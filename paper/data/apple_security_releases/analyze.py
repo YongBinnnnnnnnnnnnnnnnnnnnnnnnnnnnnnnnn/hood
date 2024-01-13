@@ -28,7 +28,7 @@ def draw_bar(word, value, max):
   print(word + ": |" + "█"*length + " "*(bar_width - length) + "| " + str(value)  )
 
 max_count = max(statastics.values())
-print("Max number of times" + " "*(bar_width+2) + ": " + str(max_count))
+print("Word" + " "*(word_width - 4) + ":" + " "*(bar_width+2) + "| Number of times" )
 draw_count = 20
 for k, v in statastics.copy().items():
   draw_bar(k, v, max_count)
