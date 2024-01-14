@@ -475,7 +475,7 @@ A fake browser is created to simulate network activities of browsing. It records
 
 \subsection{Hood action script}
 \paragraph{}
-A hood action script is a script to describes actions to be done to the actor. Each line of the script can be seen as three parts: namespaces, commands, and arguments. For example, \newline "hood:browser:goto:http://www.example.com". "hood:browser:" is to refer browser namespace from the hood namespace, "goto" is a command inside the browser namespace to tell the interpreter to use the browser to load a webpage. "http://www.example.com" is the parameter of the "goto" command. In this example, it represents the URL of the webpage to be loaded.
+A hood action script is a script to describe actions to be done to the actor. Each line of the script can be seen as three parts: namespaces, commands, and arguments. For example, \newline "hood:browser:goto:http://www.example.com". "hood:browser:" is to refer browser namespace from the hood namespace, "goto" is a command inside the browser namespace to tell the interpreter to use the browser to load a webpage. "http://www.example.com" is the parameter of the "goto" command. In this example, it represents the URL of the webpage to be loaded.
 \subsubsection{hood:browser:goto command}
 \paragraph{}
 Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \cref{sec:browser}) to load a URL. When the special value "random\_link" is used as the argument, the actor randomly picks a link from current webpage of the browser to go to, but nothing will be done if the current webpage contains no links.
