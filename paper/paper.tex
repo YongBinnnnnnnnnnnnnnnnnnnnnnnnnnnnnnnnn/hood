@@ -670,6 +670,7 @@ Network activities of the firewall system are logged to multiple places by multi
 \paragraph{}
 This chapter analyzes security events and provides reasons why many things that could bring convenience are disabled in the firewall.
 
+\section{Apple security releases}
 \begin{figure}[H]
   \includegraphics[scale=1]{data/apple_security_releases/result.png}
   \caption{Top 15 mostly mentioned components in Apple security releases\newline from Januray 8th 2020 to Januray 12th 2024}
@@ -678,7 +679,7 @@ This chapter analyzes security events and provides reasons why many things that 
 \paragraph{}
 I collected texts of Apple security releases of its operating systems between Januray 8th 2020 and Januray 12th 2024 from Apple website and then counted the number of times of an component being mentioned in their security releases. See \cref{fig:apple-sec-release}. They are the top 15 mostly mentioned components with one exception: the number of "Wi-Fi + Bluetooth" is the sum of the two.
 \paragraph{}
-The result explains how dangerous a browser could be: WebKit, the underlying engine of Safari is the top 1 on the list, the browser Safari itself is the 9th place, and many things related to browsing are on the list: ImageIO, FontParser, CoreText, and WebRTC. Without the time spent on creating a 'fake' browser, the simulation of web-browsing network activity may have to choose between crude bash scripts or dangerous browser-based tools.
+The result explains how risky using a browser could be: WebKit, the underlying engine of Safari is the top 1 on the list, the browser Safari itself is the 9th place, and many things related to browsing are on the list: ImageIO, FontParser, CoreText, and WebRTC. Without the time spent on creating a 'fake' browser, the simulation of web-browsing network activity may have to choose between crude bash scripts or dangerous browser-based tools.
 \paragraph{}
 It also demonstrates why firewall disables wireless by default: Both "Wi-Fi" and "Bluetooth" are on the list, and their sum can take the fourth place.
 
