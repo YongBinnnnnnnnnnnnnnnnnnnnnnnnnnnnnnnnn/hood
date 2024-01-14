@@ -685,12 +685,13 @@ It also demonstrates why firewall disables wireless by default: Both "Wi-Fi" and
 
 \section{IPv6}
 \paragraph{}
-This section explains why firewall disables IPv6. I searched both the keyword "IPv6" and the keyword "IPv4" from the website \url{https://cve.mitre.org}. On Jan 14th 2024 (UTC +1) 00:00, there are 615 CVE records that match the keyword "IPv6" and 360 CVE records that match the keyword "IPv4". From 2022, there are 81 results match the keyword "IPv6" and 36 result match the keyword "IPv4". Those numbers indicate that the overall implementations of IPv6 is less stable than of IPv4. It could be explained as IPv4 implementations have a longer history of bug fixes.
+This section explains why firewall disables IPv6 by default. I searched both the keyword "IPv6" and the keyword "IPv4" from the website \url{https://cve.mitre.org}. On Jan 14th 2024 (UTC +1) 00:00, there are 615 CVE records that match the keyword "IPv6" and 360 CVE records that match the keyword "IPv4". From 2022, there are 81 results match the keyword "IPv6" and 36 result match the keyword "IPv4". Those numbers indicate that the overall implementations of IPv6 is less stable than of IPv4. It could be explained as IPv4 implementations have a longer history of bug fixes.
 
 \section{GPU}
-One of the reason to disable GPU is a stealthy GPU-based keylogger reported on EUROSEC 2013. TODO:ref
+One of the reasons to disable GPU is a stealthy GPU-based keylogger reported on EUROSEC 2013. TODO:ref
 
 \chapter{Conclusions}
+As conclusion, the decisions on disabling things are supported by numbers and related threats.
 
 \section{Possible improvements for future}
 \subsection{LSM and seccomp}
