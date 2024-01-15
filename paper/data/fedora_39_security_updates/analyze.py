@@ -21,7 +21,7 @@ for l in data:
     if item[0] == "&":
       continue
     print(item)
-    item = "-".join(item.split("-")[0:-2])
+    item = re.match("[a-zA-Z]+", item)[0]
     if not item:
       print(l)
     print(item)
