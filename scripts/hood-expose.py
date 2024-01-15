@@ -1,4 +1,4 @@
-#!/usr/bin/python3 
+#!/usr/bin/python3 -B
 """
 TCP Port forwarding tool for hood firewall
 basically, a simpler version of socat
@@ -19,7 +19,7 @@ def load_hood_name_service():
   spec.loader.exec_module(module)
   return module
 
-hood_name_service = load_hood_name_service()
+load_hood_name_service().HookGetAddrInfo()
 
 parser = argparse.ArgumentParser(
   prog="hood-expose",
@@ -38,8 +38,12 @@ args_ = parser.parse_args()
 if not args_.to_port:
   args_.to_port = args_.from_port
 
+def LOG(*args):
+  print(*args, flush=True)
+
 async def handle_connection(client_reader, client_writer):
   try:
+    LOG("Connecting to ", args_.from_address, args_.from_port)
     host_reader, host_writer = await asyncio.open_connection(
       args_.from_address,
       args_.from_port
@@ -78,11 +82,10 @@ async def handle_connection(client_reader, client_writer):
     await host_writer.wait_closed()
     await client_writer.wait_closed()
   except Exception as e:
-    print(e, e.args)
+    LOG(e, e.args)
 
 
 async def run_server():
-  args_.from_address = await hood_name_service.HoodResolve(args_.from_address)
   server = await asyncio.start_server(handle_connection, args_.to_address, args_.to_port)
   async with server:
     await server.serve_forever()

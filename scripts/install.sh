@@ -155,6 +155,8 @@ sudo cp hood-network-services-runner.sh $prefix/usr/local/lib/hood/
 sudo chmod 0755 $prefix/usr/local/lib/hood/hood-network-services-runner.sh
 sudo cp hood_proxy_$target_instrument_set $prefix/usr/local/lib/hood/hood-tls-proxy
 sudo chmod 0755 $prefix/usr/local/lib/hood/hood-tls-proxy
+sudo cp hood-expose.py $prefix/usr/local/lib/hood/
+sudo chmod 0755 $prefix/usr/local/lib/hood/hood-expose.py
 sudocpcontent ./hood_proxy.conf $prefix/etc/
 
 if ! grep -q "apparmor" $prefix/boot/firmware/cmdline.txt; then 
