@@ -9,11 +9,24 @@ statastics = {
 }
 for l in data:
   l=l[0]
-  print("-".join(l.split("-")[0:-2]))
-  count = statastics.get(l,0)
-  statastics[l] = count + 1
-statastics["Wi-Fi + Bluetooth"] = statastics["Wi-Fi"] + statastics["Bluetooth"]
-del statastics["Security"]
+  if " and " in l:
+    items = l.split(" and ")
+  elif ", " in l:
+    items = l.split(", ")
+  else:
+    items = [l]
+  for item in items:
+    if item is None:
+      continue
+    if item[0] == "&":
+      continue
+    print(item)
+    item = "-".join(item.split("-")[0:-2])
+    if not item:
+      print(l)
+    print(item)
+    count = statastics.get(item,0)
+    statastics[item] = count + 1
 statastics = {k: v for k, v in reversed(sorted(statastics.items(), key=lambda item: item[1]))}
 
 bar_width = 58
