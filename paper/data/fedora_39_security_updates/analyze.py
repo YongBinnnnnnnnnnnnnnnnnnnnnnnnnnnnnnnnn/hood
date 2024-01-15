@@ -6,8 +6,8 @@ with open("data.json", "r", encoding='utf-8') as f:
 
 statastics = {
 }
-for k, v in data.items():
-  #print(text_string)
+for l in data:
+  print(l.split("-")[0:-2]
   match_pattern = re.findall(r'\n[ a-z\-A-Z]{2,15}\n', v)
   for word in match_pattern:
     word = word.strip()
