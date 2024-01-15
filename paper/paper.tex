@@ -102,7 +102,7 @@ To make computers recognize the firewall as a USB device, the support from both 
 \paragraph{}
 For hardware, Raspberry Pi 4 is the first model in Raspberry Pi family that both supports USB device mode and contains a ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
 \paragraph{}
-For OS, Linux has USB gadget mode. Using the combination of CDC-ECM (See \cref{sec:CDC-ECM}) and Remote Network Driver Interface Specification (RNDIS, see \cref{sec:RNDIS}) mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
+For OS, Linux has USB gadget mode. Using the combination of CDC-ECM (See \cref{sec:CDC-ECM}) and Remote Network Driver Interface Specification (RNDIS, see \cref{sec:RNDIS}) mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack but it is not supported by Microsoft Windows. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
 
 \subsection{Background Reasons}
 \paragraph{}
@@ -870,7 +870,7 @@ It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus 
 
 \section{RNDIS}\label{sec:RNDIS}
 \paragraph{}
-The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual ethernet link to host OS but it is not supported by Microsoft Windows.
+The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual ethernet link to host OS.
 
 \section{nftables}\label{sec:nftables}
 \paragraph{}
