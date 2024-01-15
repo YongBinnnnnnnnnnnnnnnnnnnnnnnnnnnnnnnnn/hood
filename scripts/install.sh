@@ -102,10 +102,11 @@ echo "${wan_port_device_path}" | sudo tee $prefix/var/lib/hood/wan_port_device_p
 sudocpcontent ./ip_subnet_blacklist.txt $prefix/var/lib/hood/
 sudocpcontent ./domain_blacklist.txt $prefix/var/lib/hood/
 sudocpcontent ./allowed_tls_ports.txt $prefix/var/lib/hood/
+sudocpcontent ./expose_to_internal.txt $prefix/var/lib/hood/
 
 if [ $yongbin -eq 1 ]; then
   sudosedi "s/#//g" $prefix/var/lib/hood/domain_blacklist.txt
-  echo "1935" | sudo tee -a $prefix/var/lib/hood/allowed_tls_ports.txt
+  sudosedi "s/#//g" $prefix/var/lib/hood/expose_to_internal.txt
 fi
 
 if [ $harden_only -eq 1 ]; then
