@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import json
 import re
 
@@ -7,12 +8,10 @@ with open("data.json", "r", encoding='utf-8') as f:
 statastics = {
 }
 for l in data:
-  print(l.split("-")[0:-2]
-  match_pattern = re.findall(r'\n[ a-z\-A-Z]{2,15}\n', v)
-  for word in match_pattern:
-    word = word.strip()
-    count = statastics.get(word,0)
-    statastics[word] = count + 1
+  l=l[0]
+  print("-".join(l.split("-")[0:-2]))
+  count = statastics.get(l,0)
+  statastics[l] = count + 1
 statastics["Wi-Fi + Bluetooth"] = statastics["Wi-Fi"] + statastics["Bluetooth"]
 del statastics["Security"]
 statastics = {k: v for k, v in reversed(sorted(statastics.items(), key=lambda item: item[1]))}
