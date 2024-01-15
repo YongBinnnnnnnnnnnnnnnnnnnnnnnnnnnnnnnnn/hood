@@ -1,8 +1,6 @@
 import json
-import pprint
 import re
 
-pp = pprint.PrettyPrinter(indent=2)
 with open("data.json", "r", encoding='utf-8') as f:
   data = json.load(f);
 
