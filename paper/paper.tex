@@ -222,7 +222,7 @@ DHCP is widely used to dynamically assign an IP address to a new device connecte
 
 \subsection{The issue}
 \paragraph{}
-A client can expose its host name to the network from the 'client identifier' option or 'sname' field in the protocol. When in the same local network, the host name exposed by the DHCP protocol and other protocols can be used to locate the devices of the victim. If the name of a computer is straightforward enough, like "Yongbin's MacBook Pro", the network administrator will be able to know the name of the owner of the computer at first glance. The hardware address exposed to the network can also reveal more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reverse lookup the manufacturer and the manufacturer can help identify the owner. For example, the network administrator may look at the MAC address of the device to find out that the manufacturer is company A and if company A only sells its products in Country B and if C is the only person who came from Country B then the chance that the device belongs to C would be high.
+A client can expose its host name to the network from the 'client identifier' option or 'sname' field in the protocol.\citep{rfc:dhcp} When in the same local network, the host name exposed by the DHCP protocol and other protocols can be used to locate the devices of the victim. If the name of a computer is straightforward enough, like "Yongbin's MacBook Pro", the network administrator will be able to know the name of the owner of the computer at first glance. The hardware address exposed to the network can also reveal more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reverse lookup the manufacturer and the manufacturer can help identify the owner. For example, the network administrator may look at the MAC address of the device to find out that the manufacturer is company A and if company A only sells its products in Country B and if C is the only person who came from Country B then the chance that the device belongs to C would be high.
 
 \section{Design}
 \paragraph{}
@@ -853,7 +853,7 @@ Another attack that can bypass a computer without a wireless device, is to use A
 
 \section{Direct physical access}
 \paragraph{}
-A lot of storage medias of my studies were stolen, including USB sticks, MicroSD cards, and CDs. A police told me that he does not trust me and failed to catch the thief. Sometimes they also swap my stortage media with another one with the same look but with torjan installed while I'm absent. 
+A lot of storage medias of my studies were stolen, including USB sticks, MicroSD cards, and CDs. A police told me that he does not trust me and failed to catch the thief. Sometimes they also swap my stortage media with another one with the same look but with torjan installed while I'm absent.
 \paragraph{}
 And even further: the Google account of the email of my previous GitHub Account was stolen. I have two-factor authenciation (2FA) enabled and the Google Authenticator was installed on an iPhone that only for 2FA authenticators. The iPhone does not have a SIM card inserted and only uses internet for updates. However, when the Google account was stolen, I received nothing to alert me. This kind of attack is unlikely to happen to ordinary people and my ordinary status makes it hard to believe.
 
