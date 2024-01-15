@@ -483,9 +483,12 @@ Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \
 \paragraph{}
 Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in the CONDITION part by syntax "key=value[,key=value]". Currently, only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has a 33\% chance of termination at the beginning of each loop, "0" means it will never have an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into Python code. The COMMAND part is the hood action script to be executed in the loop.
 
+\subsection{Hood action script}
+\paragraph{}
+\cref{fig:actor-logic-view} is the logical view of the hood-actor.py, it shows the calling relationship between different components.
 \begin{figure}[H]
   \includegraphics[width=0.9\textwidth]{graphics/puml/actor.png}
-  \caption{Logic view of hood-actor.py}
+  \caption{Logical view of hood-actor.py}
   \label{fig:actor-logic-view}
 \end{figure}
 
@@ -648,8 +651,9 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
 \paragraph{}
 Network activities of the firewall system are logged to multiple places by multiple services (see \cref{tab:network_log}). All logs are simplified to human-readable forms and aggregated to a tty device to let users access them easily. If the firewall was installed with the parameter harden\_only=1, aggregated logs will be sent to tty8, and if the installation parameter harden\_only was 0, aggregated logs will be sent to tty1.
 \begin{table}[H]
+  \centering
   \rowcolors{2}{tablegray}{}
-  \begin{tabular}{|p{95mm}|p{95mm}|}
+  \begin{tabular}{|c|c|}
     \hline
     Service              & Log location                   \\
     \hline
@@ -672,7 +676,7 @@ This chapter analyzes security events and provides reasons why many things that 
 
 \section{Security releases and updates}
 \begin{figure}[H]
-  \includegraphics[scale=1]{data/apple_security_releases/result.png}
+  \includegraphics[width=\textwidth]{data/apple_security_releases/result.png}
   \caption{Top 19 mostly mentioned components in Apple security releases\newline from Januray 8th 2020 to Januray 12th 2024}
   \label{fig:apple-sec-release}
 \end{figure}
@@ -683,7 +687,7 @@ The result explains how risky using a browser could be: WebKit, the underlying e
 \paragraph{}
 It also demonstrates why firewall disables wireless by default: Both "Wi-Fi" and "Bluetooth" are on the list, and their sum can take the fourth place.
 \begin{figure}[H]
-  \includegraphics[scale=1]{data/fedora_39_security_updates/result.png}
+  \includegraphics[width=\textwidth]{data/fedora_39_security_updates/result.png}
   \caption{Top 20 mostly mentioned package prefixes in Fedora 39 security updates\newline from Feburary 14th 2020 to Januray 10th 2024}
   \label{fig:fedora-sec-update}
 \end{figure}
