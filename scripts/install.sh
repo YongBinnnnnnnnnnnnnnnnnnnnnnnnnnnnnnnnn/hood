@@ -1,6 +1,6 @@
 #!/bin/sh
 machine=$(uname -s)
-
+ 
 mkdir -p /tmp/hood-install
 
 if [ $machine = "FreeBSD" ]; then
