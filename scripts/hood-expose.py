@@ -9,6 +9,18 @@ Bin Yong all rights reserved.
 import asyncio
 import argparse
 
+def load_hood_name_service():
+  import importlib.util
+  import os
+  import sys
+  spec = importlib.util.spec_from_file_location("hood-name-service.py",  os.path.dirname(os.path.realpath(__file__)) + "/hood-name-service.py")
+  module = importlib.util.module_from_spec(spec)
+  sys.modules["hood_name_service"] = module
+  spec.loader.exec_module(module)
+  return module
+
+hood_name_service = load_hood_name_service()
+
 parser = argparse.ArgumentParser(
   prog="hood-expose",
   description="TCP Port forwarding tool for hood firewall.",
@@ -70,6 +82,7 @@ async def handle_connection(client_reader, client_writer):
 
 
 async def run_server():
+  args_.from_address = await hood_name_service.HoodResolve(args_.from_address)
   server = await asyncio.start_server(handle_connection, args_.to_address, args_.to_port)
   async with server:
     await server.serve_forever()
