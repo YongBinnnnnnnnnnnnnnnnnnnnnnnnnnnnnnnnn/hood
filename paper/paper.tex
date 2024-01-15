@@ -677,18 +677,18 @@ This chapter analyzes security events and provides reasons why many things that 
 \section{Security releases and updates}
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{data/apple_security_releases/result.png}
-  \caption{Top 19 mostly mentioned components in Apple security releases\newline from Januray 8th 2020 to Januray 12th 2024}
+  \caption{Top 19 mostly mentioned components in Apple security releases\newline from Januray 8th, 2020 to Januray 12th, 2024}
   \label{fig:apple-sec-release}
 \end{figure}
 \paragraph{}
-I collected texts of Apple security releases of its operating systems between Januray 8th 2020 and Januray 12th 2024 and then counted the number of times of an component being mentioned. See \cref{fig:apple-sec-release}. They are the top 19 mostly mentioned components with one exception: the number of "Wi-Fi + Bluetooth" is the sum of the two.
+I collected texts of Apple security releases of its operating systems between Januray 8th, 2020 and Januray 12th, 2024 and then counted the number of times of an component being mentioned. See \cref{fig:apple-sec-release}. They are the top 19 mostly mentioned components with one exception: the number of "Wi-Fi + Bluetooth" is the sum of the two.
 \paragraph{}
 The result explains how risky using a browser could be: WebKit, the underlying engine of Safari is the top 1 on the list, the browser Safari itself is the 9th place, and many things related to browsing are on the list: ImageIO, FontParser, CoreText, and WebRTC. Without the time spent on creating a 'fake' browser, the simulation of web-browsing network activity may have to choose between crude bash scripts or risky browser-based tools.
 \paragraph{}
 It also demonstrates why firewall disables wireless by default: Both "Wi-Fi" and "Bluetooth" are on the list, and their sum can take the fourth place.
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{data/fedora_39_security_updates/result.png}
-  \caption{Top 20 mostly mentioned package prefixes in Fedora 39 security updates\newline from Feburary 14th 2020 to Januray 10th 2024}
+  \caption{Top 20 mostly mentioned package prefixes in Fedora 39 security updates\newline from Feburary 14th, 2020 to Januray 10th, 2024}
   \label{fig:fedora-sec-update}
 \end{figure}
 \paragraph{}
@@ -696,7 +696,7 @@ I also collected package names of Fedora 39 security updates between February 14
 
 \section{IPv6}
 \paragraph{}
-This section explains why firewall disables IPv6 by default. I searched both the keyword "IPv6" and the keyword "IPv4" from the website \url{https://cve.mitre.org}. On Jan 14th 2024 (UTC +1) 00:00, there are 615 CVE records that match the keyword "IPv6" and 360 CVE records that match the keyword "IPv4". From 2022, there are 81 results match the keyword "IPv6" and 36 result match the keyword "IPv4". Those numbers indicate that the overall implementations of IPv6 is less stable than of IPv4. It could be explained as IPv4 implementations have a longer history of bug fixes.
+This section explains why firewall disables IPv6 by default. I searched both the keyword "IPv6" and the keyword "IPv4" from the website \url{https://cve.mitre.org}. On Jan 14th, 2024 (UTC +1) 00:00, there are 615 CVE records that match the keyword "IPv6" and 360 CVE records that match the keyword "IPv4". From 2022, there are 81 results match the keyword "IPv6" and 36 result match the keyword "IPv4". Those numbers indicate that the overall implementations of IPv6 is less stable than of IPv4. It could be explained as IPv4 implementations have a longer history of bug fixes.
 
 \section{GPU}
 One of the reasons to disable GPU is a stealthy GPU-based keylogger reported on EUROSEC 2013. \citep{gpu:keylogger}
