@@ -848,12 +848,14 @@ Normal attackers will use the network, Bluetooth, or WiFi for communications bet
 However, there are still other methods. Some even without wireless communications. Despite I had already bought an RF detector to alert me of wireless communications between unknown hardware, unknown attackers still managed to monitor my progress with some modified hardware. Take the devices that I am using to develop this project for example. Raspberry 4B has a USB chip that can communicate with the power source. If the charger is specially crafted with the ability to forward the USB connection to the remote endpoint via power lines, then, with the help of the malware installed on the Pi itself, data can be leaked silently via power lines even without any network connections to the computer. The same story can also happen to the portable screen that I am using now. I have found two counter measurements to this kind of attack: One is to use a USB-C to DC adapter when connecting a USB-C charger to the laptop. Another is to tape the two pins in the middle of the male USB-A port to prevent data communications.
 
 \section{Sounds}
-
 \paragraph{}
 Another attack that can bypass a computer without a wireless device, is to use AI / ML to identify the sounds of keyboard hits. The detected types can be sent to remote via power lines or mobile phones. The sound could even be recorded from the room of a neighbor which makes this attack more stealthy than other methods. I use cardboards to extend the pillar of the key cap to shorten the key travel to lower the volume of the sound of the key hit to counter this attack but I am uncertain about the effect because I have no attack tools to test this. AliPay also used to use sound waves to transmit data between phones and vending machines. My Raspberry Pi recently started to emit strange noises from the speakers on the screen, which could be because of the same kind of technology being used by hackers.
 
 \section{Direct physical access}
-A lot of storage medias of my studies were stolen, including USB sticks, MicroSD cards, and CDs. A police told me that he does not trust me and failed to catch the thief. Sometimes they also swap my stortage media with another with the same look but with torjan installed while I'm absent. 
+\paragraph{}
+A lot of storage medias of my studies were stolen, including USB sticks, MicroSD cards, and CDs. A police told me that he does not trust me and failed to catch the thief. Sometimes they also swap my stortage media with another one with the same look but with torjan installed while I'm absent. 
+\paragraph{}
+And even further: the Google account of the email of my previous GitHub Account was stolen. I have two-factor authenciation (2FA) enabled and the Google Authenticator was installed on an iPhone that only for 2FA authenticators. The iPhone does not have a SIM card inserted and only uses internet for updates. However, when the Google account was stolen, I received nothing to alert me. This kind of attack is unlikely to happen to ordinary people and my ordinary status makes it hard to believe.
 
 \backmatter
 
