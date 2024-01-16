@@ -2,6 +2,7 @@ analytics\.[^\.]+\.com
 (.*\.)?doubleclick\.net
 (.*\.)?googlesyndication\.com
 (.*\.)?gvt1\.com
+(.*\.)?google-analytics\.com
 (.*\.)?teamviewer\.com
 #safebrowsing\.googleapis\.com
 #safebrowsing\.urlsec\.qq\.com
