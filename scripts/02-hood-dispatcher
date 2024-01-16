@@ -33,7 +33,7 @@ function nft_handle_to_file(){
 function load_proxy_ports(){
   tls_ports=$(grep -v -e '^[[:space:]]*$' -e '^#' </var/lib/hood/allowed_tls_ports.txt|tr "\n" ",")
   expose_ports=$(grep -v -e '^[[:space:]]*$' -e '^#' </var/lib/hood/expose_to_internal.txt|sed "s/ .*//"|tr "\n" ",")
-  echo "80,${tls_ports},${expose_ports}"
+  echo "80,${tls_ports}${expose_ports}"
 }
 
 function proxy_access_on(){
@@ -122,7 +122,7 @@ function internet_access_on(){
   wan_ip=$(cat /tmp/hood/wan_ip)
   
   proxy_ports=$(load_proxy_ports)
-  nft_handle_to_file /tmp/hood/$1_internet_o_rule insert rule ip filter output index 5 oif $1 ip saddr $wan_ip/32 tcp dport {load_proxy_ports} accept
+  nft_handle_to_file /tmp/hood/$1_internet_o_rule insert rule ip filter output index 5 oif $1 ip saddr $wan_ip/32 tcp dport {$proxy_ports} accept
 }
 
 function revoke_internet_access_on(){
