@@ -17,7 +17,7 @@ HOODTLS -> HOODTLS: Check ClientHello
 HOODTLS -> HOODTLS: Check Cache of example.com
 HOODTLS -> HOODNAME: Ask example.com
 HOODNAME -> HOODTLS: x.x.x.1, x.x.x.2, ..., x.x.x.10
-HOODTLS <-> HTTP: TLS Handshake x.x.x.1, x.x.x.2, ..., x.x.x.10 with the best practices specified in RFC9325.
+HOODTLS <-> HTTP: TLS Handshake x.x.x.1, x.x.x.2, ..., x.x.x.10\nwith the best practices specified in RFC9325.
 HOODTLS <-> HTTP: TLS Handshake success on x.x.x.2, ..., x.x.x.5
 HOODTLS -> HOODTLS: Cache x.x.x.2, ..., x.x.x.5 as trusted endpoints
 HOODTLS -> HTTP: Connect to x.x.x.2, forward ClientHello
