@@ -1,4 +1,8 @@
-TODO: add support to expose service to internal
+pki.intel.com
+certificates.intel.com
+www.intel.com
+wss.im.qcloud.com
+wss.tim.qq.com
 
 https://www.tu-chemnitz.de/informatik/ce/files/guideline_master_thesis.pdf
 https://www.uregina.ca/science/cs/graduate/theses/index.html
