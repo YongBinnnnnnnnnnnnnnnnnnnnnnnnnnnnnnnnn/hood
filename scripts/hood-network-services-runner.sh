@@ -21,7 +21,7 @@ if [ "$1" = "lo" ]||[ "$1" = "" ]; then
     argc="$(echo $line|sed "s/[^ ]//g")"
     if [ "$argc" = " " ]; then
       port=$(echo $line|cut -d " " -f1)
-      address=$(echo $line|cut -d " " -f1)
+      address=$(echo $line|cut -d " " -f2)
     else
       echo invalid expose to internal format: $line
       continue
