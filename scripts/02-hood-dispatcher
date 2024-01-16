@@ -140,8 +140,8 @@ function initial_firewall_rules(){
   sysctl net.netfilter.nf_conntrack_udp_timeout_stream=10
   nohup dmesg --color=never -w -e |grep "\[HOOD " | tee -a /var/log/hood-firewal.log &
   disown
-  nohup dmesg --color=never -w -e |grep "\[HOOD " | sed -r "s/.*IN=(\w+?) OUT=(\w+?) SRC=([^ ]+) DST=([^ ]+) .* PROTO=(\w+) SPT=(\w+) DPT=(\w+) (.*)/\2->\1 \5 \3:\6 -> \4:\7/g" |xargs -I {} date +"%Y-%m-%d %H:%M:%S "{} | tee -a /var/log/hood-firewal-readable.log > $log_device &
-  disown
+  #nohup dmesg --color=never -w -e |grep "\[HOOD " | sed -r "s/.*IN=(\w+?) OUT=(\w+?) SRC=([^ ]+) DST=([^ ]+) .* PROTO=(\w+) SPT=(\w+) DPT=(\w+) (.*)/\2->\1 \5 \3:\6 -> \4:\7/g" |xargs -I {} date +"%Y-%m-%d %H:%M:%S "{} | tee -a /var/log/hood-firewal-readable.log > $log_device &
+  #disown
   
   early_interfaces=($(ls -b /sys/class/net/))
 
