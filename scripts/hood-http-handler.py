@@ -116,6 +116,7 @@ async def handle_connection(client_reader, client_writer):
       client_writer.close()
       return
 
+    LOG("Connecting to", host)
     if host not in ocsp_or_crl_hosts:
       port=443
       ssl_context = ssl.create_default_context()
@@ -139,7 +140,7 @@ async def handle_connection(client_reader, client_writer):
       ssl=ssl_context,
       server_hostname=server_hostname
     )
-    LOG(headers)
+    #LOG(headers)
     host_writer.write(headers)
     await host_writer.drain()
     
@@ -152,6 +153,7 @@ async def handle_connection(client_reader, client_writer):
             break
           host_writer.write(buffer)
           await host_writer.drain()
+        
         host_writer.close()
         client_writer.close()
       except Exception as e:
