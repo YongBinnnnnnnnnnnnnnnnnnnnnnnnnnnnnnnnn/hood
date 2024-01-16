@@ -1,6 +1,7 @@
 analytics\.[^\.]+\.com
 (.*\.)?doubleclick\.net
 (.*\.)?googlesyndication\.com
+(.*\.)?googletagmanager\.com
 (.*\.)?gvt1\.com
 (.*\.)?google-analytics\.com
 (.*\.)?teamviewer\.com
