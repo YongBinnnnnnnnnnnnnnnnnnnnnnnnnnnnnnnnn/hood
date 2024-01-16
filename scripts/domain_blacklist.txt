@@ -4,6 +4,8 @@ analytics\.[^\.]+\.com
 (.*\.)?googletagmanager\.com
 (.*\.)?gvt1\.com
 (.*\.)?google-analytics\.com
+(.*\.)?adsensecustomsearchads\.com
+(.*\.)?adservice\.google\.com
 (.*\.)?teamviewer\.com
 (.*\.)?symcd\.com
 (.*\.)?symcb\.com
