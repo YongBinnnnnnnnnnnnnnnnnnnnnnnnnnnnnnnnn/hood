@@ -1,6 +1,7 @@
 analytics\.[^\.]+\.com
 (.*\.)?doubleclick\.net
 (.*\.)?googlesyndication\.com
-redirector\.gvt1\.com
+(.*\.)?gvt1\.com
+(.*\.)?teamviewer\.com
 #safebrowsing\.googleapis\.com
 #safebrowsing\.urlsec\.qq\.com
