@@ -10,6 +10,7 @@ analytics\.[^\.]+\.com
 (.*\.)?symcd\.com
 (.*\.)?symcb\.com
 (.*\.)?hm\.baidu\.com
+#winatp-(.*)?\.microsoft\.com
 #(.*\.)?enterpriseregistration\.windows\.net
 #(.*\.)?smartscreen\.microsoft\.com
 #safebrowsing\.googleapis\.com
