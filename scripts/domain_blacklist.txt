@@ -16,6 +16,7 @@ analytics\.[^\.]+\.com
 (.*\.)?amazon-adsystem\.com
 (.*\.)?events\.data\.microsoft\.com
 (.*\.)?measure\.office\.com
+#(.*\.)?ctldl\.windowsupdate\.com
 #(.*\.)?webshell\.suite\.office\.com 
 #(.*\.)?settings-win\.data\.microsoft\.com
 #(.*\.)?cp\.wd\.microsoft\.com
