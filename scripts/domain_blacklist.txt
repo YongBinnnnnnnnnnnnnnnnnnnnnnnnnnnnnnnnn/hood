@@ -17,4 +17,5 @@ analytics\.[^\.]+\.com
 #(.*\.)?enterpriseregistration\.windows\.net
 #(.*\.)?smartscreen\.microsoft\.com
 #safebrowsing\.googleapis\.com
+#(.*\.)?im\.qcloud\.com
 #safebrowsing\.urlsec\.qq\.com
