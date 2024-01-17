@@ -105,8 +105,8 @@ sudocpcontent ./allowed_tls_ports.txt $prefix/var/lib/hood/
 sudocpcontent ./expose_to_internal.txt $prefix/var/lib/hood/
 
 if [ $yongbin -eq 1 ]; then
-  sudosedi "s/#//g" $prefix/var/lib/hood/domain_blacklist.txt
-  sudosedi "s/#//g" $prefix/var/lib/hood/expose_to_internal.txt
+  sudosedi "s/^#//g" $prefix/var/lib/hood/domain_blacklist.txt
+  sudosedi "s/^#//g" $prefix/var/lib/hood/expose_to_internal.txt
 fi
 
 if [ $harden_only -eq 1 ]; then
