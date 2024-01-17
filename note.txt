@@ -1,4 +1,4 @@
-cca8
+https://someonewhocares.org/hosts/
 pki.intel.com
 certificates.intel.com
 www.intel.com
