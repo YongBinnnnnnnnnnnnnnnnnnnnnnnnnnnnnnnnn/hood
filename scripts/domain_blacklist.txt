@@ -9,6 +9,7 @@ analytics\.[^\.]+\.com
 (.*\.)?teamviewer\.com
 (.*\.)?symcd\.com
 (.*\.)?symcb\.com
+(.*\.)?hm\.baidu\.com
 #(.*\.)?smartscreen\.microsoft\.com
 #safebrowsing\.googleapis\.com
 #safebrowsing\.urlsec\.qq\.com
