@@ -11,8 +11,8 @@ analytics\.[^\.]+\.com
 (.*\.)?symcb\.com
 (.*\.)?hm\.baidu\.com
 (.*\.)?amazon-adsystem\.com
+(.*\.)?events\.data\.microsoft\.com
 #(.*\.)?cp\.wd\.microsoft\.com
-#(.*\.)?events\.data\.microsoft\.com
 #winatp-(.*)?\.microsoft\.com
 #(.*\.)?enterpriseregistration\.windows\.net
 #(.*\.)?smartscreen\.microsoft\.com
