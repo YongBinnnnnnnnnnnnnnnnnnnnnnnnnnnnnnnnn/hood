@@ -13,6 +13,7 @@ analytics\.[^\.]+\.com
 (.*\.)?amazon-adsystem\.com
 (.*\.)?events\.data\.microsoft\.com
 (.*\.)?measure\.office\.com
+#(.*\.)?settings-win\.data\.microsoft\.com
 #(.*\.)?cp\.wd\.microsoft\.com
 #winatp-(.*)?\.microsoft\.com
 #(.*\.)?enterpriseregistration\.windows\.net
