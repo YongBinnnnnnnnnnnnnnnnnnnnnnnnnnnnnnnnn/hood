@@ -216,8 +216,8 @@ if [ $disable_gpu -eq 1 ]; then
     echo "hdmi_mode=82"
   fi
 
-  if [ $yongbin -eq 1 ]; then
-    sudo tee -a /boot/firmware/config.txt <<EOF
+  if [ $yongbin -eq 1 ] && ! grep -q framebuffer_width $prefix/boot/firmware/config.txt; then
+    sudo tee -a $prefix/boot/firmware/config.txt <<EOF
 framebuffer_width=1920
 framebuffer_height=1080
 hdmi_force_hotplug=1
