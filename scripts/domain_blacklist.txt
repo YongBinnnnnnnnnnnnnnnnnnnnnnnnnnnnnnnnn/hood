@@ -1,3 +1,6 @@
+##https://learn.microsoft.com/en-us/windows/privacy/configure-windows-diagnostic-data-in-your-organization
+##https://www.microsoft.com/en-us/msrc/bounty-online-services
+
 analytics\.[^\.]+\.com
 (.*\.)?doubleclick\.net
 (.*\.)?googlesyndication\.com
@@ -13,6 +16,7 @@ analytics\.[^\.]+\.com
 (.*\.)?amazon-adsystem\.com
 (.*\.)?events\.data\.microsoft\.com
 (.*\.)?measure\.office\.com
+#(.*\.)?webshell\.suite\.office\.com 
 #(.*\.)?settings-win\.data\.microsoft\.com
 #(.*\.)?cp\.wd\.microsoft\.com
 #winatp-(.*)?\.microsoft\.com
