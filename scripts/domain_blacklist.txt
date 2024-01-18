@@ -21,6 +21,8 @@ analytics\.[^\.]+\.com
 (.*\.)?events\.data\.microsoft\.com
 (.*\.)?measure\.office\.com
 (.*\.)?dmd\.metaservices\.microsoft\.com
+#(.*\.)?clients1\.google\.com
+#(.*\.)?metadata\.google\.internal
 #(.*\.)?monitor\.azure\.com
 #(.*\.)?ctldl\.windowsupdate\.com
 #(.*\.)?webshell\.suite\.office\.com 
