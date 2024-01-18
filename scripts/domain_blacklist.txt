@@ -10,6 +10,7 @@ analytics\.[^\.]+\.com
 (.*\.)?adsensecustomsearchads\.com
 (.*\.)?adservice\.google\.com
 (.*\.)?teamviewer\.com
+(.*\.)?alive\.github\.com
 (.*\.)?collector\.github\.com
 (.*\.)?viewscreen\.githubusercontent\.com
 (.*\.)?amazon-adsystem\.com
