@@ -10,10 +10,11 @@ analytics\.[^\.]+\.com
 (.*\.)?adsensecustomsearchads\.com
 (.*\.)?adservice\.google\.com
 (.*\.)?teamviewer\.com
+(.*\.)?amazon-adsystem\.com
 (.*\.)?symcd\.com
 (.*\.)?symcb\.com
 (.*\.)?hm\.baidu\.com
-(.*\.)?amazon-adsystem\.com
+(.*\.)?cnzz\.com
 (.*\.)?events\.data\.microsoft\.com
 (.*\.)?measure\.office\.com
 #(.*\.)?monitor\.azure\.com
