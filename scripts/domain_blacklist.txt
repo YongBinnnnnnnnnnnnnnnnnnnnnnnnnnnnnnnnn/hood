@@ -26,5 +26,6 @@ analytics\.[^\.]+\.com
 #(.*\.)?smartscreen\.microsoft\.com
 #safebrowsing\.googleapis\.com
 #(.*\.)?im\.qcloud\.com
+#(.*\.)?web\.sdk\.qcloud\.com
 #(.*\.)?wss\.tim\.qq\.com
 #safebrowsing\.urlsec\.qq\.com
