@@ -11,6 +11,7 @@ analytics\.[^\.]+\.com
 (.*\.)?adservice\.google\.com
 (.*\.)?teamviewer\.com
 (.*\.)?collector\.github\.com
+(.*\.)?viewscreen\.githubusercontent\.com
 (.*\.)?amazon-adsystem\.com
 (.*\.)?symcd\.com
 (.*\.)?symcb\.com
