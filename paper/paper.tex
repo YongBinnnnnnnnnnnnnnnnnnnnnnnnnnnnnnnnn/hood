@@ -284,7 +284,7 @@ SSL-pinning can prevent MITM attacks from a trusted CA when the user knows the C
 Removing suspicious CAs from the trusted list could protect people from MITM attacks initiated by those CAs. However, some systems and devices do provide the function of untrusting a CA. For example, an iPhone needs a computer to enable such configuration and most Android devices do not provide such entry in settings.
 \subsection{Design}
 \paragraph{}
-The firewall should trust only the CAs that are being widely used on the internet. People should be able to further decide which certificates to trust. One can consider untrust following when making such decisions: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
+The firewall should trust only the CAs that are being widely used on the internet. People should be able to further decide which certificates to trust. Consider untrust following CAs when making such decisions: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
 \subsection{Implementation}
 \paragraph{}
 Since SSL pinning can only be used on a small number of endpoints by an advanced user who can clearly know what is this meant to be, it is not implemented now. Manually management of the certificate can be done by Linux commands. The certificates of all remote TLS endpoints are checked by TLS proxy.
@@ -300,7 +300,7 @@ An idea to save the clients that contain severe deficiencies is to attack their 
 \section{Proxy}
 \subsubsection{Design}
 \paragraph{}
-The proxy should filter out the connnections that are negotiated to use cipher suites not recommended by RFC best practice by checking the handshake packets. It should also filter out the connections that are using certificates signed by CAs that are not trusted by the firewall system.
+The proxy should filter out the connnections that are negotiated to use cipher suites not recommended by RFC best practice by checking the handshake packets. It should also filter out the connections that are using certificates signed by CAs that are not trusted by the firewall system. So that even if the user device has a pre-installed malicious certificate, the certificate will be filtered by firewall and the MITM attack will fail. 
 \paragraph{}
 The proxy should not use the MITM attack to decrypt SSL sessions. Despite using MITM attack to inspect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the TLS proxy used in this firewall should not implement the same functionality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disaster to the devices behind it: the attacker will be able to easily modify the encrypted data transferred over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attacks at all, the compromised firewall is still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
 \subsubsection{Implementation}
