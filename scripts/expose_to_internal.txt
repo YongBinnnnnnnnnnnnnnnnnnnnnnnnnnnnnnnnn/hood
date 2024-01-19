@@ -1,3 +1,3 @@
 #1935 sendtc3.douyu.com
-#445 127.4.3.2
-#135 127.4.3.2
+#445 yongbin-hood.nxdomain
+#135 yongbin-hood.nxdomain
