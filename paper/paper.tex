@@ -349,6 +349,9 @@ This paragraph explains how the proxy checks the ServerHello of TLS hanshake. Af
 \chapter{Plaintext connections}
 
 \section{HTTP}
+\subsection{Design}
+\paragraph{}
+Plaintext HTTP connections should be tunneled and encrpte through TLS proxy, if the remote server does not support encrypted connections, the request should fail.
 \subsection{Implementation}
 \paragraph{}
 hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocation List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. See \cref{fig:ocsp-process-view,fig:http-process-view}.
@@ -564,7 +567,7 @@ Installation now can only be done from Linux. install.sh is the shell script tha
 \end{table}
 
 \section{Checking target system}
-Multiple checks to the target path are done before the beginning of the installation process to avoid potential harm to the user's computer when they specify a wrong target path. It first checks the type of the target, if the target path is not a directory target will be treated as a device or file and will be mounted as the pattern of a live system of Raspberry Pi OS. If the target is a file, then the target will be mounted as a disk image. If the target does not exist, "/dev/" prefix will be added and will be treated as a name of a device. Then if the content of /boot/firmware/config.txt of the target does not contain the string "dtparam", the target will not be treated as a Raspberry Pi OS filesystem and the installation process will be aborted.
+Multiple checks to the target path are done before the beginning of the installation process to avoid potential harm to the user's computer when a wrong path is used. It first checks the type of the target, if the target path is not a directory target will be treated as a device or file and will be mounted as the pattern of a live system of Raspberry Pi OS. If the target is a file, then the target will be mounted as a disk image. If the target does not exist, "/dev/" prefix will be added and will be treated as a name of a device. Then if the content of /boot/firmware/config.txt of the target does not contain the string "dtparam", the target will not be treated as a Raspberry Pi OS filesystem and the installation process will be aborted.
 
 \section{Disable wireless}
 Multiple methods are used to ensure the complete disablement of wireless devices. See \cref{tab:config_disable_wireless,tab:delete_disable_wireless}.
@@ -698,9 +701,11 @@ Package names of Fedora 39 security updates between February 14th, 2020 and Janu
 This section explains why firewall disables IPv6 by default. I searched both the keyword "IPv6" and the keyword "IPv4" from the website \url{https://cve.mitre.org}. On Jan 14th, 2024 (UTC +1) 00:00, there are 615 CVE records that match the keyword "IPv6" and 360 CVE records that match the keyword "IPv4". From 2022, there are 81 results match the keyword "IPv6" and 36 result match the keyword "IPv4". Those numbers indicate that the overall implementations of IPv6 is less stable than of IPv4. It could be explained as IPv4 implementations have a longer history of bug fixes.
 
 \section{GPU}
+\paragraph{}
 One of the reasons to disable GPU is a stealthy GPU-based keylogger reported on EUROSEC 2013. \citep{gpu:keylogger}
 
 \section{Conclusions}
+\paragraph{}
 As conclusion, most of decisions on disabling things are based on the analyzation of differnt security events and supported by numbers and related threats.
 
 \chapter{Conclusions}
