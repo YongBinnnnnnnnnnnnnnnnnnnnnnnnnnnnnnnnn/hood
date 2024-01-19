@@ -243,7 +243,7 @@ keywordstyle={\color{green}\bfseries}
 \paragraph{}
 NetworkManager is used to manage physical connections of the firewall. The MAC address randomization is done by NetworkManager by adding 'ethernet.cloned-mac-address=random' and 'wifi.cloned-mac-address=random' to the 'connection' section of NetworkManager.conf. The 'ifconfig interface link random' command can also randomize the MAC address of an interface manually.
 \paragraph{}
-Host names of the firewall device are randomly generated while starting the system. The relevant code is inside rc.local. The name is crafted to look normal. The pattern of default computer names of Microsoft Windows and common names like iPad are used. Since the implementation of the client of the protocol could also be vulnerable, the combination of AppArmor and dhclient to mitigate this problem.
+Host names of the firewall device are randomly generated during the startup of the system. The relevant code is inside rc.local. The generated host name is crafted to look normal. The pattern of default computer names of Microsoft Windows and common names like iPad are used. Because the implementation of the DHCP client could also be vulnerable, AppArmor rules are applied to dhclient to mitigate this problem.
 \paragraph{}
 Dnsmasq is used to assign the IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
 
