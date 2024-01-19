@@ -272,7 +272,8 @@ A dnsmasq is started to resolve everything to the firewall device to make the fi
 \section{Management of certificates}
 
 \subsection{Introduction}
-All modern major operating systems manage a collection of trusted certificates issued by certificate authorities (CAs) they choose. Those certificates are used to prove the validity of a public key. When making a TLS connection, local applications check the path of the certificate provided by remote with a local trusted collection to ensure secure connections.
+\paragraph{}
+Modern major operating systems manage a collection of selected trusted certificates issued by certificate authorities (CAs). Those certificates are used to prove the validity of a public key. When making a TLS connection, local applications check the path of the certificate provided by remote with a local trusted collection to ensure secure connections.
 \subsubsection{The issue}
 \paragraph{}
 The problem is most of TLS clients do not alert their users when the remote website presents a different certificate, which gives CAs the power to do man-in-the-middle (MITM) attacks. Even if a CA has no intention to do evil, its private key could still have been stolen. Thus, none of them are strictly trustworthy. However, the whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and without TLS, things will only be worse.
