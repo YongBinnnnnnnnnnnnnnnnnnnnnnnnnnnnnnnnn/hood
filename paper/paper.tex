@@ -276,7 +276,7 @@ A dnsmasq is started to resolve everything to the firewall device to make the fi
 Modern major operating systems manage a collection of selected trusted certificates issued by certificate authorities (CAs). Those certificates are used to prove the validity of a public key. When making a TLS connection, local applications check the path of the certificate provided by remote with a local trusted collection to ensure secure connections.
 \subsubsection{The issue}
 \paragraph{}
-The problem is most of TLS clients do not alert their users when the remote website presents a different certificate, which gives CAs the power to do man-in-the-middle (MITM) attacks. Even if a CA has no intention to do evil, its private key could still have been stolen. Thus, none of them are strictly trustworthy. However, the whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and without TLS, things will only be worse.
+The problem is that most of TLS clients do not alert their users when the remote website presents a different certificate, which gives CAs the power to do man-in-the-middle (MITM) attacks. Even if a CA has no intention to do evil, its private key could still have been stolen. Thus, none of them are strictly trustworthy. However, the whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and without TLS, things will only be worse.
 \subsubsection{Exsting solutions}
 \paragraph{}
 SSL-pinning can prevent MITM attacks from a trusted CA when the user knows the CA of the remote endpoint. However, configuring SSL-pinning to all the endpoints is hard and time-consuming for average users, and without a basic trusted environment, people are unable to know whether the configuration has been done correctly. Even if the configuration is correct, it is still not strange for an endpoint to switch to another CA. Thus, to a firewall, this technique cannot be used as a general solution to the issue.
@@ -298,12 +298,14 @@ An idea to save the clients that contain severe deficiencies is to attack their 
 
 
 \section{Proxy}
-\subsubsection{MITM attack}
+\subsubsection{Design}
 \paragraph{}
-Despite using MITM attack to inspect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the TLS proxy used in this firewall should not implement the same functionality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disaster to the devices behind it: the attacker will be able to easily modify the encrypted data transferred over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attacks at all, the compromised firewall is still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
-\subsubsection{Filtering certificates}
+The proxy should filter out the connnections that are negotiated to use cipher suites not recommended by RFC best practice by checking the handshake packets. It should also filter out the connections that are using certificates signed by CAs that are not trusted by the firewall system.
 \paragraph{}
-The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, to filter certificates, the proxy handshakes with the remote server with a separate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delays caused by certificate check connections.
+The proxy should not use the MITM attack to decrypt SSL sessions. Despite using MITM attack to inspect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the TLS proxy used in this firewall should not implement the same functionality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disaster to the devices behind it: the attacker will be able to easily modify the encrypted data transferred over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attacks at all, the compromised firewall is still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
+\subsubsection{Implementation}
+\paragraph{}
+This paragraph explains how the proxy filters certificates. The key\_share extension sometimes makes the certificate invisible to the proxy. Thus, to filter certificates, the proxy handshakes with the remote server with a separate connection to verify the certificate used by the remote host. A cache of trusted endpoints is used to reduce delays caused by certificate check connections.
 
 \subsubsection{Checking connections}
 \paragraph{}
