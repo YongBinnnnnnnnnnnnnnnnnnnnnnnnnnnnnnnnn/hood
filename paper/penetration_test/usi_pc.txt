@@ -90,5 +90,5 @@ arp -a 10.10.6.64
 
 USILU-3325.usilu.net (10.10.6.64) at 5c:f9:dd:e0:97:34 [ether] on eth0
 
-https://maclookup.app/search/result?mac=5c:f9:dd:e0:97:34
-Dell Inc.
+https://www.wireshark.org/tools/oui-lookup.html
+5C:F9:DD Dell Inc.
