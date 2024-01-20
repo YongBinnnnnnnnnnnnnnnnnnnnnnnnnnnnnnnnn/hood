@@ -13,6 +13,43 @@ PORT     STATE SERVICE
 445/tcp  open  microsoft-ds
 3389/tcp open  ms-wbt-server
 
+db_nmap -Pn -A 10.10.6.64
+[*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-20 23:20 UTC
+[*] Nmap: Nmap scan report for USILU-3325.usilu.net (10.10.6.64)
+[*] Nmap: Host is up (0.00047s latency).
+[*] Nmap: Not shown: 996 filtered tcp ports (no-response)
+[*] Nmap: PORT     STATE SERVICE       VERSION
+[*] Nmap: 135/tcp  open  msrpc         Microsoft Windows RPC
+[*] Nmap: 139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+[*] Nmap: 445/tcp  open  microsoft-ds?
+[*] Nmap: 3389/tcp open  ms-wbt-server Microsoft Terminal Services
+[*] Nmap: | ssl-cert: Subject: commonName=USILU-3325.usilu.net
+[*] Nmap: | Not valid before: 2023-11-22T23:00:22
+[*] Nmap: |_Not valid after:  2024-05-23T23:00:22
+[*] Nmap: | rdp-ntlm-info:
+[*] Nmap: |   Target_Name: CAMPUS
+[*] Nmap: |   NetBIOS_Domain_Name: CAMPUS
+[*] Nmap: |   NetBIOS_Computer_Name: USILU-3325
+[*] Nmap: |   DNS_Domain_Name: usilu.net
+[*] Nmap: |   DNS_Computer_Name: USILU-3325.usilu.net
+[*] Nmap: |   DNS_Tree_Name: usilu.net
+[*] Nmap: |   Product_Version: 10.0.19041
+[*] Nmap: |_  System_Time: 2024-01-20T22:20:28+00:00
+[*] Nmap: |_ssl-date: 2024-01-20T22:21:11+00:00; -1h00m00s from scanner time.
+[*] Nmap: Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+[*] Nmap: Host script results:
+[*] Nmap: |_clock-skew: mean: -1h00m00s, deviation: 0s, median: -1h00m00s
+[*] Nmap: | smb2-time:
+[*] Nmap: |   date: 2024-01-20T22:20:28
+[*] Nmap: |_  start_date: N/A
+[*] Nmap: | smb2-security-mode:
+[*] Nmap: |   3:1:1:
+[*] Nmap: |_    Message signing enabled but not required
+[*] Nmap: |_nbstat: NetBIOS name: USILU-3325, NetBIOS user: <unknown>, NetBIOS MAC: 5c:f9:dd:e0:97:34 (Dell)
+[*] Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+[*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 60.28 seconds
+
+
 sf6 auxiliary(scanner/portscan/syn) > use auxiliary/scanner/smb/smb_version  
 msf6 auxiliary(scanner/smb/smb_version) > set RHOSTS 10.10.6.64
 RHOSTS => 10.10.6.64
