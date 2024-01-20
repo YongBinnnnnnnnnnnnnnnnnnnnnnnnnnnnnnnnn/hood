@@ -1,3 +1,5 @@
+They told me that they have started copying this project to earn money. They are threatening me to stop, and the told me that they will delete everything!
+
 msf6 > nmap -Pn 10.10.6.64
 [*] exec: nmap -Pn 10.10.6.64
 
