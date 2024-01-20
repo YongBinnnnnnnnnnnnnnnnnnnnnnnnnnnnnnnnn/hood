@@ -83,3 +83,12 @@ msf6 auxiliary(scanner/rdp/ms12_020_check) > check
 
 msf6 auxiliary(scanner/rdp/cve_2019_0708_bluekeep) > check
 [*] 10.10.6.64:3389 - The target is not exploitable.
+
+
+arp -a 10.10.6.64
+[*] exec: arp -a 10.10.6.64
+
+USILU-3325.usilu.net (10.10.6.64) at 5c:f9:dd:e0:97:34 [ether] on eth0
+
+https://maclookup.app/search/result?mac=5c:f9:dd:e0:97:34
+Dell Inc.
