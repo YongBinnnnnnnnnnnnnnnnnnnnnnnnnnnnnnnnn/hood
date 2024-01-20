@@ -1,0 +1,25 @@
+arp -a 10.10.7.254
+
+ds03-183-10.usilu.net (10.10.7.254) at 74:ad:98:98:42:5f [ether] on eth0
+
+74:AD:98 Cisco Systems, Inc
+
+db_nmap -Pn -A 10.10.7.254
+[*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-21 00:09 UTC
+[*] Nmap: Nmap scan report for ds03-183-10.usilu.net (10.10.7.254)
+[*] Nmap: Host is up (0.0037s latency).
+[*] Nmap: Not shown: 999 closed tcp ports (conn-refused)
+[*] Nmap: PORT    STATE SERVICE  VERSION
+[*] Nmap: 443/tcp open  ssl/http OpenResty web app server
+[*] Nmap: |_http-title: Site doesn't have a title (text/html; charset=utf-8).
+[*] Nmap: | tls-alpn:
+[*] Nmap: |_  http/1.1
+[*] Nmap: | tls-nextprotoneg:
+[*] Nmap: |_  http/1.1
+[*] Nmap: |_http-server-header: openresty
+[*] Nmap: |_ssl-date: TLS randomness does not represent time
+[*] Nmap: | ssl-cert: Subject: commonName=C9500-48Y4C_FDO25260VEM_sdn-network-infra-iwan
+[*] Nmap: | Not valid before: 2023-12-11T13:31:16
+[*] Nmap: |_Not valid after:  2024-09-17T13:48:03
+[*] Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+[*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 21.37 seconds
