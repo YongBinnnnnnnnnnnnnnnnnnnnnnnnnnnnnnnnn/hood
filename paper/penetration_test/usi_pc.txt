@@ -1,0 +1,12 @@
+msf6 > nmap -Pn 10.10.6.64
+[*] exec: nmap -Pn 10.10.6.64
+
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-20 22:48 UTC
+Nmap scan report for USILU-3325.usilu.net (10.10.6.64)
+Host is up (0.00048s latency).
+Not shown: 996 filtered tcp ports (no-response)
+PORT     STATE SERVICE
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+3389/tcp open  ms-wbt-server
