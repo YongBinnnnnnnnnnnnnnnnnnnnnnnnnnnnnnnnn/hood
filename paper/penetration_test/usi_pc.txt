@@ -20,6 +20,12 @@ msf6 auxiliary(scanner/smb/smb_version) > run
 [*] 10.10.6.64:           - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 
+msf6 auxiliary(scanner/rdp/rdp_scanner) > run
+
+[*] 10.10.6.64:3389       - Detected RDP on 10.10.6.64:3389       (name:USILU-3325) (domain:CAMPUS) (domain_fqdn:usilu.net) (server_fqdn:USILU-3325.usilu.net) (os_version:10.0.19041) (Requires NLA: Yes)
+[*] 10.10.6.64:3389       - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
 msf6 auxiliary(scanner/rdp/ms12_020_check) > check
 
 [-] 10.10.6.64:3389       - Auxiliary failed: Errno::ECONNRESET Connection reset by peer
