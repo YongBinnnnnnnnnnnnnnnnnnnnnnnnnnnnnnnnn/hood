@@ -92,3 +92,10 @@ USILU-3325.usilu.net (10.10.6.64) at 5c:f9:dd:e0:97:34 [ether] on eth0
 
 https://www.wireshark.org/tools/oui-lookup.html
 5C:F9:DD Dell Inc.
+
+msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
+
+10.10.6.64 - UUID 99fcfec4-5260-101b-bbcb-00aa0021347a 0.0 OPEN VIA 135 ACCESS GRANTED 00000000000000000000000000000000000000000000000005000000
+[*] 10.10.6.64:135        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
