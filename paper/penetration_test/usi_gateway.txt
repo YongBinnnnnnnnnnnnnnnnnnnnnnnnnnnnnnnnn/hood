@@ -29,3 +29,31 @@ Series Switches
 
 https://www.genians.com/platform/Cisco_Catalyst_C9500-48Y4C_Switch/?id=30484
 https://nvd.nist.gov/vuln/detail/CVE-2022-20870
+
+
+GET /webui/login/prop.js HTTP/1.1
+Host: 10.10.7.254
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: https://10.10.7.254/webui/
+Sec-Fetch-Dest: script
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+
+HTTP/1.1 200 OK
+Server: openresty
+Date: Sat, 20 Jan 2024 23:14:19 GMT
+Content-Type: application/javascript; charset=utf-8
+Content-Length: 218
+Last-Modified: Wed, 25 Jan 2023 16:31:37 GMT
+Connection: keep-alive
+ETag: "63d15969-da"
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: SAMEORIGIN
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; base-uri 'self'; frame-ancestors 'self'; block-all-mixed-content; connect-src 'self' ws://10.10.7.254 ws://10.10.7.254:443 wss://10.10.7.254 wss://10.10.7.254:443 https://api.cisco.com
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Accept-Ranges: bytes
