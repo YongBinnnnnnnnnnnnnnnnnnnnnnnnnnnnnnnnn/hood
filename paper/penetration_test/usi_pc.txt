@@ -99,3 +99,5 @@ msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
 [*] 10.10.6.64:135        - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 
+IOXIDResolver It’s IID is “99fcfec4-5260-101b-bbcb-00aa0021347a”.
+https://www.cyber.airbus.com/the-oxid-resolver-part-1-remote-enumeration-of-network-interfaces-without-any-authentication/
