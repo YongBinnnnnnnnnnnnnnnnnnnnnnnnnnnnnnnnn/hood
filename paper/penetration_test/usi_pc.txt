@@ -19,3 +19,19 @@ msf6 auxiliary(scanner/smb/smb_version) > run
 [*] 10.10.6.64:445        - SMB Detected (versions:2, 3) (preferred dialect:SMB 3.1.1) (compression capabilities:LZNT1) (encryption capabilities:AES-128-GCM) (signatures:optional) (guid:{a77b41a6-e4e1-4033-8b65-bc9f0b5ff320}) (authentication domain:CAMPUS)
 [*] 10.10.6.64:           - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+
+msf6 auxiliary(scanner/rdp/ms12_020_check) > check
+
+[-] 10.10.6.64:3389       - Auxiliary failed: Errno::ECONNRESET Connection reset by peer
+[-] 10.10.6.64:3389       - Call stack:
+[-] 10.10.6.64:3389       -   /usr/lib/ruby/3.1.0/socket.rb:452:in `__read_nonblock'
+[-] 10.10.6.64:3389       -   /usr/lib/ruby/3.1.0/socket.rb:452:in `read_nonblock'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:91:in `block in read'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:336:in `synchronize_access'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:89:in `read'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:223:in `get_once'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:48:in `check_rdp'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:127:in `check_rdp_vuln'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:174:in `check_host'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/lib/msf/core/auxiliary/scanner.rb:41:in `check'
+[-] 10.10.6.64:3389 - Check failed: The state could not be determined.
