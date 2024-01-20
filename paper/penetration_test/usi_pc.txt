@@ -35,3 +35,6 @@ msf6 auxiliary(scanner/rdp/ms12_020_check) > check
 [-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:174:in `check_host'
 [-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/lib/msf/core/auxiliary/scanner.rb:41:in `check'
 [-] 10.10.6.64:3389 - Check failed: The state could not be determined.
+
+msf6 auxiliary(scanner/rdp/cve_2019_0708_bluekeep) > check
+[*] 10.10.6.64:3389 - The target is not exploitable.
