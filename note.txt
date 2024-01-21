@@ -1,4 +1,4 @@
-metasploit penetration test again at the same subnet
+metasploit penetration test again at the same subnet, mdns
 https://w3techs.com/technologies/overview/ssl_certificate
 https://someonewhocares.org/hosts/
 pki.intel.com
