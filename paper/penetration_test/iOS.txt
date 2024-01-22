@@ -1,0 +1,27 @@
+--- tether
+msf6 > db_nmap -A 172.20.10.1
+[*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-22 21:13 UTC
+[*] Nmap: Nmap scan report for 172.20.10.1
+[*] Nmap: Host is up (0.0037s latency).
+[*] Nmap: Not shown: 996 closed tcp ports (conn-refused)
+[*] Nmap: PORT      STATE SERVICE    VERSION
+[*] Nmap: 21/tcp    open  ftp?
+[*] Nmap: 53/tcp    open  domain     (generic dns response: NOTIMP)
+[*] Nmap: | fingerprint-strings:
+[*] Nmap: |   DNSVersionBindReqTCP:
+[*] Nmap: |     version
+[*] Nmap: |     bind
+[*] Nmap: |     root-servers
+[*] Nmap: |     nstld
+[*] Nmap: |_    verisign-grs
+[*] Nmap: 49152/tcp open  tcpwrapped
+[*] Nmap: 62078/tcp open  tcpwrapped
+[*] Nmap: 1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+[*] Nmap: SF-Port53-TCP:V=7.94SVN%I=7%D=1/22%Time=65AEDA71%P=x86_64-pc-linux-gnu%r(D
+[*] Nmap: SF:NSVersionBindReqTCP,6B,"\0i\0\x06\x81\x83\0\x01\0\0\0\x01\0\0\x07versio
+[*] Nmap: SF:n\x04bind\0\0\x10\0\x01\0\0\x06\0\x01\0\0\x0e\x10\0@\x01a\x0croot-serve
+[*] Nmap: SF:rs\x03net\0\x05nstld\x0cverisign-grs\x03com\0x\xa3\xf9\xa9\0\0\x07\x08\
+[*] Nmap: SF:0\0\x03\x84\0\t:\x80\0\x01Q\x80")%r(DNSStatusRequestTCP,E,"\0\x0c\0\0\x
+[*] Nmap: SF:90\x04\0\0\0\0\0\0\0\0");
+[*] Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+[*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 247.77 seconds
