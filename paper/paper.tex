@@ -88,7 +88,7 @@ This firewall system evaluated threats faced on different aspects by a network d
 \chapter{Hardware}
 \section{Design}
 \paragraph{}
-Hood should work as a USB ethernet device by default, so people do not need to connect many cables. See \cref{fig:hardware-deployment-view}. With proper configurations, the device itself can also work as a wireless access point or a wireless USB ethernet device. The cost of the hardware should be lower than the average price of a commercial hardware firewall.
+Hood should work as a USB Ethernet device by default, so people do not need to connect many cables. See \cref{fig:hardware-deployment-view}. With proper configurations, the device itself can also work as a wireless access point or a wireless USB Ethernet device. The cost of the hardware should be lower than the average price of a commercial hardware firewall.
 \begin{figure}[H]
   \includegraphics[scale=1]{graphics/puml/hardware-deployment-view.png}
   \caption{Default hardware deployment view}
@@ -100,7 +100,7 @@ Hood should work as a USB ethernet device by default, so people do not need to c
 \paragraph{}
 To make computers recognize the firewall as a USB device, the support from both the development board and the operating systems (OS) are required.
 \paragraph{}
-For hardware, Raspberry Pi 4 is the first model in Raspberry Pi family that both supports USB device mode and contains a ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
+For hardware, Raspberry Pi 4 is the first model in Raspberry Pi family that both supports USB device mode and contains a Ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
 \paragraph{}
 For OS, Linux has USB gadget mode. Using the combination of CDC-ECM (See \cref{sec:CDC-ECM}) and Remote Network Driver Interface Specification (RNDIS, see \cref{sec:RNDIS}) mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
 
@@ -713,7 +713,13 @@ As conclusion, most of decisions on disabling things are based on the analyzatio
 To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do.
 \section{mitm-proxy}
 \section{metasploit}
-\section{blah blah}
+
+\section{Eavesdropping}
+\subsection{Experiment}
+\paragraph{}
+Following materials are used in my experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". An Ethernet cable. A smartphone.
+\paragraph{}
+The experiment steps on eavesdropping attack are following. First, boot the computer into Kali linux live environment and boot Raspberry Pi to the "hood" SD card. Connect the computer to internet shared by the smartphone and create a shared network on the network interface of the Ethernet port. Then, use Wireshark to capture on the interface of the shared network. Then use the cable connect the Ethernet port of the Raspberry Pi to the Ethernet port of the computer. Then, execute the command "curl example.com".  
 
 \chapter{Conclusions}
 
@@ -877,11 +883,11 @@ And even further: the Google account of the email of my previous GitHub Account 
 \chapter{Glossary} %optional
 \section{CDC-ECM}\label{sec:CDC-ECM}
 \paragraph{}
-It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual ethernet link to host OS but it is not supported by most of Apple products.
+It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
 
 \section{RNDIS}\label{sec:RNDIS}
 \paragraph{}
-The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual ethernet link to host OS.
+The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual Ethernet link to host OS.
 
 \section{nftables}\label{sec:nftables}
 \paragraph{}
