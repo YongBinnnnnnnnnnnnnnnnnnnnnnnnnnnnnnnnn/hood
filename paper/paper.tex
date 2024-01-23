@@ -713,13 +713,109 @@ As conclusion, most of decisions on disabling things are based on the analyzatio
 To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do. Experiment data can be found from project GitHub repository \citep{hood:github}.
 
 \section{mitm-proxy}
+
 \section{metasploit}
+\subsection{Experiment materials}
+\paragraph{}
+Following materials are used in the experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". A computer in the university classroom.
+
+\subsection{Experiment on university computer}
+\paragraph{}
+The following are selected commands and outputs:
+
+\begin{lstlisting}{language={}}
+db_nmap -Pn -A 10.10.6.64
+[*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-20 23:20 UTC
+[*] Nmap: Nmap scan report for USILU-3325.usilu.net (10.10.6.64)
+[*] Nmap: Host is up (0.00047s latency).
+[*] Nmap: Not shown: 996 filtered tcp ports (no-response)
+[*] Nmap: PORT     STATE SERVICE       VERSION
+[*] Nmap: 135/tcp  open  msrpc         Microsoft Windows RPC
+[*] Nmap: 139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+[*] Nmap: 445/tcp  open  microsoft-ds?
+[*] Nmap: 3389/tcp open  ms-wbt-server Microsoft Terminal Services
+[*] Nmap: | ssl-cert: Subject: commonName=USILU-3325.usilu.net
+[*] Nmap: | Not valid before: 2023-11-22T23:00:22
+[*] Nmap: |_Not valid after:  2024-05-23T23:00:22
+[*] Nmap: | rdp-ntlm-info:
+[*] Nmap: |   Target_Name: CAMPUS
+[*] Nmap: |   NetBIOS_Domain_Name: CAMPUS
+[*] Nmap: |   NetBIOS_Computer_Name: USILU-3325
+[*] Nmap: |   DNS_Domain_Name: usilu.net
+[*] Nmap: |   DNS_Computer_Name: USILU-3325.usilu.net
+[*] Nmap: |   DNS_Tree_Name: usilu.net
+[*] Nmap: |   Product_Version: 10.0.19041
+[*] Nmap: |_  System_Time: 2024-01-20T22:20:28+00:00
+[*] Nmap: |_ssl-date: 2024-01-20T22:21:11+00:00; -1h00m00s from scanner time.
+[*] Nmap: Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+[*] Nmap: Host script results:
+[*] Nmap: |_clock-skew: mean: -1h00m00s, deviation: 0s, median: -1h00m00s
+[*] Nmap: | smb2-time:
+[*] Nmap: |   date: 2024-01-20T22:20:28
+[*] Nmap: |_  start_date: N/A
+[*] Nmap: | smb2-security-mode:
+[*] Nmap: |   3:1:1:
+[*] Nmap: |_    Message signing enabled but not required
+[*] Nmap: |_nbstat: NetBIOS name: USILU-3325, NetBIOS user: <unknown>, NetBIOS MAC: 5c:f9:dd:e0:97:34 (Dell)
+[*] Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+[*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 60.28 seconds
+
+
+msf6 auxiliary(scanner/portscan/syn) > use auxiliary/scanner/smb/smb_version  
+msf6 auxiliary(scanner/smb/smb_version) > set RHOSTS 10.10.6.64
+RHOSTS => 10.10.6.64
+msf6 auxiliary(scanner/smb/smb_version) > run
+
+[*] 10.10.6.64:445        - SMB Detected (versions:2, 3) (preferred dialect:SMB 3.1.1) (compression capabilities:LZNT1) (encryption capabilities:AES-128-GCM) (signatures:optional) (guid:{a77b41a6-e4e1-4033-8b65-bc9f0b5ff320}) (authentication domain:CAMPUS)
+[*] 10.10.6.64:           - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
+msf6 auxiliary(scanner/rdp/rdp_scanner) > run
+
+[*] 10.10.6.64:3389       - Detected RDP on 10.10.6.64:3389       (name:USILU-3325) (domain:CAMPUS) (domain_fqdn:usilu.net) (server_fqdn:USILU-3325.usilu.net) (os_version:10.0.19041) (Requires NLA: Yes)
+[*] 10.10.6.64:3389       - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
+msf6 auxiliary(scanner/rdp/ms12_020_check) > check
+
+[-] 10.10.6.64:3389       - Auxiliary failed: Errno::ECONNRESET Connection reset by peer
+[-] 10.10.6.64:3389       - Call stack:
+[-] 10.10.6.64:3389       -   /usr/lib/ruby/3.1.0/socket.rb:452:in `__read_nonblock'
+[-] 10.10.6.64:3389       -   /usr/lib/ruby/3.1.0/socket.rb:452:in `read_nonblock'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:91:in `block in read'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:336:in `synchronize_access'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:89:in `read'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:223:in `get_once'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:48:in `check_rdp'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:127:in `check_rdp_vuln'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:174:in `check_host'
+[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/lib/msf/core/auxiliary/scanner.rb:41:in `check'
+[-] 10.10.6.64:3389 - Check failed: The state could not be determined.
+
+msf6 auxiliary(scanner/rdp/cve_2019_0708_bluekeep) > check
+[*] 10.10.6.64:3389 - The target is not exploitable.
+
+arp -a 10.10.6.64
+[*] exec: arp -a 10.10.6.64
+
+USILU-3325.usilu.net (10.10.6.64) at 5c:f9:dd:e0:97:34 [ether] on eth0
+
+msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
+
+10.10.6.64 - UUID 99fcfec4-5260-101b-bbcb-00aa0021347a 0.0 OPEN VIA 135 ACCESS GRANTED 00000000000000000000000000000000000000000000000005000000
+[*] 10.10.6.64:135        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+\end{lstlisting}
+
+\paragraph{}
+The experiment used only free tools from Kali Linux but still collected a lot of information about the computer: It's manufacturer, operating system, system version, clock skew, domain, host name, time. This shows the necessity of using a firewall.
+
 
 \section{Eavesdropping}
 
 \subsection{Experiment materials}
 \paragraph{}
-Following materials are used in my experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". An Ethernet cable. A smartphone.
+Following materials are used in the experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". An Ethernet cable. A smartphone.
 
 \subsection{Experiment steps}
 \paragraph{}
@@ -741,7 +837,7 @@ Results of the first experiment are following: Wireshark did not capture any pla
 As the results of the second experiment, Wireshark captured plaintext requests and plaintext responses of both the DNS query to example.com and the HTTP request to example.com.
 
 \subsection{Conclusions}
-As conclusion, the "hood" firewall successfully protected against eavesdropping attacks against plaintext HTTP traffic and plaintext DNS traffic.
+As conclusion, the "hood" firewall successfully protected against eavesdropping attacks targeting plaintext HTTP traffic and plaintext DNS traffic. It can also tell the user what certificates the remote endpoints are using and the fact that the firewall is connecting to that website.
 
 \chapter{Conclusions}
 
