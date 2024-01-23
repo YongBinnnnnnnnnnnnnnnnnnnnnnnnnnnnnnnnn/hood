@@ -721,7 +721,7 @@ Following materials are used in the experiment: A computer with a DVD rom. A DVD
 
 \subsection{Experiment on university computer}
 \paragraph{}
-The following are selected commands and outputs:
+The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
 
 \begin{lstlisting}{language={}}
 db_nmap -Pn -A 10.10.6.64
@@ -760,10 +760,6 @@ db_nmap -Pn -A 10.10.6.64
 [*] Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 [*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 60.28 seconds
 
-
-msf6 auxiliary(scanner/portscan/syn) > use auxiliary/scanner/smb/smb_version  
-msf6 auxiliary(scanner/smb/smb_version) > set RHOSTS 10.10.6.64
-RHOSTS => 10.10.6.64
 msf6 auxiliary(scanner/smb/smb_version) > run
 
 [*] 10.10.6.64:445        - SMB Detected (versions:2, 3) (preferred dialect:SMB 3.1.1) (compression capabilities:LZNT1) (encryption capabilities:AES-128-GCM) (signatures:optional) (guid:{a77b41a6-e4e1-4033-8b65-bc9f0b5ff320}) (authentication domain:CAMPUS)
@@ -806,10 +802,34 @@ msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
 [*] 10.10.6.64:135        - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 \end{lstlisting}
-
 \paragraph{}
 The experiment used only free tools from Kali Linux but still collected a lot of information about the computer: It's manufacturer, operating system, system version, clock skew, domain, host name, time. This shows the necessity of using a firewall.
+No useful information collected from the firewall, it indicates the success of protection.
 
+\subsection{Experiment on iOS}
+\paragraph{}
+Following materials are used in the experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. An iPhone.
+\paragraph{}
+The prepare steps are following. First, boot the computer into Kali Linux live environment. Then enable tethering on iPhone and connect it to the computer. Then press the "Trust" button on the confirmation dialog. Then use following command from metasploit framework.
+\lstinputlisting[language={}]{penetration_test/iOS.txt}
+\paragraph{}
+It shows that iOS devices could be identified by their uniuqe opened port numbers: 49152 and 62078.
+
+\subsection{Experiment on "hood" firewall}
+The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
+
+\begin{lstlisting}{language={}}
+db_nmap -Pn -A 10.42.0.171
+[*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-22 22:40 UTC
+[*] Nmap: Nmap scan report for 10.42.0.171
+[*] Nmap: Host is up.
+[*] Nmap: All 1000 scanned ports on 10.42.0.171 are in ignored states.
+[*] Nmap: Not shown: 1000 filtered tcp ports (no-response)
+[*] Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+[*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 206.84 seconds
+\end{lstlisting}
+\paragraph{}
+No useful information collected from the firewall, it indicates the success of protection.
 
 \section{Eavesdropping}
 
@@ -834,7 +854,7 @@ Results of the first experiment are following: Wireshark did not capture any pla
   \label{fig:hood-tty-output}
 \end{figure}
 \paragraph{}
-As the results of the second experiment, Wireshark captured plaintext requests and plaintext responses of both the DNS query to example.com and the HTTP request to example.com.
+As the results of the second experiment, Wireshark captured plaintext requests and plaintext responses of both the DNS query to example.com and the HTTP request to example.com. The manufacturer of the MAC address used by "hood" could not be identified by Wireshark.
 
 \subsection{Conclusions}
 As conclusion, the "hood" firewall successfully protected against eavesdropping attacks targeting plaintext HTTP traffic and plaintext DNS traffic. It can also tell the user what certificates the remote endpoints are using and the fact that the firewall is connecting to that website.
