@@ -710,16 +710,38 @@ As conclusion, most of decisions on disabling things are based on the analyzatio
 
 \chapter{Penetration test}
 \paragraph{}
-To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do.
+To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do. Experiment data can be found from project GitHub repository \citep{hood:github}.
+
 \section{mitm-proxy}
 \section{metasploit}
 
 \section{Eavesdropping}
-\subsection{Experiment}
+
+\subsection{Experiment materials}
 \paragraph{}
 Following materials are used in my experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". An Ethernet cable. A smartphone.
+
+\subsection{Experiment steps}
 \paragraph{}
-The experiment steps on eavesdropping attack are following. First, boot the computer into Kali linux live environment and boot Raspberry Pi to the "hood" SD card. Connect the computer to internet shared by the smartphone and create a shared network on the network interface of the Ethernet port. Then, use Wireshark to capture on the interface of the shared network. Then use the cable connect the Ethernet port of the Raspberry Pi to the Ethernet port of the computer. Then, execute the command "curl example.com".  
+Two experiments are done to check the protection of "hood" firewall against evaesdropping.
+\paragraph{}
+First experiment is made to check the protection done by Raspberry Pi. The experiment steps on eavesdropping attack are following. First, boot the computer into Kali Linux live environment and boot Raspberry Pi into the "hood" SD card. Then Connect the computer to internet shared by the smartphone and create a shared network on the network interface of the Ethernet port. Then, use Wireshark to capture on the interface of the shared network. Then use the cable connect the Ethernet port of the Raspberry Pi to the Ethernet port of the computer. Then, execute the command "curl example.com" on Raspberry Pi.
+\paragraph{}
+Second experiment is made for comparsion. Use the Wireshark to capture on Kali Linux with internet connected and execute the command "curl example.com".
+
+\subsection{Experiment results}
+\paragraph{}
+Results of the first experiment are following: Wireshark did not capture any plaintext DNS traffic from Raspberry Pi. Wireshark captured only one HTTP session, which connected to http://1.1.1.1. It was the mechanism used by the dispatcher (\cref{cha:dispatcher}) to detect internet connectivity. Wireshark captured the TLS handshake to example.com but could not see the content of the request and the response. The TTY8 of "hood" showed the activity of connecting to example.com and the certificates used by example.com (See \cref{fig:hood-tty-output}). 
+\begin{figure}[H]
+  \includegraphics[width=\textwidth]{penetration_test/hoodcurlexample_tty_output_cropped.png}
+  \caption{Top 19 mostly mentioned components in Apple security releases\newline from Januray 8th, 2020 to Januray 12th, 2024}
+  \label{fig:hood-tty-output}
+\end{figure}
+\paragraph{}
+As the results of the second experiment, Wireshark captured plaintext requests and plaintext responses of both the DNS query to example.com and the HTTP request to example.com.
+
+\subsection{Conclusions}
+As conclusion, the "hood" firewall successfully protected against eavesdropping attacks against plaintext HTTP traffic and plaintext DNS traffic.
 
 \chapter{Conclusions}
 
