@@ -378,7 +378,7 @@ A problem with using hardware like a Raspberry Pi is that it does not have a bat
 \paragraph{}
 Many operating systems are pre-configured to use an NTP server which has a unique domain name that can be used by a network administrator to identify the operating systems being used by the client.
 \paragraph{}
-Both the unique port number (UDP 123) and the unique domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org) make NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. The difference in NTP behavior between different operating systems has been used in OS fingerprinting and tethering detection {osandtether}. Not to mention that the operating system information being exposed by an NTP domain name can also help an attacker target the NTP client being used by the device.
+Both the unique port number (UDP 123) and the unique domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org) make NTP a protocol that can be easily identified and targeted. Various attacks can be done to the protocol itself\citep{ntp:attack}. The difference in NTP behavior between different operating systems has been used in OS fingerprinting and tethering detection \citep{osandtether}. Not to mention that the operating system information being exposed by an NTP domain name can also help an attacker target the NTP client being used by the device.
 
 \section{Design}
 \paragraph{}
