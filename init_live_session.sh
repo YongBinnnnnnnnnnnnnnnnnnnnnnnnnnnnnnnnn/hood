@@ -1,4 +1,15 @@
 #!/bin/sh
+
+read -p "This script is created for yongbin, using it on ur computer may cause damages Continue?" go_ahead
+
+if [ $go_ahead != "y" ]; then
+  exit
+fi
+machine=$(uname -s)
+ 
+mkdir -p /tmp/hood-install
+
+if [ $machine = "FreeBSD" ]; then
 export SOCKS5_PROXY="10.0.2.1:11371"
 git config --global http.proxy 'socks5h://10.0.2.1:11371'
 #sudo -E pkg -c $(dirname "$0")/pkg_environment/ install texlive-full vscode
@@ -110,4 +121,16 @@ if sudo -E pkg upgrade -y firefox; then
   sudo -E pkg -o RUN_SCRIPTS=false -o INSTALL_AS_USER=true add download/fake-texmf.tar
   sudo -E pkg install -y latex-mk
   sudo -E pkg -o INSTALL_AS_USER=true install -y tex-dvipsk
+fi
+elif [ $machine = "Linux" ]; then
+  image_name="wct"$(LC_ALL=C tr -dc "A-Z0-9"</dev/urandom|head -c 4)".tmp"
+  target=/media/$(whoami)/Windows/Windows/Temp/$image_name
+  sudo dd if=/dev/zero of=$target bs=4M count=2048 status=progress
+  mkdir -p /tmp/yongb
+  mkfs.ext4 $target
+  sudo mount $target /tmp/yongb
+  target=/tmp/yongb
+  mv /usr/share/texlive $target
+  ln -s $target/texlive /usr/share/
+  mv 
 fi
