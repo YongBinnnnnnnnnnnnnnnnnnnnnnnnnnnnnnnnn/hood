@@ -138,6 +138,6 @@ elif [ $machine = "Linux" ]; then
   sudo ln -s $target/usr/share/texmf /usr/share/
   sudo mv /usr/share/tex-common $target/usr/share/
   sudo ln -s $target/usr/share/tex-common /usr/share/
-  sudo mv /usr/local/share/texmf $target/usr/share/
+  sudo mv /usr/local/share/texmf $target/usr/local/share/
   sudo ln -s $target/usr/share/texmf /usr/local/share/
 fi
