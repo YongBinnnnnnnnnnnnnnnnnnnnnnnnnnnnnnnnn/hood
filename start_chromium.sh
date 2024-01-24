@@ -1,5 +1,5 @@
 #!/bin/sh
-if ps -ef|grep -v grep|grep /usr/lib/chromium-browser -q; then
+if ! ps -ef|grep -v grep|grep /usr/lib/chromium-browser -q; then
   rm ~/.config/chromium/SingletonLock
 fi
 
