@@ -131,13 +131,16 @@ elif [ $machine = "Linux" ]; then
   sudo mount $target /tmp/yongb
   target=/tmp/yongb
   sudo mkdir -p $target/usr/share/
-  sudo mkdir -p $target/usr/local/share/
   sudo mv /usr/share/texlive $target/usr/share/
   sudo ln -s $target/usr/share/texlive /usr/share/
   sudo mv /usr/share/texmf $target/usr/share/
   sudo ln -s $target/usr/share/texmf /usr/share/
   sudo mv /usr/share/tex-common $target/usr/share/
   sudo ln -s $target/usr/share/tex-common /usr/share/
+  sudo mkdir -p $target/usr/local/share/
   sudo mv /usr/local/share/texmf $target/usr/local/share/
   sudo ln -s $target/usr/share/texmf /usr/local/share/
+  sudo mkdir -p $target/var/cache/
+  sudo mv /var/cache/apt $target/var/cache/
+  sudo ln -s $target/var/cache/apt /var/cache/
 fi
