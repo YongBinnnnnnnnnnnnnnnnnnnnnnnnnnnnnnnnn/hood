@@ -300,7 +300,7 @@ An idea to save the clients that contain severe deficiencies is to attack their 
 \section{Proxy}
 \subsubsection{Design}
 \paragraph{}
-The proxy should filter out the connnections that are negotiated to use cipher suites not recommended by RFC best practice by checking the handshake packets. It should also filter out the connections that are using certificates signed by CAs that are not trusted by the firewall system. So that even if the user device has a pre-installed malicious certificate, the certificate will be filtered by firewall and the MITM attack will fail. 
+The proxy should filter out the connnections that are negotiated to use cipher suites not recommended by RFC best practice by checking the handshake packets. It should also filter out the connections that are using certificates signed by CAs that are not trusted by the firewall system. So that even if the user device has a pre-installed malicious certificate, the certificate will be filtered by firewall and the MITM attack will fail.
 \paragraph{}
 The proxy should not use the MITM attack to decrypt SSL sessions. Despite using MITM attack to inspect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the TLS proxy used in this firewall should not implement the same functionality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disaster to the devices behind it: the attacker will be able to easily modify the encrypted data transferred over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attacks at all, the compromised firewall is still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
 \subsubsection{Implementation}
@@ -723,7 +723,7 @@ Following devices are used in the experiment: A computer with a DVD rom. A DVD w
 \paragraph{}
 The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
 
-\begin{lstlisting}{language={}}
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 db_nmap -Pn -A 10.10.6.64
 [*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-20 23:20 UTC
 [*] Nmap: Nmap scan report for USILU-3325.usilu.net (10.10.6.64)
@@ -810,14 +810,14 @@ The experiment used only free tools from Kali Linux but still collected a lot of
 Following materials are used in the experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. An iPhone.
 \paragraph{}
 The prepare steps are following. First, boot the computer into Kali Linux live environment. Then enable tethering on iPhone and connect it to the computer. Then press the "Trust" button on the confirmation dialog. Then use following command from metasploit framework.
-\lstinputlisting[language={}]{penetration_test/iOS.txt}
+\lstinputlisting[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]{penetration_test/iOS.txt}
 \paragraph{}
 It shows that iOS devices could be identified by their uniuqe opened port numbers: 49152 and 62078.
 
 \subsection{Experiment on "hood" firewall}
 The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
 
-\begin{lstlisting}{language={}}
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 db_nmap -Pn -A 10.42.0.171
 [*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-22 22:40 UTC
 [*] Nmap: Nmap scan report for 10.42.0.171
@@ -846,7 +846,7 @@ Second experiment is made for comparsion. Use the Wireshark to capture on Kali L
 
 \subsection{Experiment results}
 \paragraph{}
-Results of the first experiment are following: Wireshark did not capture any plaintext DNS traffic from Raspberry Pi. Wireshark captured only one HTTP session, which connected to http://1.1.1.1. It was the mechanism used by the dispatcher (\cref{cha:dispatcher}) to detect internet connectivity. Wireshark captured the TLS handshake to example.com but could not see the content of the request and the response. The TTY8 of "hood" showed the activity of connecting to example.com and the certificates used by example.com (See \cref{fig:hood-tty-output}). 
+Results of the first experiment are following: Wireshark did not capture any plaintext DNS traffic from Raspberry Pi. Wireshark captured only one HTTP session, which connected to http://1.1.1.1. It was the mechanism used by the dispatcher (\cref{cha:dispatcher}) to detect internet connectivity. Wireshark captured the TLS handshake to example.com but could not see the content of the request and the response. The TTY8 of "hood" showed the activity of connecting to example.com and the certificates used by example.com (See \cref{fig:hood-tty-output}).
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{penetration_test/hoodcurlexample_tty_output_cropped.png}
   \caption{Top 19 mostly mentioned components in Apple security releases\newline from Januray 8th, 2020 to Januray 12th, 2024}
@@ -1006,7 +1006,7 @@ Normal attackers will use the network, Bluetooth, or WiFi for communications bet
 However, there are still other methods. Some even without wireless communications. Despite I had already bought an RF detector to alert me of wireless communications between unknown hardware, unknown attackers still managed to monitor my progress with some modified hardware. Take the devices that I am using to develop this project for example. Raspberry 4B has a USB chip that can communicate with the power source. If the charger is specially crafted with the ability to forward the USB connection to the remote endpoint via power lines, then, with the help of the malware installed on the Pi itself, data can be leaked silently via power lines even without any network connections to the computer. The same story can also happen to the portable screen that I am using now. I have found two counter measurements to this kind of attack: One is to use a USB-C to DC adapter when connecting a USB-C charger to the laptop. Another is to tape the two pins in the middle of the male USB-A port to prevent data communications.
 \paragraph{}
 Many of my SD card readers, USB sticks, and an external CD/DVD drive have their firmware modified by unknown person. The DVD drive I bought from Amazon \url{https://www.amazon.de/-/en/gp/product/B0BLGQZ66D/} has its firmware changed. Following is the detection result from the host computer. Vendor changed to Initico Corporation, and the serial number changed to 000000000000000000000000. Usually, if they just want to install a backdoor to the device firmware, they do not have to change the vendor and the serial number. The fact that they are doing this shows that they are letting me know it on purpose. This act has two possible intentions: one is to deliver a warning because it is telling me that they do not care if I can find out, another is to let me waste my time on this endless fight against infections and make me unable to focus on the main goal of my life, because if they do not let me notice this change, I may do nothing about it. The same story also happened to my SD card reader and USB sticks.
-\begin{lstlisting}{language={}}
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 lsusb -v -s 001:005
 
 BBus 003 Device 005: ID 13fd:0840 Initio Corporation INIC-1618L SATA
@@ -1095,9 +1095,6 @@ And even further: the Google account of the email of my previous GitHub Account 
 \section{CDC-ECM}\label{sec:CDC-ECM}
 \paragraph{}
 It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
-
-\section{Devicetree}\label{sec:devicetree}
-Devicetree
 
 \section{dtbo file}\label{sec:dtbo}
 \paragraph{}
