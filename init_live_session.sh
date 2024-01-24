@@ -1,6 +1,6 @@
 #!/bin/sh
 
-read -p "This script is created for yongbin, using it on ur computer may cause damages Continue?" go_ahead
+read -p "WARNING:This script is created for yongbin, using it on ur computer may cause damages\nContinue?" go_ahead
 
 if [ $go_ahead != "y" ]; then
   exit
