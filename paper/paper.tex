@@ -88,7 +88,7 @@ This firewall system evaluated threats faced on different aspects by a network d
 \chapter{Hardware}
 \section{Design}
 \paragraph{}
-Hood should work as a USB Ethernet device by default, so people do not need to connect many cables. See \cref{fig:hardware-deployment-view}. With proper configurations, the device itself can also work as a wireless access point or a wireless USB Ethernet device. The cost of the hardware should be lower than the average price of a commercial hardware firewall.
+"hood" should work as a USB Ethernet device by default, so people do not need to connect many cables. See \cref{fig:hardware-deployment-view}. With proper configurations, the device can also work as a wireless access point or a wireless USB Ethernet device. The cost of the hardware should be lower than the average price of a commercial hardware firewall.
 \begin{figure}[H]
   \includegraphics[scale=1]{graphics/puml/hardware-deployment-view.png}
   \caption{Default hardware deployment view}
@@ -98,9 +98,9 @@ Hood should work as a USB Ethernet device by default, so people do not need to c
 \section{Implementation}
 \subsection{USB device}
 \paragraph{}
-To make computers recognize the firewall as a USB device, the support from both the development board and the operating systems (OS) are required.
+To make computers recognize the firewall as a USB device, the support from both the hardware and the operating systems (OS) are required.
 \paragraph{}
-For hardware, Raspberry Pi 4 is the first model in Raspberry Pi family that both supports USB device mode and contains a Ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
+For hardware, Raspberry Pi 4 is the first model in Raspberry Pi family that both supports USB device mode and contains an Ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
 \paragraph{}
 For OS, Linux has USB gadget mode. Using the combination of CDC-ECM (See \cref{sec:CDC-ECM}) and Remote Network Driver Interface Specification (RNDIS, see \cref{sec:RNDIS}) mode, most Linux, Windows, BSD, and macOS could be supported. FreeBSD USB stack has a device mode and provides 3 virtual network interface templates but none of them works with Microsoft Windows\citep{freebsdhb:usb}. OpenBSD has renowned security-focused nature but it does not contain a device mode in its USB stack. Thus, to support as many devices as possible, Linux is selected as the base OS of this firewall device.
 
@@ -108,7 +108,7 @@ For OS, Linux has USB gadget mode. Using the combination of CDC-ECM (See \cref{s
 \paragraph{}
 This paragraph explains the background reasons of choosing Raspberry Pi. Raspberry Pi 4B was the only single board computer (SBC) that I have when this firewall started as a hobby project to solve the aggressive hack problem that I was facing. Despite noticed some Hi-Link devices are smaller and cheaper than Raspberry Pi 4B, the decision is unchanged after the start of this thesis mainly because of the time costs of trying new SBCs: Since its first release in 2012, Raspberry Pi has upgraded its hardware models and software multiple times, has accumulated a lot of real-world applications, and has maintained an active user community with a large number of experienced users behind it. All of them show that by using Raspberry Pi instead of a cheap new brand, reduced time cost could be expected on fixing the bugs of the SBC itself or waiting for the answers from the community because previous users have asked and answered many questions and have found and fixed many problems. Besides, its large number of users could also help in spreading the firewall project and help in pointing out security flaws of the new upgrades to the computer.
 \paragraph{}
-Joy-IT RB-TFT3.5 was the only screen that I had. The dtbo file of the Waveshare 35A screen also works with this hardware. Thus, the cheaper one in the market should be able to replace another. The resolution of 480x320 is enough to print logs. I do not have the material or the budget to try the screens with lower resolutions.
+Joy-IT RB-TFT3.5 was the only screen that I had. The dtbo file (see \cref{sec:dtbo}) of the Waveshare 35A screen also works with this hardware. Thus, the cheaper one in the market should be able to replace another. The resolution of 480x320 is enough to print logs. I do not have the material or the budget to try the screens with lower resolutions.
 
 \subsection{Theory of the cost}
 \paragraph{}
@@ -1097,9 +1097,16 @@ And even further: the Google account of the email of my previous GitHub Account 
 \paragraph{}
 It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
 
-\section{RNDIS}\label{sec:RNDIS}
+\section{Devicetree}\label{sec:devicetree}
+Devicetree
+
+\section{dtbo file}\label{sec:dtbo}
 \paragraph{}
-The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual Ethernet link to host OS.
+dtbo means devicetree blob for overlay \citep{dtbo:android}. It is the compact binary representation of the devicetree used for modifing the kernel's living devicetree. A devicetree is a tree data structure with nodes that describe the devices in a system. \citep{dtbo:spec}
+
+\section{hood}\label{sec:hood}
+\paragraph{}
+"hood" is the name of this firewall project.
 
 \section{nftables}\label{sec:nftables}
 \paragraph{}
@@ -1108,6 +1115,10 @@ Nftables is the modern Linux kernel packet classification framework. It is avail
 %\bibliographystyle{dcu}
 \bibliographystyle{plainnat}
 \bibliography{biblio}
+
+\section{RNDIS}\label{sec:RNDIS}
+\paragraph{}
+The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual Ethernet link to host OS.
 
 %\cleardoublepage
 %\theindex %optional, use only if you have an index, must use
