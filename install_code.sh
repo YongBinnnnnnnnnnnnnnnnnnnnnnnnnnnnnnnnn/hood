@@ -19,6 +19,8 @@ fi
 rm vscode.deb
 if file /usr/bin/ls| grep -q "armhf"; then
   curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-armhf/stable -o vscode.deb
+elif file /usr/bin/ls| grep -q "x86-64"; then
+  curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-x64/stable -o vscode.deb
 else
   curl -H "User-Agent: ${user_agent}" -L -C - https://update.code.visualstudio.com/latest/linux-deb-arm64/stable -o vscode.deb
 fi
