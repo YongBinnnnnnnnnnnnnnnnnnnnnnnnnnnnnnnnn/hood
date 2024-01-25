@@ -162,4 +162,9 @@ elif [ $machine = "Linux" ]; then
     sudo ln -s $target/hood/proxy/libs proxy/libs
     sudo chown $whoami proxy/libs
   fi
+  mkdir -p /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi
+  if ! test -h ~/.cache/Raspberry\ Pi; then
+    rm -r ~/.cache/Raspberry\ Pi
+    ln -s /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi ~/.cache/Raspberry\ Pi
+  fi
 fi
