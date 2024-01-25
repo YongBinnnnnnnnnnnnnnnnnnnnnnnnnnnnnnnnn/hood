@@ -39,7 +39,6 @@ jobs:
         exclude:
           - os: windows-latest
             c_compiler: cl
-            cpp_compiler: cl
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
@@ -48,7 +47,6 @@ jobs:
             c_compiler: cl
           - os: ubuntu-latest
             c_compiler: clang
-            cpp_compiler: clang++
 
     steps:
     - uses: actions/checkout@v3
