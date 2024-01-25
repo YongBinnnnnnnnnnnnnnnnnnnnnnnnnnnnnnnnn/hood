@@ -79,14 +79,14 @@ cd hood/scripts
 
 Commandline options available to the install script:
 
-|Name                  |Default                                               |Description                                                                      |
-|----------------------|------------------------------------------------------|---------------------------------------------------------------------------------|
-|usb_tether=           |1                                                     |Share network to computer via USB cable                                          |
-|harden_only=          |0                                                     | Only apply hardening parts. Let the target SBC can still be used as a computer. |
-|disable_wireless=     |1                                                     |Disable WiFi and Bluetooth.                                                      |
-|disable_gpu=          |1                                                     |Disable GPU.                                                                     |
-|target=               |/                                                     |The target root/device to install firewall.                                      |
-|wan_port_device_path= |/sys/devices/platform/scb/fd580000.ethernet/net/eth0  | The path of the device to be used as WAN port.                                  |
+|Name                  |Default            |Description                                                                                                         |
+|----------------------|-------------------|--------------------------------------------------------------------------------------------------------------------|
+|usb_tether=           |1                  |Share network to computer via USB cable                                                                             |
+|harden_only=          |0                  |Only apply hardening parts. Let the target SBC can still be used as a computer.                                     |
+|disable_wireless=     |1                  |Disable WiFi and Bluetooth.                                                                                         |
+|disable_gpu=          |1                  |Disable GPU.                                                                                                        |
+|target=               |/                  |The target root/device to install firewall.                                                                         |
+|wan_port_device_path= |auto-built-in-eth  |The path of the device to be used as WAN port. `auto-built-in-eth` means find built-in Ethernet port automatically. |
 
 ## License
 
