@@ -503,8 +503,7 @@ Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the cha
 
 \section{Initial state of firewall rules}
 \paragraph{}
-The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the design of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPv4 and ARP protocol at layer 3. It allows anything to lo interface but rejects anything else to communicate from 127.0.0.1 or to 127.0.0.1. It allows UDP/TCP packets in connection track established and related
-state. It allows the device to send or receive ICMP fragmentation-needed packets. Anything else is ignored.
+The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the design of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPv4 and ARP protocol at layer 3. It allows anything to lo interface but rejects anything else to communicate from 127.0.0.1 or to 127.0.0.1. It allows UDP/TCP packets in connection track established and related state. It allows the device to send or receive ICMP fragmentation-needed packets. Anything else is ignored.
 
 \section{On udev add event}
 \subsubsection{netdev filter}
@@ -541,9 +540,11 @@ After randomization, the following firewall rules are added:
 A dnsmasq instance is started for this network interface, to assign IP addresses to connected devices, to let connected devices use the IP address of the LAN port of the firewall as the DNS server, and to respond to the IP address of the firewall LAN port for DNS requests.
 
 \section{On NetworkManager-dispatcher up event}
+\paragraph{}
 The dispatcher only reacts to this event for the WAN port. It at first waits for DHCP to finish. After DHCP is done, the dispatcher removes DHCP related accept rules from nftables and adds a rule to accept outbound TCP connections from the WAN instance with the source address as the DHCP result to remote 80 and 443 ports. This rule is for HTTP and HTTPS protocols. After that, the dispatcher restarts the hood-network-services.service (\cref{sec:hood-network-services.service}). It will also check the existence of /do\_upgrade or /run\_once files to do a system upgrade or to run the script.
 
 \section{On NetworkManager-dispatcher down event}
+\paragraph{}
 The dispatcher removes the firewall rules dynamically added for this instance and kills the dnsmasq instances for this interface.
 
 \chapter{Installation}
@@ -570,9 +571,11 @@ Installation now can only be done from Linux. install.sh is the shell script tha
 \end{table}
 
 \section{Checking target system}
+\paragraph{}
 Multiple checks to the target path are done before the beginning of the installation process to avoid potential harm to the user's computer when a wrong path is used. It first checks the type of the target, if the target path is not a directory target will be treated as a device or file and will be mounted as the pattern of a live system of Raspberry Pi OS. If the target is a file, then the target will be mounted as a disk image. If the target does not exist, "/dev/" prefix will be added and will be treated as a name of a device. Then if the content of /boot/firmware/config.txt of the target does not contain the string "dtparam", the target will not be treated as a Raspberry Pi OS filesystem and the installation process will be aborted.
 
 \section{Disable wireless}
+\paragraph{}
 Multiple methods are used to ensure the complete disablement of wireless devices. See \cref{tab:config_disable_wireless,tab:delete_disable_wireless}.
 
 \begin{table}[H]
@@ -601,6 +604,7 @@ Multiple methods are used to ensure the complete disablement of wireless devices
 \end{table}
 
 \section{Disable GPU}
+\paragraph{}
 Multiple methods are used to ensure the complete disablement of GPU. See \cref{tab:config_disable_gpu,tab:delete_disable_gpu}.
 
 \begin{table}[H]
@@ -862,6 +866,7 @@ Results of the first experiment are following: Wireshark did not capture any pla
 As the results of the second experiment, Wireshark captured plaintext requests and plaintext responses of both the DNS query to example.com and the HTTP request to example.com. The manufacturer of the MAC address used by "hood" could not be identified by Wireshark.
 
 \subsection{Conclusions}
+\paragraph{}
 As conclusion, the "hood" firewall successfully protected against eavesdropping attacks targeting plaintext HTTP traffic and plaintext DNS traffic. It can also tell the user what certificates the remote endpoints are using and the fact that the firewall is connecting to that website.
 
 \chapter{Conclusions}
@@ -888,18 +893,23 @@ Libcomposite can make the device show multiple roles to a host (a computer), whi
 \chapter{Simple scripts and services created by firewall}
 
 \section{before-network.service}\label{sec:before-network-service}
+\paragraph{}
 before-network.service is a systemd service being enabled during installation process and run before network is available to system. It is created to trigger dispatcher (See \cref{cha:dispatcher}) to initialize firewall rules and network configurations.
 
 \section{hood-network-services.service}\label{sec:hood-network-services.service}
+\paragraph{}
 It is a service for running hood network services. It runs hood-network-services-runner.sh which starts hood-http-handler.py, hood-name-service.py, hood-tls-proxy, and a dnsmasq client for DNS queries made from the firewall system.
 
 \section{allowd\_tls\_ports.txt}\label{sec:allowed_tls_ports.txt}
+\paragraph{}
 TLS is widely applied to secure protocols, not just for HTTP. This file is created to support more TLS-encrypted protocols in the future. It is a text file with lines of port numbers. Lines starting with \# are treated as comments and are ignored. Ports listed in the file will be allowed in nftables rules by the dispatcher and will be handled by hood-tls-proxy.
 
 \section{domain\_blacklist.txt}\label{sec:domain_blacklist.txt}
+\paragraph{}
 It is a text file with lines of regular expressions. Lines starting with \# are treated as comments and are ignored. Domains matching any one of the regular expressions in the file will be blocked.
 
 \section{ip\_subnet\_blacklist.txt}\label{sec:ip_subnet_blacklist.txt}
+\paragraph{}
 It is a text file with lines of IP subnets. Lines starting with \# are treated as comments and are ignored. IP addresses matching any one of the subnets in the file will be blocked.
 
 \section{nftables.conf}\label{sec:nftables.conf}
