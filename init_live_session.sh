@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-read -p "WARNING:This script is created for yongbin, using it on ur computer may cause damages\nContinue?" go_ahead
+read -p "WARNING:This script is created for yongbin, using it on ur computer may cause damages. Continue?" go_ahead
 
 if [ $go_ahead != "y" ]; then
   exit
@@ -123,24 +123,42 @@ if sudo -E pkg upgrade -y firefox; then
   sudo -E pkg -o INSTALL_AS_USER=true install -y tex-dvipsk
 fi
 elif [ $machine = "Linux" ]; then
-  image_name="wct"$(LC_ALL=C tr -dc "A-Z0-9"</dev/urandom|head -c 4)".tmp"
-  target=/media/$(whoami)/Windows/Windows/Temp/$image_name
-  sudo dd if=/dev/zero of=$target bs=4M count=2048 status=progress
-  mkdir -p /tmp/yongb
-  mkfs.ext4 $target
-  sudo mount $target /tmp/yongb
+  if ! mount | grep -q /tmp/yongb; then
+    image_name="wct"$(LC_ALL=C tr -dc "A-Z0-9"</dev/urandom|head -c 4)".tmp"
+    target=/media/$(whoami)/Windows/Windows/Temp/$image_name
+    sudo dd if=/dev/zero of=$target bs=4M count=2048 status=progress
+    mkdir -p /tmp/yongb
+    mkfs.ext4 $target
+    sudo mount $target /tmp/yongb
+    
+  fi
   target=/tmp/yongb
   sudo mkdir -p $target/usr/share/
-  sudo mv /usr/share/texlive $target/usr/share/
-  sudo ln -s $target/usr/share/texlive /usr/share/
-  sudo mv /usr/share/texmf $target/usr/share/
-  sudo ln -s $target/usr/share/texmf /usr/share/
-  sudo mv /usr/share/tex-common $target/usr/share/
-  sudo ln -s $target/usr/share/tex-common /usr/share/
+  if ! test -h /usr/share/texlive; then
+    sudo mv /usr/share/texlive $target/usr/share/
+    sudo ln -s $target/usr/share/texlive /usr/share/
+  fi
+  if ! test -h /usr/share/texmf; then
+    sudo mv /usr/share/texmf $target/usr/share/
+    sudo ln -s $target/usr/share/texmf /usr/share/
+  fi
+  if ! test -h /usr/share/tex-common; then
+    sudo mv /usr/share/tex-common $target/usr/share/
+    sudo ln -s $target/usr/share/tex-common /usr/share/
+  fi
   sudo mkdir -p $target/usr/local/share/
-  sudo mv /usr/local/share/texmf $target/usr/local/share/
-  sudo ln -s $target/usr/share/texmf /usr/local/share/
+  if ! test -h /usr/share/tex-common; then
+    sudo mv /usr/local/share/texmf $target/usr/local/share/
+    sudo ln -s $target/usr/share/texmf /usr/local/share/
+  fi
   sudo mkdir -p $target/var/cache/
-  sudo mv /var/cache/apt $target/var/cache/
-  sudo ln -s $target/var/cache/apt /var/cache/
+  if ! test -h /usr/share/tex-common; then
+    sudo mv /var/cache/apt $target/var/cache/
+    sudo ln -s $target/var/cache/apt /var/cache/
+  fi
+  sudo mkdir -p $target/hood/proxy/libs
+  if ! test -h proxy/libs; then
+    sudo rm -r proxy/libs
+    sudo ln -s $target/hood/proxy/libs proxy/libs
+  fi
 fi
