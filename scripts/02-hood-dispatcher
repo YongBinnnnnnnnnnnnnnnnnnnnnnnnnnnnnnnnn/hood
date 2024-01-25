@@ -153,6 +153,21 @@ function initial_firewall_rules(){
 
 function is_wan_port() {
   wan_port_path=$(cat /var/lib/hood/wan_port_device_path.txt)
+  if [ "${wan_port_path}" = "auto-built-in-eth" ]; then
+    if touch /proc/device-tree/model; then
+      case $(cat /proc/device-tree/model) in 
+        Raspberry Pi 2 *) wan_port_path="/sys/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0";;
+        Raspberry Pi 4 *) wan_port_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0";;
+      esac
+    fi
+  fi
+  if [ "${wan_port_path}" = "auto-built-in-eth" ]; then
+    echo "Unable to find built-in Ethernet device, guessing eth0" | tee -a $logfile > $log_device
+    if [ "$1" = "eth0" ]; then
+      return 0
+    fi
+    return 1
+  fi
   if test -d /sys/class/net/$1; then
     if realpath /sys/class/net/$1 | grep -q "${wan_port_path}"; then
       touch /tmp/hood/$1-is-wan-port
