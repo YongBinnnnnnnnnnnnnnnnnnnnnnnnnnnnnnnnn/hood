@@ -160,5 +160,6 @@ elif [ $machine = "Linux" ]; then
   if ! test -h proxy/libs; then
     sudo rm -r proxy/libs
     sudo ln -s $target/hood/proxy/libs proxy/libs
+    sudo chown $whoami proxy/libs
   fi
 fi
