@@ -715,12 +715,15 @@ As conclusion, most of decisions on disabling things are based on the analyzatio
 \paragraph{}
 To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do. Experiment data can be found from project GitHub repository \citep{hood:github}.
 
-\section{mitm-proxy}
+\section{Man-in-the-middle (MITM) attack}
+\subsection{Experiment tools}
+\paragraph{}
+Following devices are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso.
 
 \section{metasploit}
 \subsection{Experiment tools}
 \paragraph{}
-Following devices are used in the experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". A computer in the university classroom.
+Following devices are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". A computer in the university classroom.
 
 \subsection{Experiment on university computer}
 \paragraph{}
@@ -810,7 +813,7 @@ The experiment used only free tools from Kali Linux but still collected a lot of
 
 \subsection{Experiment on iOS}
 \paragraph{}
-Following materials are used in the experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. An iPhone.
+Following materials are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. An iPhone.
 \paragraph{}
 The prepare steps are following. First, boot the computer into Kali Linux live environment. Then enable tethering on iPhone and connect it to the computer. Then press the "Trust" button on the confirmation dialog. Then use following command from metasploit framework.
 \lstinputlisting[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]{penetration_test/iOS.txt}
@@ -835,9 +838,9 @@ No useful information collected from the firewall, it indicates the success of p
 
 \section{Eavesdropping}
 
-\subsection{Experiment materials}
+\subsection{Experiment tools}
 \paragraph{}
-Following materials are used in the experiment: A computer with a DVD rom. A DVD with kali-linux-2024-W03-live-amd64.iso burned. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". An Ethernet cable. A smartphone.
+Following tools are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". An Ethernet cable. A smartphone.
 
 \subsection{Experiment steps}
 \paragraph{}
@@ -1009,7 +1012,7 @@ Normal attackers will use the network, Bluetooth, or WiFi for communications bet
 However, there are still other methods. Some even without wireless communications. Despite I had already bought an RF detector to alert me of wireless communications between unknown hardware, unknown attackers still managed to monitor my progress with some modified hardware. Take the devices that I am using to develop this project for example. Raspberry 4B has a USB chip that can communicate with the power source. If the charger is specially crafted with the ability to forward the USB connection to the remote endpoint via power lines, then, with the help of the malware installed on the Pi itself, data can be leaked silently via power lines even without any network connections to the computer. The same story can also happen to the portable screen that I am using now. I have found two counter measurements to this kind of attack: One is to use a USB-C to DC adapter when connecting a USB-C charger to the laptop. Another is to tape the two pins in the middle of the male USB-A port to prevent data communications.
 \paragraph{}
 Many of my SD card readers, USB sticks, and an external CD/DVD drive have their firmware modified by unknown person. The DVD drive I bought from Amazon \url{https://www.amazon.de/-/en/gp/product/B0BLGQZ66D/} has its firmware changed. Following is the detection result from the host computer. Vendor changed to Initico Corporation, and the serial number changed to 000000000000000000000000. Usually, if they just want to install a backdoor to the device firmware, they do not have to change the vendor and the serial number. The fact that they are doing this shows that they are letting me know it on purpose. This act has two possible intentions: one is to deliver a warning because it is telling me that they do not care if I can find out, another is to let me waste my time on this endless fight against infections and make me unable to focus on the main goal of my life, because if they do not let me notice this change, I may do nothing about it. The same story also happened to my SD card reader and USB sticks.
-\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]Update
 lsusb -v -s 001:005
 
 BBus 003 Device 005: ID 13fd:0840 Initio Corporation INIC-1618L SATA
