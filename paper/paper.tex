@@ -855,7 +855,7 @@ Second experiment is made for comparsion. Use the Wireshark to capture on Kali L
 Results of the first experiment are following: Wireshark did not capture any plaintext DNS traffic from Raspberry Pi. Wireshark captured only one HTTP session, which connected to http://1.1.1.1. It was the mechanism used by the dispatcher (\cref{cha:dispatcher}) to detect internet connectivity. Wireshark captured the TLS handshake to example.com but could not see the content of the request and the response. The TTY8 of "hood" showed the activity of connecting to example.com and the certificates used by example.com (See \cref{fig:hood-tty-output}).
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{penetration_test/hoodcurlexample_tty_output_cropped.png}
-  \caption{Top 19 mostly mentioned components in Apple security releases\newline from Januray 8th, 2020 to Januray 12th, 2024}
+  \caption{The output of TTY8 on Raspberry Pi}
   \label{fig:hood-tty-output}
 \end{figure}
 \paragraph{}
