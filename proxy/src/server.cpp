@@ -57,8 +57,7 @@ void Server::StartTcp() {
 }
 
 void Server::StartTls() {
-  auto& ports =
-      Configuration::get("tls-proxy-port").as<std::vector<uint16_t>>();
+  auto ports = Configuration::get("tls-proxy-port").as<std::vector<uint16_t>>();
   for (auto port : ports) {
     auto& acceptor = tls_proxy_acceptors_.emplace_back(io_context_);
     acceptor.open(tcp::v4());
