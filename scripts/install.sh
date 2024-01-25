@@ -16,7 +16,7 @@ disable_wireless=1
 disable_gpu=1
 target_instrument_set="arm64"
 usb_tether=1
-wan_port_device_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0"
+wan_port_device_path="auto-built-in-eth"
 #rpi4b "/sys/devices/platform/scb/fd580000.ethernet/net/eth0"
 #rpi2b "/sys/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0"
 lodevice=""
