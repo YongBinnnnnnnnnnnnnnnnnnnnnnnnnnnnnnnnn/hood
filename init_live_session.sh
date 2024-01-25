@@ -167,4 +167,8 @@ elif [ $machine = "Linux" ]; then
     rm -r ~/.cache/Raspberry\ Pi
     ln -s /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi ~/.cache/Raspberry\ Pi
   fi
+  if ! test -h ~/Downloads; then
+    rm -r ~/Downloads
+    ln -s /media/$(whoami)/Windows/Windows/Temp ~/Downloads
+  fi
 fi
