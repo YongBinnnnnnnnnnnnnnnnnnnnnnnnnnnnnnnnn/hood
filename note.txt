@@ -1,3 +1,4 @@
+SRV _kerberos._tcp.dc._msdcs.usilu.net
 https://www.qemu.org/docs/master/system/arm/raspi.html
 https://w3techs.com/technologies/overview/ssl_certificate
 https://someonewhocares.org/hosts/
