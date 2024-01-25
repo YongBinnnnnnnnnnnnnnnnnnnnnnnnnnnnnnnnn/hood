@@ -156,8 +156,8 @@ function is_wan_port() {
   if [ "${wan_port_path}" = "auto-built-in-eth" ]; then
     if touch /proc/device-tree/model; then
       case $(cat /proc/device-tree/model) in 
-        Raspberry Pi 2 *) wan_port_path="/sys/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0";;
-        Raspberry Pi 4 *) wan_port_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0";;
+        Raspberry\ Pi\ 2\ *) wan_port_path="/sys/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0";;
+        Raspberry\ Pi\ 4\ *) wan_port_path="/sys/devices/platform/scb/fd580000.ethernet/net/eth0";;
       esac
     fi
   fi
