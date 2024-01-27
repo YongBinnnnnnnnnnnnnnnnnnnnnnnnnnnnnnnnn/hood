@@ -38,7 +38,7 @@ Thank you very much for the feedback. Your suggestion on X sounds legit. I will 
 - Computer 1, Terminal 3
 > ^C
 
-# post text in when CA is doing MITM attack, without hood
+# post text when CA is doing MITM attack, without hood
 - Computer 2, Terminal 1
 > echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS --cacert mitmproxy-ca-cert.pem -F 'sprunge=<-' https://sprunge.us
 
