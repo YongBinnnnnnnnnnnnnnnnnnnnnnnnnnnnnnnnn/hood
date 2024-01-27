@@ -11,5 +11,8 @@ sudo nft add rule ip filter forward ct state {established, related} accept
 - Computer 1, Terminal 2
 mitmproxy --listen-port 443 --listen-host 192.168.22.1
 
+- Computer 2, Terminal 1
+curl -sS $(echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS -F 'sprunge=<-' https://sprunge.us)
+
 - Computer 1, Terminal 3
 sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
