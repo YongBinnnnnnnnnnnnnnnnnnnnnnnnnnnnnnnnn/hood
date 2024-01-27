@@ -1,6 +1,7 @@
 - Computer 1, Terminal 1
 > nmcli device set eno1 managed no
 > sudo ip address add dev eno1 192.168.22.1
+> sudo ip route add 192.168.22.0/24 dev eno1 src 192.168.22.1
 > sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
 > sudo sysctl -w net.ipv4.ip_forward=1
 > sudo nft add table ip filter
