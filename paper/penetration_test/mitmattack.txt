@@ -2,8 +2,9 @@
 > nmcli device set eno1 managed no
 > sudo ip address add dev eno1 192.168.22.1
 > sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
+> sudo sysctl -w net.ipv4.ip_forward=1
 > sudo nft add table ip filter
-> sudo nft add chain ip filter forward { type filter hook forward priority 0 \; }
+> sudo nft add chain ip filter forward { type filter hook forward priority filter\; policy drop\; }
 > sudo nft add rule ip filter forward ip saddr 192.168.22.0/24 iif eno1 oif wlp2s0 accept
 > sudo nft add rule ip filter forward ct state {established, related} accept
 > /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --address=/#/192.168.22.1  --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --dhcp-option=3,192.168.22.1 --log-queries --log-facility=-
