@@ -259,7 +259,7 @@ sudo mkdir -p $prefix/etc/pki/nssdb
 sudocpcontent nssdb/cert9.db $prefix/etc/pki/nssdb
 sudocpcontent nssdb/key4.db $prefix/etc/pki/nssdb
 sudocpcontent nssdb/pkcs11.txt $prefix/etc/pki/nssdb
-sudo chmod 0644 /etc/pki/nssdb/*
+sudo chmod 0644 $prefix/etc/pki/nssdb/*
 
 sudo mkdir -p $prefix/etc/skel/.pki/
 sudo cp -r $prefix/etc/pki/nssdb $prefix/etc/skel/.pki/
