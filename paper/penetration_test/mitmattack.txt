@@ -11,7 +11,7 @@
 > sudo nft add rule ip filter forward log prefix "Dropped " flags all drop
 > sudo nft add table ip nat
 > sudo nft add chain ip nat postrouting { type nat hook postrouting priority srcnat\; policy accept\; }
-> sudo nft add rule ip nat postrouting ip saddr 192.168.22.0/24 iif eno1 oif wlp2s0 masquerade
+> sudo nft add rule ip nat postrouting ip saddr 192.168.22.0/24 ip daddr != 192.168.22.0/24 iif eno1 oif wlp2s0 masquerade
 > sudo nft add chain ip nat prerouting { type nat hook prerouting priority 0\; policy accept\; }
 > /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --server=1.1.1.1  --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --dhcp-option=3,192.168.22.1 --log-queries --log-facility=-
 
