@@ -2,3 +2,5 @@ nmcli device set eno1 managed no
 sudo ip address add dev eno1 192.168.22.1
 sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
 /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --address=/#/192.168.22.1 --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --log-queries --log-facility=-
+
+mitmproxy --listen-port 443 --listen-host 192.168.22.1
