@@ -2,6 +2,8 @@
 
 if which chromium; then
   executable=chromium
+elif which chrome; then
+  executable=chrome
 elif which chromium-browser; then
   executable=chromium-browser
 fi
