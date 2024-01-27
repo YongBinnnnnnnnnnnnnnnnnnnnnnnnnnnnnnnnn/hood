@@ -2,9 +2,10 @@
 
 output=~/hood-$(date "+%Y%m%d%H%M%S").img
 
-source=$(ls ../../*raspios-bookworm-arm64*.xz|sort|tail -n 1)
 if echo $1 | grep -q "\.img"; then
   source=$1
+else
+  source=$(ls ../../*raspios-bookworm-arm64*.xz|sort|tail -n 1)
 fi
 
 case $source in
