@@ -41,8 +41,14 @@ Thank you very much for the feedback. Your suggestion on X sounds legit. I will 
 # post text when CA is doing MITM attack, without hood
 - Computer 2, Terminal 1
 > echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS --cacert mitmproxy-ca-cert.pem -F 'sprunge=<-' https://sprunge.us
-
-> curl -sS 
+http://sprunge.us/ARbKPO
+> curl -sS --cacert mitmproxy-ca-cert.pem https://sprunge.us/ARbKPO
+"Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks."
+# The victim could not notice problem.
+- Computer 1, Terminal 3
+> curl https://sprunge.us/ARbKPO
+Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. *NEVER* send me emails again.
+# However, the result is different from other persons' view
 
 - Computer 1, Terminal 3
 > sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
