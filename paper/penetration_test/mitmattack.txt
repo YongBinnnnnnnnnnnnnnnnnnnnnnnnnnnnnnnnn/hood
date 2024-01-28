@@ -66,3 +66,4 @@ Who do you think you are? How dare you to give me suggestions like this? Your na
 # DNS redirect attack stopped working
 
 #TODO: use nftables redirect connection to Computer 1
+> sudo nft add rule nat postrouting ip saddr 192.168.22.0/24 ip daddr {$(dig +short sprunge.us|head -n 1)} iif eno1 dnat to 192.168.22.1
