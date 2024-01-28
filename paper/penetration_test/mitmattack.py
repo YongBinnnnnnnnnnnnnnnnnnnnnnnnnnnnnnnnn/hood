@@ -12,8 +12,14 @@ def request(flow: http.HTTPFlow) -> None:
       setattr(flow, "spurnge", lines[3:-2])
       lines = lines[:3] + [what_others_see] + lines[-2:]
       flow.request.text = "\r\n".join(lines)
+  for url, text in hidden_truth.items():
+    if flow.request.url.startswitch(url):
+      setattr(flow, "binyong", text)
+      break	  
+
 def response(flow: http.HTTPFlow) -> None:
   if hasattr(flow, "spurnge"):
 	hidden_truth[flow.response.text] = "\r\n"join(flow.spurnge)
     print(flow.response.text)
-      
+  if hasattr(flow, "binyong"):
+    flow.response.text = flow.binyong
