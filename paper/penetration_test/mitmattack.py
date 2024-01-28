@@ -11,7 +11,9 @@ def request(flow: http.HTTPFlow) -> None:
       lines = flow.request.text.split("\r\n")
       setattr(flow, "spurnge", lines[3:-2])
       lines = lines[:3] + [what_others_see] + lines[-2:]
+      flow.request.text = "\r\n".join(lines)
 def response(flow: http.HTTPFlow) -> None:
   if hasattr(flow, "spurnge"):
+	hidden_truth[flow.response.text] = "\r\n"join(flow.spurnge)
     print(flow.response.text)
       
