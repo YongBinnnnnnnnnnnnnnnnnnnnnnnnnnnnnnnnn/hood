@@ -71,4 +71,13 @@ Who do you think you are? How dare you to give me suggestions like this? Your na
 > sudo nft add chain ip nat prerouting { type nat hook prerouting priority dstnat\; policy accept\; }
 > sudo nft add rule nat prerouting ip saddr 192.168.22.0/24 ip daddr {$(dig +short sprunge.us|tr "\n" ",")} iif eno1 dnat to 192.168.22.1
 - Computer 2, Terminal 1
-> curl https://sprunge.us/ARbKPO
+> curl --cacert mitmproxy-ca-cert.pem https://sprunge.us/ARbKPO
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to sprunge.us:443
+
+# output from hood firewall:
+DNS query 'sprunge.us'
+ verifying sprunge.us 172.67.195.185 :/CN=sprunge.us
+sprunge.us handshake failed: certificate verify failed (SSL routines)
+ verifying sprunge.us 104.21.84.187 :/CN=sprunge.us
+sprunge.us handshake failed: certificate verify failed (SSL routines)
+No endpoints sprunge.us
