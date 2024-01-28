@@ -1,3 +1,6 @@
+# Computer 1 plays the role of authority
+# Computer 2 plays the role of victim
+
 - Computer 1, Terminal 1
 > nmcli device set eno1 managed no
 > sudo ip address add dev eno1 192.168.22.1
