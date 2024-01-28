@@ -64,3 +64,5 @@ Who do you think you are? How dare you to give me suggestions like this? Your na
 > curl https://sprunge.us/ARbKPO
 Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. *NEVER* send me emails again.
 # DNS redirect attack stopped working
+
+#TODO: use nftables redirect connection to Computer 1
