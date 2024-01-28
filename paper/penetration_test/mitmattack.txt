@@ -50,7 +50,7 @@ Thank you very much for the feedback. Your suggestion on X sounds legit. I will 
 http://sprunge.us/ARbKPO
 > curl -sS --cacert mitmproxy-ca-cert.pem https://sprunge.us/ARbKPO
 Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
-# The victim could not notice problem.
+# The victim could not notice the problem.
 - Computer 1, Terminal 3
 > curl https://sprunge.us/ARbKPO
 Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. *NEVER* send me emails again.
