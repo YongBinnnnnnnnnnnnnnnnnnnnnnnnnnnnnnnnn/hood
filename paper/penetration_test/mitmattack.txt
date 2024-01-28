@@ -1,3 +1,4 @@
+# live environment from Parrot-htb-6.0_amd64.iso
 # Computer 1 plays the role of authority
 # Computer 2 plays the role of victim
 
