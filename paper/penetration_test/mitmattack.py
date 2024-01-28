@@ -2,14 +2,16 @@
 from mitmproxy import http
 import logging
 
-class HTTPFlow(mitmproxy.flow.Flow):
-  def request(self, flow: http.HTTPFlow) -> None:
-    if flow.request.multipart_form:
-      if "sprunge" in flow.request.multipart_form:
-        flow.request.multipart_form["sprunge"] = "Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. Never send me emails again."
-        self.spurnge = True
-  def response(self, flow: http.HTTPFlow) -> None:
-    if self.spurnge = True:
-      logging.info(flow.response.text)
+hidden_truth={}
+what_others_see="Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. Never send me emails again."
+
+def request(flow: http.HTTPFlow) -> None:
+  if flow.request.text:
+    if 'Content-Disposition: form-data; name="sprunge"' in flow.request.text:
+      lines = flow.request.text.split("\r\n")
+      setattr(flow, "spurnge", lines[3:-2])
+      lines = lines[:3] + [what_others_see] + lines[-2:]
+def response(flow: http.HTTPFlow) -> None:
+  if hasattr(flow, "spurnge"):
+    print(flow.response.text)
       
-addons=[HTTPFlow()]
