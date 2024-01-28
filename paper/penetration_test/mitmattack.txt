@@ -43,7 +43,7 @@ Thank you very much for the feedback. Your suggestion on X sounds legit. I will 
 > echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS --cacert mitmproxy-ca-cert.pem -F 'sprunge=<-' https://sprunge.us
 http://sprunge.us/ARbKPO
 > curl -sS --cacert mitmproxy-ca-cert.pem https://sprunge.us/ARbKPO
-"Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks."
+Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
 # The victim could not notice problem.
 - Computer 1, Terminal 3
 > curl https://sprunge.us/ARbKPO
