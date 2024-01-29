@@ -723,14 +723,68 @@ To be close to real-world application of this tool, a computer from the universi
 \section{Man-in-the-middle (MITM) attack}
 \subsection{Experiment tools}
 \paragraph{}
-Following devices are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso.
+Following devices are used in the experiment: Two computers running live Parrot OS from Parrot-htb-6.0_amd64.iso. A Raspberry Pi 4B running hood firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz.
+
+\subsection{Experiment steps}
+\paragraph{}
+At first, enable network sharing on Computer 1, and connec
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+- Computer 1, Terminal 1
+> nmcli device set eno1 managed no
+> sudo ip address add dev eno1 192.168.22.1
+> sudo ip route add 192.168.22.0/24 dev eno1 src 192.168.22.1
+> sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
+> sudo sysctl -w net.ipv4.ip_forward=1
+> sudo nft add table ip filter
+> sudo nft add chain ip filter forward { type filter hook forward priority filter\; policy drop\; }
+> sudo nft add rule ip filter forward ip saddr 192.168.22.0/24 iif eno1 oif wlp2s0 accept
+> sudo nft add rule ip filter forward ct state {established, related} accept
+> sudo nft add rule ip filter forward log prefix "Dropped " flags all drop
+> sudo nft add table ip nat
+> sudo nft add chain ip nat postrouting { type nat hook postrouting priority srcnat\; policy accept\; }
+> sudo nft add rule ip nat postrouting ip saddr 192.168.22.0/24 ip daddr != 192.168.22.0/24 iif eno1 oif wlp2s0 masquerade
+> sudo /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --server=1.1.1.1  --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --dhcp-option=3,192.168.22.1 --log-queries --log-facility=-
+\end{lstlisting}
+
+\subsection{Without attack and protection}
+\paragraph{}
+At first following commands and results are recorded.
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# post text without MITM attack
+- Computer 2, Terminal 1
+> echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS -F 'sprunge=<-' https://sprunge.us
+http://sprunge.us/yqnNHp
+> curl https://sprunge.us/yqnNHp
+Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
+- Computer 1, Terminal 2
+> curl https://sprunge.us/yqnNHp
+Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
+# everything is correct
+\end{lstlisting}
+
+\subsection{With attack but without protection}
+\paragraph{}
+At first following commands and results are recorded as the control group.
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# post text without MITM attack
+- Computer 2, Terminal 1
+> echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS -F 'sprunge=<-' https://sprunge.us
+http://sprunge.us/yqnNHp
+> curl https://sprunge.us/yqnNHp
+Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
+- Computer 1, Terminal 2
+> curl https://sprunge.us/yqnNHp
+Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
+# everything is correct
+\end{lstlisting}
+
 
 \section{metasploit}
 \subsection{Experiment tools}
 \paragraph{}
-Following devices are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". A computer in the university classroom.
+Following devices are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. A Raspberry Pi 4B running 'hood' firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz. A computer in the university classroom.
 
-\subsection{Experiment on university computer}
+\subsection{Information gathering from university computer}
 \paragraph{}
 The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
 
@@ -816,7 +870,7 @@ msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
 \paragraph{}
 The experiment used only free tools from Kali Linux but still collected a lot of information about the computer: It's manufacturer, operating system, system version, clock skew, domain, host name, time. This shows the necessity of using a firewall.
 
-\subsection{Experiment on iOS}
+\subsection{iOS Environment}
 \paragraph{}
 Following materials are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. An iPhone.
 \paragraph{}
@@ -845,13 +899,13 @@ No useful information collected from the firewall, it indicates the success of p
 
 \subsection{Experiment tools}
 \paragraph{}
-Following tools are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. A Raspberry Pi 4B. A SD card with the 'hood' firewall installed with the parameter "harden\_only=1". An Ethernet cable. A smartphone.
+Following tools are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. A Raspberry Pi 4B running the 'hood' firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz. An Ethernet cable. A smartphone.
 
 \subsection{Experiment steps}
 \paragraph{}
-Two experiments were done to check the protection of "hood" firewall against evaesdropping.
+Two environments were used to check the protection of "hood" firewall against evaesdropping.
 \paragraph{}
-First experiment is made to check the protection done by firewall. The experiment steps on eavesdropping attack are following. First, boot the computer into Kali Linux live environment and boot Raspberry Pi into the "hood" SD card. Then Connect the computer to internet shared by the smartphone and create a shared network on the network interface of the Ethernet port. Then, use Wireshark to capture on the interface of the shared network. Then use the cable connect the Ethernet port of the Raspberry Pi to the Ethernet port of the computer. Then, execute the command "curl example.com" on Raspberry Pi.
+First, check what network packetscan be captured by eavesdroppers under the protection of "hood" firewall. The experiment steps on eavesdropping attack are following. First, connect the computer to internet shared by the smartphone. Then create a shared network on the network interface of the Ethernet port (Advanced Network Configuration -> Wired connection 1 -> IPv4 Settings Method Shared to other computers, IPv6 Settings disabled). Then, use Wireshark to capture on the interface of the shared network. Then use the cable connect the Ethernet port of the Raspberry Pi to the Ethernet port of the computer. Then, execute the command "curl example.com" on Raspberry Pi.
 \paragraph{}
 Second experiment is made for comparsion. Use the Wireshark to capture on Kali Linux with internet connected and execute the command "curl example.com".
 
