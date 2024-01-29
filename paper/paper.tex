@@ -720,7 +720,7 @@ As conclusion, most of decisions on disabling things are based on the analyzatio
 \paragraph{}
 To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do. Experiment data can be found from project GitHub repository \citep{hood:github}.
 
-\section{Man-in-the-middle (MITM) attack and DNS hijacking}
+\section{Man-in-the-middle (MITM) attack, DNS hijacking, and IP hijacking}
 \subsection{Experiment tools}
 \paragraph{}
 Following devices are used in the experiment: Two computers running live Parrot OS from Parrot-htb-6.0_amd64.iso. A Raspberry Pi 4B running hood firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz.
@@ -767,7 +767,7 @@ Thank you very much for the feedback. Your suggestion on X sounds legit. I will 
 # everything is correct
 \end{lstlisting}
 
-\subsubsection{With MITM attack by DNS hijacking without protection}
+\subsubsection{With MITM attack by DNS hijacking, without protection}
 \paragraph{}
 Following commands are used to prepare MITM attack by DNS hijacking.
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
@@ -788,7 +788,6 @@ Following commands are used to prepare MITM attack by DNS hijacking.
 > ^C
 \end{lstlisting}
 
-\subsubsection{Without attack and protection}
 \paragraph{}
 Following records show what happened under attack: The posted text looks correct to the victim but looks different to other person.
 
@@ -806,10 +805,9 @@ Who do you think you are? How dare you to give me suggestions like this? Your na
 # However, the result looks different to other person
 \end{lstlisting}
 
-\subsubsection{With MITM attack by DNS hijacking with "hood" protection}
+\subsubsection{With MITM attack by DNS hijacking, with "hood" protection}
 \paragraph{}
 Next, test what happens to the victim with "hood" firewall. Steps are following. 1. Connect Raspberry Pi to computer by USB cable 2. Disconnect the Ethernet cable from computer 2 and connect it to Raspberry Pi. 3. Use following commands to give direct access to other websites but still attacking the wbsite sprunge.us.
-
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 - Computer 1, Terminal 3
 > sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
@@ -826,9 +824,43 @@ Who do you think you are? How dare you to give me suggestions like this? Your na
 # DNS redirect attack stopped working
 \end{lstlisting}
 
-\subsubsection{With MITM attack by DNS hijacking with "hood" protection}
+\subsubsection{With MITM attack by IP hijacking, with "hood" protection}
+\paragraph{}
+In this section, the attacker used IP hijacking to achieve MITM attack. Computer 1 used following commands to conduct IP hijacking.
 
-\section{metasploit}
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# Computer 1 starts to use more advanced method to achieve MITM
+- Computer 1, Terminal 2
+> sudo nft add chain ip nat prerouting { type nat hook prerouting priority dstnat\; policy accept\; }
+> sudo nft add rule nat prerouting ip saddr 192.168.22.0/24 ip daddr {$(dig +short sprunge.us|tr "\n" ",")} iif eno1 dnat to 192.168.22.1
+\end{lstlisting}
+
+\paragraph{}
+The same command starts to show error on the victim's computer.
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+- Computer 2, Terminal 1
+> curl --cacert mitmproxy-ca-cert.pem https://sprunge.us/ARbKPO
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to sprunge.us:443
+\end{lstlisting}
+
+\paragraph{}
+The output of the "hood" firewall shows to the victim that something is wrong with the certificate.
+
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# output from hood firewall:
+DNS query 'sprunge.us'
+ verifying sprunge.us 172.67.195.185 :/CN=sprunge.us
+sprunge.us handshake failed: certificate verify failed (SSL routines)
+ verifying sprunge.us 104.21.84.187 :/CN=sprunge.us
+sprunge.us handshake failed: certificate verify failed (SSL routines)
+No endpoints sprunge.us
+\end{lstlisting}
+
+\section{Conclusions}
+\paragraph{}
+The experiment records show that the "hood" firewall can help a victim to bypass simple DNS hijacking couducted by network providers, the "hood" firewall could not protect the victim from IP hijacking but if the attacker wants to decrypt the TLS connection, even if the root certificate has been trusted by the victims computer, the "hood" firewall can still alert the victim and block the connection.
+
+\section{Information gathering by metasploit}
 \subsection{Experiment tools}
 \paragraph{}
 Following devices are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. A Raspberry Pi 4B running 'hood' firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz. A computer in the university classroom.
@@ -919,16 +951,15 @@ msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
 \paragraph{}
 The experiment used only free tools from Kali Linux but still collected a lot of information about the computer: It's manufacturer, operating system, system version, clock skew, domain, host name, time. This shows the necessity of using a firewall.
 
-\subsection{iOS Environment}
+\subsection{Information gathering from iOS}
 \paragraph{}
 Following materials are used in the experiment: A computer running live Kali Linux from kali-linux-2024-W03-live-amd64.iso. An iPhone.
 \paragraph{}
 The prepare steps are following. First, boot the computer into Kali Linux live environment. Then enable tethering on iPhone and connect it to the computer. Then press the "Trust" button on the confirmation dialog. Then use following command from metasploit framework.
-\lstinputlisting[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]{penetration_test/iOS.txt}
 \paragraph{}
 It shows that iOS devices could be identified by their uniuqe opened port numbers: 49152 and 62078.
 
-\subsection{Experiment on "hood" firewall}
+\subsection{Information gathering from "hood" firewall}
 The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
 
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
