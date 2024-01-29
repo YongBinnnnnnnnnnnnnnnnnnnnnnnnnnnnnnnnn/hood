@@ -13,7 +13,10 @@ $script_dir/download-vsx.sh ms-python/python
 $script_dir/download-vsx.sh James-Yu/latex-workshop
 $script_dir/download-vsx.sh webfreak/debug
 
-if test -f /usr/share/code/code; then
+if which code; then
+  exit
+fi
+if which codium; then
   exit
 fi
 rm vscode.deb
