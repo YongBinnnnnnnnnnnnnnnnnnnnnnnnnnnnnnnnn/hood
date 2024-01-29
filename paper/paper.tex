@@ -99,7 +99,7 @@ This firewall system evaluated threats faced on different aspects by a network d
 \section{Implementation}
 \subsection{USB device}
 \paragraph{}
-To make computers recognize the firewall as a USB device, the support from both the hardware and the operating systems (OS) are required.
+To make computers recognize the firewall as a USB device, the support from both thUpdate paper.texe hardware and the operating systems (OS) are required.
 \paragraph{}
 For hardware, Raspberry Pi 4 is the first model in Raspberry Pi family that both supports USB device mode and contains an Ethernet port. Raspberry Pi 5 can do the same but it is more expensive.
 \paragraph{}
@@ -285,7 +285,7 @@ SSL-pinning can prevent MITM attacks from a trusted CA when the user knows the C
 Removing suspicious CAs from the trusted list could protect people from MITM attacks initiated by those CAs. However, some systems and devices do provide the function of untrusting a CA. For example, an iPhone needs a computer to enable such configuration and most Android devices do not provide such entry in settings.
 \subsection{Design}
 \paragraph{}
-The firewall should trust only the CAs that are being widely used on the internet. People should be able to further decide which certificates to trust. Consider untrust following CAs when making such decisions: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
+The firewall should trust only the CAs that are being widely used on the internet. It now respects th usage statistics of SSL certificate authorities for websites published by W3Techs \citep{cert:stat}. People should be able to further decide which certificates to trust. Consider untrust following CAs when making such decisions: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
 \subsection{Implementation}
 \paragraph{}
 Since SSL pinning can only be used on a small number of endpoints by an advanced user who can clearly know what is this meant to be, it is not implemented now. Manually management of the certificate can be done by Linux commands. The certificates of all remote TLS endpoints are checked by TLS proxy.
