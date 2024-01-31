@@ -47,8 +47,7 @@ morecomment=[l]{//s},
 
 \begin{abstract}
   \paragraph{}
-  Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities and encrypts some plaintext traffic. It helps device owners take back control of their own devices. It is designed for someone who needs to work in unsafe environments. The system sacrificed some compatibility to pursue better security but still achieved a balance between security and convenience. Decisions are made by the combination of the analyzation to security events and the my past experience. A sensitive target, like an investigative journalist, could be a potential user of this device.
-
+  Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities, encrypts some plaintext traffic, and alerts invalid certificates. It helps device owners take back control of their own devices. It is designed for someone who needs to work in unsafe environments. The system sacrificed some compatibility to pursue better security but still achieved a balance between security and convenience. Decisions are made by the combination of the analyzation to security events and the my past experience. A sensitive target, like an investigative journalist, could be a potential user of this device.
 \end{abstract}
 
 \begin{acknowledgements}
@@ -858,7 +857,7 @@ No endpoints sprunge.us
 
 \subsection{Conclusions}
 \paragraph{}
-The experiment records show that the "hood" firewall can help a victim to bypass simple DNS hijacking couducted by network providers, the "hood" firewall could not protect the victim from IP hijacking but if the attacker wants to decrypt the TLS connection, even if the root certificate has been trusted by the victims computer, the "hood" firewall can still alert the victim and block the connection.
+The experiment records show that the "hood" firewall can help a victim to bypass simple DNS hijacking couducted by network providers, the "hood" firewall could not protect the victim from IP hijacking but if the attacker wants to decrypt the TLS connection, even if the root certificate has been trusted by the victims computer, the "hood" firewall can still alert the victim and block the connection. However, without this firewall, the victim of the attacks could see nothing while using software tools normally.
 
 \section{Information gathering by metasploit}
 \subsection{Experiment tools}
@@ -1005,6 +1004,8 @@ As the results of the second experiment, Wireshark captured plaintext requests a
 As conclusion, the "hood" firewall successfully protected against eavesdropping attacks targeting plaintext HTTP traffic and plaintext DNS traffic. It can also tell the user what certificates the remote endpoints are using and the fact that the firewall is connecting to that website.
 
 \chapter{Conclusions}
+\paragraph{}
+A working firewall system is designed and implemented during this work. It narrowed the attack surface by simplifing the hardware and by avoiding the use of high risk components. The statistics of past security events explained the reason of some decisions behind the design by proving the high risk of browsers and wireless communications. The test results proved the difficulty for a victim to notice a MITM attack, proved the easiness of gathering information from network devices, and the effectiveness of the protection provided by "hood" firewall against those attack.
 
 \section{Possible improvements for future}
 \subsection{LSM and seccomp}
