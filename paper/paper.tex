@@ -884,6 +884,7 @@ Following devices are used in the experiment: A computer running live Kali Linux
 The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
 
 \begin{lstlisting}[language={},frame=single,breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# first, scan opening ports
 db_nmap -Pn -A 10.10.6.64
 [*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-20 23:20 UTC
 [*] Nmap: Nmap scan report for USILU-3325.usilu.net (10.10.6.64)
@@ -931,30 +932,6 @@ msf6 auxiliary(scanner/rdp/rdp_scanner) > run
 [*] 10.10.6.64:3389       - Detected RDP on 10.10.6.64:3389       (name:USILU-3325) (domain:CAMPUS) (domain_fqdn:usilu.net) (server_fqdn:USILU-3325.usilu.net) (os_version:10.0.19041) (Requires NLA: Yes)
 [*] 10.10.6.64:3389       - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-
-msf6 auxiliary(scanner/rdp/ms12_020_check) > check
-
-[-] 10.10.6.64:3389       - Auxiliary failed: Errno::ECONNRESET Connection reset by peer
-[-] 10.10.6.64:3389       - Call stack:
-[-] 10.10.6.64:3389       -   /usr/lib/ruby/3.1.0/socket.rb:452:in `__read_nonblock'
-[-] 10.10.6.64:3389       -   /usr/lib/ruby/3.1.0/socket.rb:452:in `read_nonblock'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:91:in `block in read'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:336:in `synchronize_access'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:89:in `read'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/vendor/bundle/ruby/3.1.0/gems/rex-core-0.1.31/lib/rex/io/stream.rb:223:in `get_once'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:48:in `check_rdp'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:127:in `check_rdp_vuln'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp/ms12_020_check.rb:174:in `check_host'
-[-] 10.10.6.64:3389       -   /usr/share/metasploit-framework/lib/msf/core/auxiliary/scanner.rb:41:in `check'
-[-] 10.10.6.64:3389 - Check failed: The state could not be determined.
-
-msf6 auxiliary(scanner/rdp/cve_2019_0708_bluekeep) > check
-[*] 10.10.6.64:3389 - The target is not exploitable.
-
-arp -a 10.10.6.64
-[*] exec: arp -a 10.10.6.64
-
-USILU-3325.usilu.net (10.10.6.64) at 5c:f9:dd:e0:97:34 [ether] on eth0
 
 msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
 
