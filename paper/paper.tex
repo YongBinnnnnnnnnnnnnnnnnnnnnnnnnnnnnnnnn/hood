@@ -78,9 +78,9 @@ So many things are out of the control of the owners of the devices. People need 
 \paragraph{}
 Using hardware firewalls has several advantages over software firewalls. A hardware firewall is a physical device that plays the role of firewall, while software firewalls are usually software components that run inside a user's computer which also works for other purpose. Firstly, a hardware firewall runs completely independent to high-risk user devices, where unsafety thrives: CPU with possible hidden instruments, firmware with possible infections, motherboards with doubtable proprietary management technologies, and applications with possible surveillance or unpublished vulnerabilities. Second, it brings convenience to the user: the configuration of this portable device restricts everything behind it, so people do not need to do the time-consuming configuration work on different software and operating systems repeatedly. Third, it brings possibilities: Untrusting a built-in root certificate on mobile devices is hard and the methods with root or jailbreak involved may void the warranty. With the help of a firewall, managing certificates is no longer a problem.
 \paragraph{}
-This firewall system evaluated threats faced on different aspects by a network device and provided some unique solutions.
+This paper explains the decisions behind the hardware and the operating system in \cref{cha:hard} and explains the decisions behind how packets are forwarded in \cref{cha:packet}. In \cref{cha:dhcp, cha:dns, cha:tls}, the deficiency of the protocols are explained and the solutions are provided. In \cref{cha:plaintext},
 
-\chapter{Hardware and operating system}
+\chapter{Hardware and operating system}\label{cha:hard}
 \section{Design}
 \paragraph{}
 "hood" (see \cref{sec:hood}) should work as a USB Ethernet device by default, so people do not need to connect many cables. See \cref{fig:hardware-deployment-view}. With proper configurations, the device can also work as a wireless access point or a wireless USB Ethernet device. The cost of the hardware should be lower than the average price of a commercial hardware firewall.
@@ -194,7 +194,7 @@ Despite the firewall implemented in this paper is not a general-purpose firewall
 \paragraph{}
 In conclusion, Raspberry Pi 4B has sufficient hardware and software support to make it work as the USB device designed in the first section. Its price is also much lower than the majority of commercial firewalls. It is not the cheapest option that can fit the design, but it is a good choice after evaluating technical support and user base.
 
-\chapter{Packet filtering and forwarding}
+\chapter{Packet filtering and forwarding}\label{cha:packet}
 \section{Design}
 \paragraph{}
 As the general principle, all traffic passed through firewall should be checked against eavesdropping. Plaintext protocols should be channeled through strong encryptions or discarded if unable to ensure their integrity. Firewall rules should filter out as much as possible and as early as possible because everything on the path of a packet is potentially vulnerable, and the less network traffic passed to the following components, the less chance a vulnerability can affect the firewall.
@@ -243,7 +243,7 @@ Host names of the firewall device are randomly generated during the startup of t
 \paragraph{}
 Dnsmasq is used to assign the IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
 
-\chapter{Domain Name System (DNS)}
+\chapter{Domain Name System (DNS)}\label{cha:dns}
 
 \section{Introduction}
 DNS is a protocol that translates the human-readable domain names to the IP addresses of the remote server. The default configurations of many operating systems are to make plaintext requests, which could easily be monitored by simply recording the packets and could easily be attacked by methods like DNS spoofing.
@@ -263,7 +263,7 @@ A dnsmasq is started locally to resolve everything to localhost to make the fire
 \paragraph{}
 A dnsmasq is started to resolve everything to the firewall device to make the firewall proxies apply to devices behind it.
 
-\chapter{Transport Layer Security (TLS)}
+\chapter{Transport Layer Security (TLS)}\label{cha:tls}
 
 \section{Management of certificates}
 
@@ -342,7 +342,7 @@ This paragraph explains how the proxy checks the ServerHello of TLS hanshake. Af
   \label{fig:tls-process-view}
 \end{figure}
 
-\chapter{Plaintext connections and other services}
+\chapter{Plaintext connections and other services}\label{cha:plaintext}
 
 \section{HTTP}
 \subsection{Design}
