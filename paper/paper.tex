@@ -498,9 +498,9 @@ Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \
 \paragraph{}
 Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in the CONDITION part by syntax "key=value[,key=value]". Currently, only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has a 33\% chance of termination at the beginning of each loop, "0" means it will never have an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into Python code. The COMMAND part is the hood action script to be executed in the loop.
 
-\subsection{Hood action script}
+\subsection{Logical view}
 \paragraph{}
-\cref{fig:actor-logic-view} is the logical view of the hood-actor.py, it shows the calling relationship between different components.
+\cref{fig:actor-logic-view} is the logical view of the hood-actor.py, it shows the calling relationship between different components. The program use load\_action function to load the action script and then calls play\_in\_action function which uses the HoodExecutor to schedule tasks in the action. The action tasks will call Actor class to evaluate scripts. The Actor class may call the Browser class to simuluate the browsing event. The Browser class uses HoodHTMLParser class to extract the resources need to be loaded for the webpage from HTML and then use HoodExecutor to load them in parallel.
 \begin{figure}[H]
   \includegraphics[width=0.9\textwidth]{graphics/puml/actor.png}
   \caption{Logical view of hood-actor.py}
@@ -509,20 +509,25 @@ Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multip
 
 \chapter{Dispatcher and firewall rules}\label{cha:dispatcher}
 \paragraph{}
-Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes in the network status or the system status to dynamically configure firewall rules and to start or stop network services. Its callers are three systemctl services: before-network.service (See \cref{sec:before-network-service}), udev.service, and NetworkManager-dispatcher.service.
+Dispatcher is a shell script named 02-hood-dispatcher. It interacts with the changes in the network status or the system status to dynamically configure firewall rules and to start or stop network services. Its callers are three systemctl services: before-network.service (See \cref{sec:before-network-service}), systemd-udevd.service (See \cref{sec:systemd-udevd.service}), and NetworkManager-dispatcher.service.
 
 \section{Initial state of firewall rules}
 \paragraph{}
 The initial state of firewall rules (See \cref{sec:nftables.conf}) is basic because the design of nftables made the rules with interface name involved requires to be done dynamically. It only allows IPv4 and ARP protocol at layer 3. It allows anything to lo interface but rejects anything else to communicate from 127.0.0.1 or to 127.0.0.1. It allows UDP/TCP packets in connection track established and related state. It allows the device to send or receive ICMP fragmentation-needed packets. Anything else is ignored.
 
 \section{On udev add event}
-\subsubsection{netdev filter}
+\subsection{udev}
+\paragraph{}
+For udev, see \cref{sec:systemd-udevd.service}.
+\subsection{netdev}
+In nftables, multiple networking levels are abstracted into families and netdev is the family that can see network packets just after the NIC driver passes them up to the networking stack. This very early location in the packet path is ideal for dropping packets. Dropping packets from an ingress chain is twice as efficient as doing so from a prerouting chain \citep{nftables:netdev}.
+\subsection{netdev filter}
 \paragraph{}
 A default netdev filter will be added to both LAN and WAN interfaces. It has to be added dynamically because both its ingress and egress filters require the name of the device. The filter accepts only ARP and IP packets to pass through. The firewall rules from other places already achieved the same thing but it is added because it is the earliest place to filter out a packet and the earlier a packet is filtered the less chance the packet to cause a problem.
 
 \section{On system startup}
 \paragraph{}
-Upon system startup, the dispatcher will be called by before-network.service. It will start two dmesg instances one is for redirecting firewall-related logs to a log file another is for formatting the log to a more human-readable form. In the iptables era, it was used for initializing iptables rules.
+Upon system startup, the dispatcher will be called by before-network.service. It will start two dmesg (see \cref{sec:dmesg}) instances one is for redirecting firewall-related logs to a log file another is for formatting the log to a more human-readable form. In the iptables era, it was used for initializing iptables rules.
 \paragraph{}
 Since the udev event could be triggered at a very early stage of the startup, so early that the nftables service may not be available, and adding rules may fail. The dispatcher tries to add a netdev filter on all available network instances again because the timing before-network.service is sufficient to ensure the availability of nftables.service.
 
@@ -681,7 +686,7 @@ Network activities of the firewall system are logged to multiple places by multi
     hood-http-handler.py & /var/log/hood-http-handler.log \\
     hood-tls-proxy       & /var/log/hood-tls-proxy.log    \\
     hood-dispatcher      & /var/log/hood-dispatcher.log   \\
-    nftables             & dmesg                          \\
+    nftables             & kernel ring buffer             \\
     \hline
   \end{tabular}
   \caption{Log locations of network services.}
@@ -1299,6 +1304,9 @@ AppArmor is a Linux Security Module implementation of name-based mandatory acces
 \paragraph{}
 It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
 
+\section{dmesg}{sec:dmesg}
+Dmesg is a linux command line tool that can print or control the kernel ring buffer.
+
 \section{dnsmasq}\label{sec:dnsmasq}
 Dnsmasq is a software that provides network infrastructure for small networks: DNS, DHCP, router advertisement and network boot.
 
@@ -1321,6 +1329,12 @@ Puppeteer is a Node.js library which provides a high-level API to control Chrome
 \section{RNDIS}\label{sec:RNDIS}
 \paragraph{}
 The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual Ethernet link to host OS.
+
+\section{systemd-udevd.service}\label{sec:systemd-udevd.service}
+\paragraph{}
+udev supplies the system software with device events, manages permissions of device nodes and may create additional symlinks in the /dev/ directory, or renames network interfaces.
+\paragraph{}
+The udev daemon, systemd-udevd.service(8), receives device uevents directly from the kernel whenever a device is added or removed from the system, or it changes its state. When udev receives a device event, it matches its configured set of rules against various device attributes to identify the device. Rules that match may provide additional device information to be stored in the udev database or to be used to create meaningful symlink names.
 
 \section{Wireshark}\label{sec:Wireshark}
 \paragraph{}
