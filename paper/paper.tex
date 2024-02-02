@@ -674,7 +674,7 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
 
 \chapter{Showing network activities}\label{cha:show}
 \paragraph{}
-Network activities of the firewall system are logged to multiple places by multiple services (see \cref{tab:network_log}). All logs are simplified to human-readable forms and aggregated to a tty device to let users access them easily. If the firewall was installed with the parameter harden\_only=1, aggregated logs will be sent to tty8, and if the installation parameter harden\_only was 0, aggregated logs will be sent to tty1.
+Network activities of the firewall system are logged to multiple places by multiple services (see \cref{tab:network_log}). All logs are simplified to human-readable forms and aggregated to a tty device to let users access them easily. If the firewall was installed with the parameter harden\_only=1, aggregated logs will be sent to tty8, and if the installation parameter harden\_only was 0, aggregated logs will be sent to tty1. The network activities caused by hood-actor.py (see \cref{cha:simulation}) will not be included in the aggregated log.
 \begin{table}[H]
   \centering
   \rowcolors{2}{tablegray}{}
