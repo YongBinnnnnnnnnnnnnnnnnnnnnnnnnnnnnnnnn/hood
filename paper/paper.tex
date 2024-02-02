@@ -65,19 +65,14 @@ morecomment=[l]{//s},
 \paragraph{}
 With the development of surveillance and management tools, people are losing control of their own devices. Here are some facts that the general public may underestimated the impacts of their combinations:
 
-\begin{table}[H]
-  \begin{enumerate}
-    \item Any device with a microphone (sometimes a speaker may do the same) can 'hear' sounds people are making around.
-    \item Any device with a camera can 'see' what is happening around.
-    \item Any device connected to internet can upload what they know and receive commands from remote.
-    \item Any device may have been hacked and functioning as not what they were designed.
-    \item Some devices are designed with surveillance functionality.
-  \end{enumerate}
-  \caption{Some facts}
-  \label{lst:facts}
-\end{table}
-Based on the facts above, some devices are naturally born with surveillance abilities. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is
-powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check \cref{lst:facts}. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universial Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network.
+\begin{enumerate}
+  \item Any device with a microphone (sometimes a speaker may do the same) can 'hear' sounds people are making around.
+  \item Any device with a camera can 'see' what is happening around.
+  \item Any device connected to internet can upload what they know and receive commands from remote.
+  \item Any device may have been hacked and functioning as not what they were designed.
+  \item Some devices are designed with surveillance functionality.
+\end{enumerate}
+Based on the facts above, some devices are naturally born with surveillance abilities. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universial Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network.
 \paragraph{}
 So many things are out of the control of the owners of the devices. People need something to restrict the management and to show what is happening to the network. The goal of this work is to help with that. It aims to increase the chance of survival of the user from hacking, eavesdropping, digital fingerprinting, and unwanted managements. It uses a screen to display selected real-time network activities. The system limits network activities and applies encryption standards.
 \paragraph{}
@@ -370,10 +365,16 @@ hood-http-handler.py is the proxy created to filter and protect HTTP plaintext c
 
 \section{Service exposure}
 \paragraph{}
-In some use cases, using HTTP and HTTPS alone is still not enough, other services need to be accessed from the internal of the firewall. Service exposure is designed to satisfy this requirement.
+Sometimes, using HTTP and HTTPS alone is still not enough, other services need to be accessed from the internal of the firewall. Service exposure is designed to satisfy this requirement.
 
 \subsection{Design}
 \paragraph{}
+To maximize protection, service exposure supports only exposing services from external to the internal of the firewall. Since the protocol is unknown, the flexiblity of the proxy is limited when comparing to HTTP/TLS proxies because it is impossible for the proxy to extract the host name from handshake packets and many protocols do not include the identification of the remote host in its handshake packets.
+
+\section{Implementation}
+\paragraph{}
+The service is implemented in a Python script named hood-expose.py.
+
 
 \chapter{Date time synchornization}
 \section{Introduction}
