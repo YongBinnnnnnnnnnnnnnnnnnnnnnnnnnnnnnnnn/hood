@@ -205,7 +205,7 @@ Network traffic should be forwarded by proxies instead of kernel. The following 
 
 \section{Implementation}
 \paragraph{}
-The balance between compatibility and security: To maximize compatibility, the firewall should allow everything to pass through it, but to maximize security, nothing should be able to pass through the firewall. As a balance, modern browsers can satisfy most of the needs for working. So, allowing only HTTP and HTTPS connections could make most of the work done when facing a hostile network environment.
+The balance between compatibility and security: To maximize compatibility, the firewall should allow everything to pass through it, regardless of protocol and destination, but to maximize security, nothing should be able to pass through the firewall. As a balance, modern browsers can satisfy most of the needs for working. So, allowing only HTTP and HTTPS connections could make most of the work done when facing a hostile network environment.
 \paragraph{}
 Nftables (see \cref{sec:nftables}) is integrated into modern Linux systems. It can classify and filter network traffic. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed for users to make DNS requests to the firewall device, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffic. All other packets are filtered as early as possible.
 \paragraph{}
@@ -256,7 +256,7 @@ From the network administrator's view, all DNS queries sent out from the firewal
 \section{Implementation}
 \subsection{Outgoing requests}
 \paragraph{}
-hood-name-service.py is a name-resolving service created to resolve domain name queries from firewall services. It is a local remote procedure call (RPC) service that resolves domain name queries via public DNS-over-HTTPS (DoH) services. DoH can mitigate both passive surveillance and DNS spoofing attacks\citep{rfc:doh8}. DNS-over-TLS (DoT) is another DNS encryption standard that can do almost the same as DoH. The advantage of DoH over DoT is that DoT uses a unique server port number, 853, that can be easily filtered and identified as an encrypted DNS connection, while DoH uses the same port number and protocol as HTTPS, which makes it much harder to be identified and filtered than DoT.
+The firewall system created hood-name-service.py to resolve domain name queries from other firewall services. It is a local remote procedure call (RPC) service that resolves domain name queries via public DNS-over-HTTPS (DoH) services. DoH can mitigate both passive surveillance and DNS spoofing attacks\citep{rfc:doh8}. DNS-over-TLS (DoT) is another DNS encryption standard that can do almost the same as DoH. The advantage of DoH over DoT is that DoT uses a unique server port number, 853, that can be easily filtered or identified as an encrypted DNS connection, while DoH uses the same port number and protocol as HTTPS, which makes it much harder to be identified or filtered.
 \subsection{Inside firewall}
 \paragraph{}
 A dnsmasq is started locally to resolve everything to localhost to make the firewall proxies system-wide.
