@@ -27,9 +27,9 @@ morecomment=[l]{//s},
 \advisor{Prof.}{Student's}{Advisor} %compulsory
 \coadvisor{Prof.}{Student's}{Co-Advisor}{} %optional
 \end{committee}
-\Day{Yesterday} %compulsory
-\Month{September} %compulsory
-\Year{2023} %compulsory, put only the year
+\Day{2} %compulsory
+\Month{February} %compulsory
+\Year{2024} %compulsory, put only the year
 \place{Lugano} %compulsory
 
 %\dedication{To my beloved} %optional
@@ -1001,7 +1001,11 @@ As the results of the second experiment, Wireshark captured plaintext requests a
 
 \subsection{Conclusions}
 \paragraph{}
-As conclusion, the "hood" firewall successfully protected against eavesdropping attacks targeting plaintext HTTP traffic and plaintext DNS traffic. It can also tell the user what certificates the remote endpoints are using and the fact that the firewall is connecting to that website.
+As conclusion, the "hood" firewall successfully protected against eavesdropping attacks targeting plaintext HTTP traffic and plaintext DNS traffic. It can also tell the user what certificates the remote endpoints are using and the fact that the firewall is connecting to that website
+
+\section{Management sofware}
+\paragraph{}
+The computer at the classroom has TeamViewer pre-installed. When using the computer without "hood" firewall, the TeamViewer shows "Ready to connect (secure connection)" in its status bar, after using "hood" firewall, its status bar changed to "Only LAN connections are possible". However, other person could not access the LAN behind the firewall and thus managing this computer via TeamViewer remotely is no more possible. It shows that "hood" firewall can block some management tools.
 
 \chapter{Conclusions}
 \paragraph{}
