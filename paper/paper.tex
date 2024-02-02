@@ -78,7 +78,7 @@ So many things are out of the control of the owners of the devices. People need 
 \paragraph{}
 Using hardware firewalls has several advantages over software firewalls. A hardware firewall is a physical device that plays the role of firewall, while software firewalls are usually software components that run inside a user's computer which also works for other purpose. Firstly, a hardware firewall runs completely independent to high-risk user devices, where unsafety thrives: CPU with possible hidden instruments, firmware with possible infections, motherboards with doubtable proprietary management technologies, and applications with possible surveillance or unpublished vulnerabilities. Second, it brings convenience to the user: the configuration of this portable device restricts everything behind it, so people do not need to do the time-consuming configuration work on different software and operating systems repeatedly. Third, it brings possibilities: Untrusting a built-in root certificate on mobile devices is hard and the methods with root or jailbreak involved may void the warranty. With the help of a firewall, managing certificates is no longer a problem.
 \paragraph{}
-This paragraph introduces the structure of this paper. In \cref{cha:hard}, The decisions behind the hardware and the operating system selection are explained, and the cost comparsion to commercial devices is included. The decisions behind how packets are forwarded are included in \cref{cha:packet}. In \cref{cha:dhcp,cha:dns,cha:tls}, the deficiency of the network protocols that are being used or allowed are discussed and the conter measurements are provided. In \cref{cha:plaintext}, we discuss how the firewall handle and process plaintext and other protocols. In \cref{cha:time}, the problem of using Network Time Protocol (NTP) is discussed and a new method to synchorize time between computer and internet is designed and implemented. In \cref{cha:simulation}, a command-line tool to simuluate network activities is designed and implemented. It is a tool being shipped with the firewall system but it needs to be executed manually by the user. In \cref{cha:dispatcher}, the dispatcher, the script to react to changes of the system, is introduced. The \cref{cha:install} explains how the firewall is installed to the base operating system and explains the reasons why some system files are modified. In \cref{cha:test} various attacks are used to test the firewall and the results show the success of protection.
+This paragraph introduces the structure of this paper. In \cref{cha:hard}, The decisions behind the hardware selection and the operating system selection are explained, and the cost comparsion to commercial devices is made. It proved the low-cost of this system. The general decisions about how packets are forwarded are included in \cref{cha:packet}. In \cref{cha:dhcp,cha:dns,cha:tls}, the deficiency of the network protocols that are being used or allowed are discussed and the conter measurements are provided. In \cref{cha:plaintext}, we discuss how the firewall handle and process plaintext and other protocols. In \cref{cha:time}, the problem of using Network Time Protocol (NTP) is discussed and a new method to synchorize time between computer and internet is designed and implemented. In \cref{cha:simulation}, a command-line tool to simuluate network activities is designed and implemented. It is a tool being shipped with the firewall system but it needs to be executed manually by the user. In \cref{cha:dispatcher}, the dispatcher, the script to react to changes of the system, is introduced. The \cref{cha:install} explains how the firewall is installed to the base operating system and explains the reasons why some system files are modified. In \cref{cha:test} various attacks are used to test the firewall and the results show the success of protection.
 
 \chapter{Hardware and operating system}\label{cha:hard}
 \section{Design}
@@ -195,7 +195,7 @@ Despite the firewall implemented in this paper is not a general-purpose firewall
 \paragraph{}
 In conclusion, Raspberry Pi 4B has sufficient hardware and software support to make it work as the USB device designed in the first section. Its price is also much lower than the majority of commercial firewalls. It is not the cheapest option that can fit the design, but it is a good choice after evaluating technical support and user base.
 
-\chapter{Packet filtering and forwarding}\label{cha:packet}
+\chapter{Packet filtering and forwarding in general}\label{cha:packet}
 \section{Design}
 \paragraph{}
 As the general principle, all traffic passed through firewall should be checked against eavesdropping. Plaintext protocols should be channeled through strong encryptions or discarded if unable to ensure their integrity. Firewall rules should filter out as much as possible and as early as possible because everything on the path of a packet is potentially vulnerable, and the less network traffic passed to the following components, the less chance a vulnerability can affect the firewall.
@@ -219,7 +219,7 @@ DHCP is widely used to dynamically assign an IP address to a new device connecte
 
 \subsection{The issue}
 \paragraph{}
-The issue is that information leaked by protocol can be used to identify the owner of the device. The host name of the device could be leaked to the network from the 'client identifier' option or the 'sname' field in the protocol.\citep{rfc:dhcp} If the name of a computer is straightforward enough, like "Yongbin's MacBook Pro", the network administrator will be able to know the name of the owner of the computer at first glance. The hardware address exposed to the network can also reveal more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reverse lookup the manufacturer and the manufacturer can help identify the owner. For example, the network administrator may use the prefix of a MAC address to find out that the manufacturer is company A and if company A only sells its products in Country B and if C is the only person who came from Country B then the chance that the device belongs to C would be high.
+The issue is that information leaked by protocol can be used to identify the owner of the device. The host name of the device could be leaked to the network from the 'client identifier' option or the 'sname' field in the protocol.\citep{rfc:dhcp} If the name of a computer is straightforward enough, like "Yongbin's MacBook Pro", the network administrator will be able to know the name of the owner of the computer at first glance. The hardware address exposed to the network can also reveal more information than just the address. Hardware address or Media Access Control (MAC) address can be used to reverse lookup the manufacturer and the manufacturer can help identify the owner. For example, the network administrator may use the prefix of a MAC address to find out that the manufacturer of the device is company A. If company A only sells its products in Country B and C is the only person who had ever been to Country B then the chance that the device belongs to C would be high.
 
 \section{Design}
 \paragraph{}
@@ -240,7 +240,7 @@ keywordstyle={\color{green}\bfseries}
 \paragraph{}
 NetworkManager is used to manage physical connections of the firewall. The MAC address randomization is done by NetworkManager by adding 'ethernet.cloned-mac-address=random' and 'wifi.cloned-mac-address=random' to the 'connection' section of NetworkManager.conf. The 'ifconfig interface link random' command can also randomize the MAC address of an interface manually.
 \paragraph{}
-Host names of the firewall device are randomly generated during the startup of the system. The relevant code is inside rc.local. The generated host name is crafted to look normal. The pattern of default computer names of Microsoft Windows and common names like iPad are used. Because the implementation of the DHCP client could also be vulnerable, AppArmor rules are applied to dhclient to mitigate this problem.
+Host names of the firewall device are randomly generated during the startup of the system. The relevant code is inside rc.local. The generated host name is crafted to look normal. The pattern of default computer names of Microsoft Windows and common names like iPad are used. Because the implementation of the DHCP client could also be vulnerable, AppArmor (see \cref{sec:AppArmor}) rules are applied to dhclient to mitigate this problem.
 \paragraph{}
 Dnsmasq is used to assign the IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
 
@@ -421,7 +421,7 @@ In this chapter, the goal of the firewall changed to leaking fake information in
 
 \section{Design}
 \paragraph{}
-A service to simulate different network activities is designed to solve this issue. The goal is to hide user network activities inside the flood of fake network activities to increase the difficulty of an analyzer to produce useful reports. However, the risk of using this service is to produce a false alarm immediately and make the user blocked for tethering, make the user fired for browsing unrelated websites, etc. To prevent the firewall from being compromised by browser vulnerabilities, browser-based simulation tools, like Puppeteer, should not be used for implementation. It should also make plaintext traffic to attract attention from attackers and eavesdroppers to make them less focused on the actual user traffic.
+A service to simulate different network activities is designed to solve this issue. The goal is to hide user network activities inside the flood of fake network activities to increase the difficulty of an analyzer to produce useful reports. However, the risk of using this service is to produce a false alarm immediately and make the user blocked for tethering, make the user fired for browsing unrelated websites, etc. To prevent the firewall from being compromised by browser vulnerabilities, browser-based simulation tools, like Puppeteer (see \cref{sec:Puppeteer}), should not be used for implementation. It should also make plaintext traffic to attract attention from attackers and eavesdroppers to make them less focused on the actual user traffic.
 
 \section{Implementation}
 \paragraph{}
@@ -1292,6 +1292,9 @@ And even further: the Google account of the email of my previous GitHub Account 
 \backmatter
 
 \chapter{Glossary} %optional
+\section{AppArmor}\label{sec:AppArmor}
+AppArmor is a Linux Security Module implementation of name-based mandatory access controls. AppArmor rules can confine program's access to files and POSIX 1003.1e capabilities.
+
 \section{CDC-ECM}\label{sec:CDC-ECM}
 \paragraph{}
 It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
@@ -1310,6 +1313,10 @@ dtbo means devicetree blob for overlay \citep{dtbo:android}. It is the compact b
 \section{nftables}\label{sec:nftables}
 \paragraph{}
 Nftables is the modern Linux kernel packet classification framework. It is available in Linux kernels >= 3.13.
+
+\section{Puppeteer}\label{sec:Puppeteer}
+\paragraph{}
+Puppeteer is a Node.js library which provides a high-level API to control Chrome/Chromium over the DevTools Protocol. It can automate form submission, do UI testing, and program keyboard input to browsers.
 
 \section{RNDIS}\label{sec:RNDIS}
 \paragraph{}
