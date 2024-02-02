@@ -6,7 +6,7 @@
 \usepackage{makecell}
 \usepackage{colortbl}
 \usepackage{pdflscape}
-
+\usepackage{caption}
 \usepackage{listings}
 
 \lstdefinelanguage{algebra}
@@ -16,6 +16,7 @@ sensitive=false,
 morecomment=[l]{//s},
 }
 
+\DeclareCaptionType{itemlist}[List][List of Lists]
 
 
 \title{Design and implementation of a firewall system for working in unsafe environments} %compulsory
@@ -65,13 +66,18 @@ morecomment=[l]{//s},
 \paragraph{}
 With the development of surveillance and management tools, people are losing control of their own devices. Here are some facts that the general public may underestimated the impacts of their combinations:
 
-\begin{enumerate}
-  \item Any device with a microphone (sometimes a speaker may do the same) can 'hear' sounds people are making around.
-  \item Any device with a camera can 'see' what is happening around.
-  \item Any device connected to internet can upload what they know and receive commands from remote.
-  \item Any device may have been hacked and functioning as not what they were designed.
-  \item Some devices are designed with surveillance functionality.
-\end{enumerate}
+\begin{itemlist}[H]
+  \begin{enumerate}
+    \item Any device with a microphone (sometimes a speaker may do the same) can 'hear' sounds people are making around.
+    \item Any device with a camera can 'see' what is happening around.
+    \item Any device connected to internet can upload what they know and receive commands from remote.
+    \item Any device may have been hacked and functioning as not what they were designed.
+    \item Some devices are designed with surveillance functionality.
+  \end{enumerate}
+  \captionof{itemlist}{Some facts to show the possibilities of surveillance}
+\end{itemlist}
+
+\paragraph{}
 Based on the facts above, many devices could be used as surveillance tools. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universial Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network. Besides, A person may accept rules of the management functionality, but the criminal will not tell the person when the functionality is misused.
 \paragraph{}
 So many things are out of the control of the owners of the devices. People need something to restrict the management and to show what is happening to the network. The goal of this work is to help with that. It aims to increase the chance of survival of the user from hacking, eavesdropping, digital fingerprinting, and unwanted managements. It uses a screen to display selected real-time network activities. The system limits network activities and applies encryption standards.
@@ -314,9 +320,9 @@ This paragraph explains how the proxy filters certificates. The key\_share exten
 \end{figure}
 
 \paragraph{}
-This paragraph explains how the proxy checks the ClientHello of TLS hanshake. Upon receiving ClientHello from a client, the proxy first checks the version of the protocol, and the supported\_versions extension to see if the client supports establishing a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, the proxy checks the ciphersuites field, if it contains none of the values listed in \cref{lst:tls-ciphersuites}, it will be considered unable to be safe and discarded \citep{rfc:bstprc}. If a ClientHello passed all of the security checks, the proxy will extract the Server Name Indication (SNI) from the ClientHello to determine the actual destination of the request. Strengthen the connection by modifying handshake packets without MITM is not possible because the HMAC of all handshake packets is used for encryption.
+This paragraph explains how the proxy checks the ClientHello of TLS hanshake. Upon receiving ClientHello from a client, the proxy first checks the version of the protocol, and the supported\_versions extension to see if the client supports establishing a safe TLS channel, TLS 1.1 and TLS 1.2 are the only allowed versions \citep{rfc:bstprc}, if a ClientHello shows that the client supports neither, it will be discarded. After the version check, the proxy checks the ciphersuites field, if it contains none of the values listed in list \ref{lst:tls-ciphersuites}, it will be considered unable to be safe and discarded \citep{rfc:bstprc}. If a ClientHello passed all of the security checks, the proxy will extract the Server Name Indication (SNI) from the ClientHello to determine the actual destination of the request. Strengthen the connection by modifying handshake packets without MITM is not possible because the HMAC of all handshake packets is used for encryption.
 
-\begin{table}[H]
+\begin{itemlist}[H]
   \begin{itemize}
     \item TLS\_ECDHE\_RSA\_WITH\_AES\_128\_GCM\_SHA256
     \item TLS\_ECDHE\_RSA\_WITH\_AES\_256\_GCM\_SHA384
@@ -326,9 +332,9 @@ This paragraph explains how the proxy checks the ClientHello of TLS hanshake. Up
     \item TLS\_AES\_256\_GCM\_SHA384
     \item TLS\_CHACHA20\_POLY1305\_SHA256
   \end{itemize}
-  \caption{Allowed cipher suites values}
+  \captionof{itemlist}{Allowed cipher suites values}
   \label{lst:tls-ciphersuites}
-\end{table}
+\end{itemlist}
 
 \paragraph{}
 Following content explains how the proxy resolve host names and select trusted endpoints. The proxy first checks if there are any cached trusted endpoints available, if not it uses a RPC call to hood-name-service.py to resolve the domain name. Then TLS handshakes following the same restrictions to the ClientHello check are made to all of the addresses returned from the name service. The handshake process will not only ensure remote endpoint meets the requirements (versions and ciphersuites) of applying the best practices described in rfc9325, it will also check whether the remote endpoint could provide a valid certificate of the hostname from a trusted CA of the firewall.
@@ -336,7 +342,7 @@ Following content explains how the proxy resolve host names and select trusted e
 This paragraph explains how the proxy checks the ServerHello of TLS hanshake. After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
 
 \section{Process view of traffic}
-\cref{fig:tls-process-view} shows how a TLS connection interacts with the whole firewall system.
+\cref{fig:tls-process-view} shows how a TLS connection are handled and interacted by different components in the whole firewall system.
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-tls-traffic.png}
   \caption{Process view of TLS traffic from user}
@@ -351,7 +357,7 @@ This paragraph explains how the proxy checks the ServerHello of TLS hanshake. Af
 Plaintext HTTP connections should be tunneled and encrpte through TLS proxy, if the remote server does not support encrypted connections, the request should fail.
 \subsection{Implementation}
 \paragraph{}
-hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocation List) servers. Only the connections to those servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. See \cref{fig:ocsp-process-view,fig:http-process-view}.
+hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocation List) servers. Only the connections to OCSP servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. \cref{fig:ocsp-process-view} shows how OCSP traffic are received, handled, and forwarded to remote server. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. \cref{fig:http-process-view} shows how other HTTP traffic are received, handled, and forwarded to remote server.
 
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-ocsp-traffic.png}
@@ -1281,7 +1287,7 @@ AppArmor is a Linux Security Module implementation of name-based mandatory acces
 \paragraph{}
 It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
 
-\section{dmesg}{sec:dmesg}
+\section{dmesg}\label{sec:dmesg}
 Dmesg is a linux command line tool that can print or control the kernel ring buffer.
 
 \section{dnsmasq}\label{sec:dnsmasq}
