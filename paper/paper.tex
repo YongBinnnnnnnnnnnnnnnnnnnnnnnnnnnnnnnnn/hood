@@ -72,13 +72,13 @@ With the development of surveillance and management tools, people are losing con
   \item Any device may have been hacked and functioning as not what they were designed.
   \item Some devices are designed with surveillance functionality.
 \end{enumerate}
-Based on the facts above, many devices could be used as surveillance tools. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universial Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network.
+Based on the facts above, many devices could be used as surveillance tools. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universial Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network. Besides, A person may accept rules of the management functionality, but the criminal will not tell the person when the functionality is misused.
 \paragraph{}
 So many things are out of the control of the owners of the devices. People need something to restrict the management and to show what is happening to the network. The goal of this work is to help with that. It aims to increase the chance of survival of the user from hacking, eavesdropping, digital fingerprinting, and unwanted managements. It uses a screen to display selected real-time network activities. The system limits network activities and applies encryption standards.
 \paragraph{}
 Using hardware firewalls has several advantages over software firewalls. A hardware firewall is a physical device that plays the role of firewall, while software firewalls are usually software components that run inside a user's computer which also works for other purpose. Firstly, a hardware firewall runs completely independent to high-risk user devices, where unsafety thrives: CPU with possible hidden instruments, firmware with possible infections, motherboards with doubtable proprietary management technologies, and applications with possible surveillance or unpublished vulnerabilities. Second, it brings convenience to the user: the configuration of this portable device restricts everything behind it, so people do not need to do the time-consuming configuration work on different software and operating systems repeatedly. Third, it brings possibilities: Untrusting a built-in root certificate on mobile devices is hard and the methods with root or jailbreak involved may void the warranty. With the help of a firewall, managing certificates is no longer a problem.
 \paragraph{}
-This paper explains the decisions behind the hardware and the operating system in \cref{cha:hard} and explains the decisions behind how packets are forwarded in \cref{cha:packet}. In \cref{cha:dhcp, cha:dns, cha:tls}, the deficiency of the protocols are explained and the solutions are provided. In \cref{cha:plaintext},
+This paragraph introduces the structure of this paper. In \cref{cha:hard}, The decisions behind the hardware and the operating system selection are explained, and the cost comparsion to commercial devices is included. The decisions behind how packets are forwarded are included in \cref{cha:packet}. In \cref{cha:dhcp,cha:dns,cha:tls}, the deficiency of the network protocols that are being used or allowed are discussed and the conter measurements are provided. In \cref{cha:plaintext}, we discuss how the firewall handle and process plaintext and other protocols. In \cref{cha:time}, the problem of using Network Time Protocol (NTP) is discussed and a new method to synchorize time between computer and internet is designed and implemented. In \cref{cha:simulation}, a command-line tool to simuluate network activities is designed and implemented. It is a tool being shipped with the firewall system but it needs to be executed manually by the user. In \cref{cha:dispatcher}, the dispatcher, the script to react to changes of the system, is introduced. The \cref{cha:install} explains how the firewall is installed to the base operating system and explains the reasons why some system files are modified. In \cref{cha:test} various attacks are used to test the firewall and the results show the success of protection.
 
 \chapter{Hardware and operating system}\label{cha:hard}
 \section{Design}
@@ -106,6 +106,7 @@ This paragraph explains the reasons of using Raspberry Pi. Since its first relea
 \paragraph{}
 Joy-IT RB-TFT3.5 was the only screen that I had. The dtbo file (see \cref{sec:dtbo}) of the Waveshare 35A screen also works with this hardware. Thus, the cheaper one in the market should be able to replace another. The resolution of 480x320 is enough for printing logs.
 
+\section{Cost comparison to the market}
 \subsection{Theory of the cost}
 \paragraph{}
 Commercial firewalls are usually more expensive than development boards that contain the same level of hardware functionality. On one hand, It's acceptable because they provided additional value through their software and services and all of the development and maintenance of the product, the service, and the company itself are costing money. On the other hand, it also indicates that an open-source solution would reduce the lower bound of the cost of accessing a hardware firewall.
@@ -377,7 +378,7 @@ To maximize protection, service exposure supports only exposing services from ex
 The service is implemented in a Python script named hood-expose.py.
 
 
-\chapter{Date time synchornization}
+\chapter{Date time synchornization}\label{cha:time}
 \section{Introduction}
 \paragraph{}
 A correct time is required for TLS protocol to check certificates. Network Time Protocol (NTP) is used by most modern systems to synchronize the clock with a remote server.
@@ -413,7 +414,7 @@ The tool is implemented in a Python script named hood-timesync.py. It accepts tw
   \label{tab:timesync_cmdarg}
 \end{table}
 
-\chapter{Network activity simulation}
+\chapter{Network activity simulation}\label{cha:simulation}
 \section{Introduction}
 \paragraph{}
 In this chapter, the goal of the firewall changed to leaking fake information instead of preventing the information leakage because the sad truth is that the combination of all efforts on those protocols is not enough when facing a more sophisticated network analysis. For example, the connections to Windows update servers and App Store servers can be used to detect Windows and Apple devices \citep{osandtether}, but the firewall has no reason to stop those connections. Apart from that, the domain name leaked from TLS handshakes can also tell the eavesdroppers what websites a person is viewing and then may infer what the person is doing. Virtual private networks (VPNs) may prevent that information from being captured by local eavesdroppers but VPNs also have an egress, where could have other eavesdroppers. Thus, when visiting internet websites, the leak of information is inevitable.
@@ -481,7 +482,7 @@ Action files are in JSON format. An action file contains an array of objects. Al
 
 \subsection{HoodExecutor}
 \paragraph{}
-HoodExecutor is a general-purpose multi-thread task executor for Python. It can run and schedule in parallel tasks that have dependency relationships and delay requirements. It has a thread pool of workers to execute tasks and a single thread for scheduling delayed tasks. It is required to simulate the paralleled requests sent out from real-world browsers without a third-party HTTP client based on asyncio. It is also the cornerstone of fulfilling all the execution requirements of the tasks and actions in an action file.
+HoodExecutor is a general-purpose multi-thread task executor written in Python. It is part of hood-actor.py It can run and schedule in parallel tasks that have dependency relationships and delay requirements. It has a thread pool of workers to execute tasks and a single thread for scheduling delayed tasks. It is required to simulate the paralleled requests sent out from real-world browsers without a third-party HTTP client based on asyncio. It is also the cornerstone of fulfilling all the execution requirements of the tasks and actions in an action file.
 
 \subsection{Browser}\label{sec:browser}
 \paragraph{}
@@ -556,7 +557,7 @@ The dispatcher only reacts to this event for the WAN port. It at first waits for
 \paragraph{}
 The dispatcher removes the firewall rules dynamically added for this instance and kills the dnsmasq instances for this interface.
 
-\chapter{Installation}
+\chapter{Installation}\label{cha:install}
 \paragraph{}
 Installation now can only be done from Linux. install.sh is the shell script that is in charge of the installation process. It copies and applies the scripts, executables, and configuration files to the target Raspberry Pi OS filesystem. It accepts the command line arguments listed in \cref{tab:install_arg}.
 
@@ -666,7 +667,7 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
 \end{landscape}
 
 
-\chapter{Showing network activities}
+\chapter{Showing network activities}\label{cha:show}
 \paragraph{}
 Network activities of the firewall system are logged to multiple places by multiple services (see \cref{tab:network_log}). All logs are simplified to human-readable forms and aggregated to a tty device to let users access them easily. If the firewall was installed with the parameter harden\_only=1, aggregated logs will be sent to tty8, and if the installation parameter harden\_only was 0, aggregated logs will be sent to tty1.
 \begin{table}[H]
@@ -724,7 +725,7 @@ One of the reasons to disable GPU is a stealthy GPU-based keylogger reported on 
 \paragraph{}
 As conclusion, most of decisions on disabling things are based on the analyzation of differnt security events and supported by numbers and related threats.
 
-\chapter{Penetration test}
+\chapter{Penetration test}\label{cha:test}
 \paragraph{}
 To be close to real-world application of this tool, a computer from the university classroom and my iPhone are used to test the firewall. The computer has remote management tools pre-installed and I do not have the administrator permissions to configure the computer or to install some protection tools. Thus, without the help from the firewall, there is very little I can do. Experiment data can be found from project GitHub repository \citep{hood:github}.
 
@@ -815,7 +816,7 @@ Who do you think you are? How dare you to give me suggestions like this? Your na
 
 \subsubsection{With MITM attack by DNS hijacking, with "hood" protection}
 \paragraph{}
-Next, test what happens to the victim with "hood" firewall. Steps are following. 1. Connect Raspberry Pi to computer by USB cable 2. Disconnect the Ethernet cable from computer 2 and connect it to Raspberry Pi. 3. Use following commands to give direct access to other websites but still attacking the wbsite sprunge.us.
+Next, test what happens to the victim with "hood" firewall. Steps are following. 1. Connect Raspberry Pi to computer by USB cable 2. Disconnect the Ethernet cable from computer 2 and connect it to Raspberry Pi. 3. Use following commands to give direct access to other websites but still attacking the website sprunge.us.
 \begin{lstlisting}[language={},frame=single,breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 - Computer 1, Terminal 3
 > sudo kill $(ps -ef |grep dnsmasq|grep yongbin -m 1|sed "s/\w* *//"|cut -d " " -s -f 1)
@@ -1016,7 +1017,7 @@ As conclusion, the "hood" firewall successfully protected against eavesdropping 
 \paragraph{}
 The computer at the classroom has TeamViewer pre-installed. When using the computer without "hood" firewall, the TeamViewer shows "Ready to connect (secure connection)" in its status bar, after using "hood" firewall, its status bar changed to "Only LAN connections are possible". However, other person could not access the LAN behind the firewall and thus managing this computer via TeamViewer remotely is no more possible. It shows that "hood" firewall can block some management tools.
 
-\chapter{Conclusions}
+\chapter{Conclusions}\label{cha:conclustion}
 \paragraph{}
 A working firewall system is designed and implemented during this work. It narrowed the attack surface by simplifing the hardware and by avoiding the use of high risk components. It mitigated many security flaws of existing network protcols by using creative solutions. The overall money cost of using this firewall is much lower than the median of popular firewall hardwares. The statistics of past security events explained the reason of some decisions behind the design by proving the high risk of browsers and wireless communications. The test results proved the difficulty for a victim to notice a MITM attack, proved the easiness of gathering information from network devices, proved the possiblity of eavesdropping, and proved the effectiveness of the protection provided by "hood" firewall against those attack. If I had more time or a better environment to work on this thesis, more content would have added to the paper. Current version could not show the full picture of this work.
 
