@@ -164,6 +164,7 @@ elif [ $machine = "Linux" ]; then
 fi
 sudo tee -a /etc/hosts <<EOF
 127.0.0.1 livecd
+127.0.0.1 parrot
 #0.0.0.0 firefox.settings.services.mozilla.com
 #0.0.0.0 contile.services.mozilla.com
 #0.0.0.0 shavar.services.mozilla.com
