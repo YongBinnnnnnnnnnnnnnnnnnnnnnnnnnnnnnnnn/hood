@@ -371,19 +371,6 @@ hood-http-handler.py is the proxy created to filter and protect HTTP plaintext c
   \label{fig:http-process-view}
 \end{figure}
 
-\section{Service exposure}
-\paragraph{}
-Sometimes, using HTTP and HTTPS alone is still not enough, other services need to be accessed from the internal of the firewall. Service exposure is designed to satisfy this requirement.
-
-\subsection{Design}
-\paragraph{}
-To maximize protection, service exposure supports only exposing services from external to the internal of the firewall. Since the protocol is unknown, the flexibility of the proxy is limited when comparing to HTTP/TLS proxies because it is impossible for the proxy to extract the host name from handshake packets and many protocols do not include the identification of the remote host in its handshake packets.
-
-\section{Implementation}
-\paragraph{}
-The service is implemented in a Python script named hood-expose.py.
-
-
 \chapter{Date time synchornization}\label{cha:time}
 \section{Introduction}
 \paragraph{}
