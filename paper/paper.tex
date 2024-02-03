@@ -927,17 +927,23 @@ db_nmap -Pn -A 10.10.6.64
 [*] Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 [*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 60.28 seconds
 
+# gather information from 445 port by scanning Server Message Block protocol
+
 msf6 auxiliary(scanner/smb/smb_version) > run
 
 [*] 10.10.6.64:445        - SMB Detected (versions:2, 3) (preferred dialect:SMB 3.1.1) (compression capabilities:LZNT1) (encryption capabilities:AES-128-GCM) (signatures:optional) (guid:{a77b41a6-e4e1-4033-8b65-bc9f0b5ff320}) (authentication domain:CAMPUS)
 [*] 10.10.6.64:           - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 
+# gather information from 3389 port by scanning Remote Desktop protocol
+
 msf6 auxiliary(scanner/rdp/rdp_scanner) > run
 
 [*] 10.10.6.64:3389       - Detected RDP on 10.10.6.64:3389       (name:USILU-3325) (domain:CAMPUS) (domain_fqdn:usilu.net) (server_fqdn:USILU-3325.usilu.net) (os_version:10.0.19041) (Requires NLA: Yes)
 [*] 10.10.6.64:3389       - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+
+# gather information from 135 port by scanning Microsoft Remote Procedure Call protocol
 
 msf6 auxiliary(scanner/dcerpc/tcp_dcerpc_auditor) > run
 
@@ -960,6 +966,7 @@ It shows that iOS devices could be identified by their unique opened port number
 The following are selected commands and outputs, full records are available from project GitHub repository \citep{hood:github}:
 
 \begin{lstlisting}[language={},frame=single,breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
+# scan opening ports
 db_nmap -Pn -A 10.42.0.171
 [*] Nmap: Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-22 22:40 UTC
 [*] Nmap: Nmap scan report for 10.42.0.171
