@@ -57,17 +57,6 @@ interface "ue0" {
   send host-name "$(LC_ALL=C tr -dc "a-zA-Z0-9\-"</dev/urandom|head -c $(jot -r 1 1 15))";
 }
 EOF
-sudo tee -a /etc/hosts <<EOF
-127.0.0.1 livecd
-#0.0.0.0 firefox.settings.services.mozilla.com
-#0.0.0.0 contile.services.mozilla.com
-#0.0.0.0 shavar.services.mozilla.com
-#0.0.0.0 content-signature-2.cdn.mozilla.net
-#0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
-0.0.0.0 safebrowsing.googleapis.com
-0.0.0.0 redirector.gvt1.com
-0.0.0.0 openvsxorg.blob.core.windows.net
-EOF
 
 if ! grep socks5 /usr/local/etc/pkg.conf; then
 sudo tee -a /usr/local/etc/pkg.conf <<EOF
@@ -123,6 +112,7 @@ if sudo -E pkg upgrade -y firefox; then
   sudo -E pkg -o INSTALL_AS_USER=true install -y tex-dvipsk
 fi
 elif [ $machine = "Linux" ]; then
+  sudo systemctl stop NetworkManager ntpd
   if ! mount | grep -q /tmp/yongb; then
     image_name="wct"$(LC_ALL=C tr -dc "A-Z0-9"</dev/urandom|head -c 4)".tmp"
     target=/media/$(whoami)/Windows/Windows/Temp/$image_name
@@ -172,3 +162,22 @@ elif [ $machine = "Linux" ]; then
     ln -s /media/$(whoami)/Windows/Windows/Temp ~/Downloads
   fi
 fi
+sudo tee -a /etc/hosts <<EOF
+127.0.0.1 livecd
+#0.0.0.0 firefox.settings.services.mozilla.com
+#0.0.0.0 contile.services.mozilla.com
+#0.0.0.0 shavar.services.mozilla.com
+#0.0.0.0 content-signature-2.cdn.mozilla.net
+#0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
+0.0.0.0 safebrowsing.googleapis.com
+0.0.0.0 redirector.gvt1.com
+0.0.0.0 openvsxorg.blob.core.windows.net
+0.0.0.0 alive.github.com
+0.0.0.0 collector.github.com
+0.0.0.0 im.qcloud.com
+0.0.0.0 web.sdk.qcloud.com
+0.0.0.0 wss.tim.qq.com
+0.0.0.0 arc.msn.com
+0.0.0.0 teams.events.data.microsoft.com
+0.0.0.0 webshell.suite.office.com
+EOF
