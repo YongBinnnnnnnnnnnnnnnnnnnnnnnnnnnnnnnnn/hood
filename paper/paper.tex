@@ -78,13 +78,13 @@ With the development of surveillance and management tools, people are losing con
 \end{itemlist}
 
 \paragraph{}
-Based on the facts above, many devices could be used as surveillance tools. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universial Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network. Besides, A person may accept rules of the management functionality, but the criminal will not tell the person when the functionality is misused.
+Based on the facts above, many devices could be used as surveillance tools. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universal Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network. Besides, A person may accept rules of the management functionality, but the criminal will not tell the person when the functionality is misused.
 \paragraph{}
 So many things are out of the control of the owners of the devices. People need something to restrict the management and to show what is happening to the network. The goal of this work is to help with that. It aims to increase the chance of survival of the user from hacking, eavesdropping, digital fingerprinting, and unwanted managements. It uses a screen to display selected real-time network activities. The system limits network activities and applies encryption standards.
 \paragraph{}
-Using hardware firewalls has several advantages over software firewalls. A hardware firewall is a physical device that plays the role of firewall, while software firewalls are usually software components that run inside a user's computer which also works for other purpose. Firstly, a hardware firewall runs completely independent to high-risk user devices, where unsafety thrives: CPU with possible hidden instruments, firmware with possible infections, motherboards with doubtable proprietary management technologies, and applications with possible surveillance or unpublished vulnerabilities. Second, it brings convenience to the user: the configuration of this portable device restricts everything behind it, so people do not need to do the time-consuming configuration work on different software and operating systems repeatedly. Third, it brings possibilities: Untrusting a built-in root certificate on mobile devices is hard and the methods with root or jailbreak involved may void the warranty. With the help of a firewall, managing certificates is no longer a problem.
+Using hardware firewalls has several advantages over software firewalls. A hardware firewall is a physical device that plays the role of firewall, while software firewalls are usually software components that run inside a user's computer which also works for other purpose. Firstly, a hardware firewall runs completely independent to high-risk user devices, where threat thrives: CPU with possible hidden instruments, firmware with possible infections, motherboards with doubtable proprietary management technologies, and applications with possible surveillance or unpublished vulnerabilities. Second, it brings convenience to the user: the configuration of this portable device restricts everything behind it, so people do not need to do the time-consuming configuration work on different software and operating systems repeatedly. Third, it brings possibilities: Distrusting a built-in root certificate on mobile devices is hard and the methods with root or jailbreak involved may void the warranty. With the help of a firewall, managing certificates is no longer a problem.
 \paragraph{}
-This paragraph introduces the structure of this paper. In \cref{cha:hard}, The decisions behind the hardware selection and the operating system selection are explained, and the cost comparsion to commercial devices is made. It proved the low-cost of this system. The general decisions about how packets are forwarded are included in \cref{cha:packet}. In \cref{cha:dhcp,cha:dns,cha:tls}, the deficiency of the network protocols that are being used or allowed are discussed and the conter measurements are provided. In \cref{cha:plaintext}, we discuss how the firewall handle and process plaintext and other protocols. In \cref{cha:time}, the problem of using Network Time Protocol (NTP) is discussed and a new method to synchorize time between computer and internet is designed and implemented. In \cref{cha:simulation}, a command-line tool to simuluate network activities is designed and implemented. It is a tool being shipped with the firewall system but it needs to be executed manually by the user. In \cref{cha:dispatcher}, the dispatcher, the script to react to changes of the system, is introduced. The \cref{cha:install} explains how the firewall is installed to the base operating system and explains the reasons why some system files are modified. In \cref{cha:test} various attacks are used to test the firewall and the results show the success of protection.
+This paragraph introduces the structure of this paper. In \cref{cha:hard}, The decisions behind the hardware selection and the operating system selection are explained, and the cost comparison to commercial devices is made. It proved the low-cost of this system. The general decisions about how packets are forwarded are included in \cref{cha:packet}. In \cref{cha:dhcp,cha:dns,cha:tls}, the deficiency of the network protocols that are being used or allowed are discussed and the counter measurements are provided. In \cref{cha:plaintext}, we discuss how the firewall handle and process plaintext and other protocols. In \cref{cha:time}, the problem of using Network Time Protocol (NTP) is discussed and a new method to synchronize time between computer and internet is designed and implemented. In \cref{cha:simulation}, a command-line tool to simulate network activities is designed and implemented. It is a tool being shipped with the firewall system but it needs to be executed manually by the user. In \cref{cha:dispatcher}, the dispatcher, the script to react to changes of the system, is introduced. The \cref{cha:install} explains how the firewall is installed to the base operating system and explains the reasons why some system files are modified. In \cref{cha:test} various attacks are used to test the firewall and the results show the success of protection.
 
 \chapter{Hardware and operating system}\label{cha:hard}
 \section{Design}
@@ -207,7 +207,7 @@ In conclusion, Raspberry Pi 4B has sufficient hardware and software support to m
 As the general principle, all traffic passed through firewall should be checked against eavesdropping. Plaintext protocols should be channeled through strong encryptions or discarded if unable to ensure their integrity. Firewall rules should filter out as much as possible and as early as possible because everything on the path of a packet is potentially vulnerable, and the less network traffic passed to the following components, the less chance a vulnerability can affect the firewall.
 
 \paragraph{}
-Network traffic should be forwarded by proxies instead of kernel. The following content explains the advantages of doing so. First, a proxy can run at the user level. When there is a vulnerability, a userland one naturally be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operating system firewalls well. When the rules are not strict enough, unexpected things may happen. For example, allowing any connection to 127.0.0.1 to succeed without a log, could cause potential problems if a malicious Dynamic Host Configuration Protocol (DHCP, see \cref{cha:dhcp}) server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee that allowed packets are used by the desired protocol. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols it can understand. For example, the chance of misconfigurations of a DNS proxy enabling HTTP requests to pass over that proxy is very rare. Attackers have to hack the firewall or create tunnels over those protocols to make their reverse shell bypass the firewall, which makes their operations more difficult. Third, the packets from the proxy are encoded again by the Linux network stack. Re-encoded packets have only Linux TCP and IP signatures, rendering fingerprinting techniques that target TCP and IP properties useless.
+Network traffic should be forwarded by proxies instead of kernel. The following content explains the advantages of doing so. First, a proxy can run at the user level. When there is a vulnerability, a userland one naturally be less harmful than a kernel one. Second, proxies are easier and also safer to configure. It's hard to configure operating system firewalls well. When the rules are not strict enough, unexpected things may happen. For example, allowing any connection to 127.0.0.1 to succeed without a log, could cause potential problems if a malicious Dynamic Host Configuration Protocol (DHCP, see \cref{cha:dhcp}) server assigned the address 127.0.0.1 to a physical network interface. Also, simply filtering packets by port numbers, addresses, and interfaces could not guarantee that allowed packets are used by the desired protocol. An attacker can simply let the receiving end of a reverse shell listen to an allowed port to bypass this kind of defense. By contrast, a proxy only works for the protocols it can understand. For example, the chance of the mistakes in configurations of a DNS proxy enabling HTTP requests to pass through that proxy is very rare. Attackers have to hack the firewall or create tunnels over those protocols to make their reverse shell bypass the firewall, which makes their operations more difficult. Third, the packets from the proxy are encoded again by the Linux network stack. Re-encoded packets have only Linux TCP and IP signatures, rendering fingerprinting techniques that target TCP and IP properties useless.
 
 \section{Implementation}
 \paragraph{}
@@ -246,7 +246,7 @@ keywordstyle={\color{green}\bfseries}
 \paragraph{}
 NetworkManager is used to manage physical connections of the firewall. The MAC address randomization is done by NetworkManager by adding 'ethernet.cloned-mac-address=random' and 'wifi.cloned-mac-address=random' to the 'connection' section of NetworkManager.conf. The 'ifconfig interface link random' command can also randomize the MAC address of an interface manually.
 \paragraph{}
-Host names of the firewall device are randomly generated during the startup of the system. The relevant code is inside rc.local. The generated host name is crafted to look normal. The pattern of default computer names of Microsoft Windows and common names like iPad are used. Because the implementation of the DHCP client could also be vulnerable, AppArmor (see \cref{sec:AppArmor}) rules are applied to dhclient to mitigate this problem.
+Host names of the firewall device are randomly generated during the startup of the system. The relevant code is inside rc.local. The generated host name is crafted to look normal. The pattern of default computer names of Microsoft Windows and common names like iPad are used. Because the implementation of the DHCP client could also be vulnerable, AppArmor (see \cref{sec:AppArmor}) rules are applied to dhclient (see \cref{sec:dhclient}) to mitigate this problem.
 \paragraph{}
 Dnsmasq is used to assign the IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
 
@@ -284,10 +284,10 @@ The problem is that most of TLS clients do not alert their users when the remote
 \paragraph{}
 Certificate pinning can prevent MITM attacks from a trusted CA. When the user knows the CA of the remote endpoint is A, if another CA does the MITM attack, the client could know that the certificate received is not the correct one because it is not issued by A. However, configuring certificate pinning to all the endpoints is hard and time-consuming for average users, and without a basic trusted environment, people are unable to know whether the configuration has been done correctly. Even if the configuration is correct, it is still not strange for an endpoint to switch to another CA. Thus, to a firewall, this technique cannot be used as a general solution to the issue.
 \paragraph{}
-Removing suspicious CAs from the trusted list could protect people from MITM attacks initiated by those CAs. However, some systems and devices do provide the function of untrusting a CA. For example, an iPhone needs a computer to enable such configuration and most Android devices do not provide such entry in settings.
+Removing suspicious CAs from the trusted list could protect people from MITM attacks initiated by those CAs. However, some systems and devices do provide the function of distrusting a CA. For example, an iPhone needs a computer to enable such configuration and most Android devices do not provide such entry in settings.
 \subsection{Design}
 \paragraph{}
-The firewall should trust only the CAs that are being widely used on the internet. It now respects th usage statistics of SSL certificate authorities for websites published by W3Techs \citep{cert:stat} with some exceptions added for my work. People should be able to further decide which certificates to trust. Consider untrust following CAs when making such decisions: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
+The firewall should trust only the CAs that are being widely used on the internet. It now respects th usage statistics of SSL certificate authorities for websites published by W3Techs \citep{cert:stat} with some exceptions added for my work. People should be able to further decide which certificates to trust. Consider distrust following CAs when making such decisions: the CAs of the place you are staying, the CAs of the place you come from, and their enemies and allies.
 \subsection{Implementation}
 \paragraph{}
 Since SSL pinning can only be used on a small number of endpoints by an advanced user who can clearly know what is this meant to be, it is not implemented now. Manually management of the certificate can be done by Linux commands. The certificates of all remote TLS endpoints are checked by TLS proxy.
@@ -297,13 +297,13 @@ Since SSL pinning can only be used on a small number of endpoints by an advanced
 The mismatch problem means the mismatch between the changing best current practice and the unchanged implementation. It occures whenever a public protocol standard updated to fix a problem. There are delays between the time of a deficiency of a protocol being published and the time when the majority of protocol implementations fixed the problem. A living example is the latest version of Python 3.12.1 released on December 2023, as part of its built-in libraries, the implementation of the function create\_default\_context() from the SSL library is still creating a context that supports TLS 1.0 and TLS 1.1 by default \citep{pyton:ssl}, while they have already been deprecated by the best practice rfc8996 since March 2021 \citep{rfc:notls11}.
 
 \subsection{Solution}
-An idea to save the clients that contain severe deficiencies is to attack their deficiencies and then hijack and channel their communication to remote endpoints through the TLS connection with the current best practices applied. Applying this methology to solve the downgrade attack of Secure Socket Layer (SSL) version 2.0 was the initial motivation of the works on the TLS proxy, but due to the drastic changes to the protocol since SSL 2.0, the final implementation is instead to use the proxy to check whether the best practice is applied.
+An idea to save the clients that contain severe deficiencies is to attack their deficiencies and then hijack and channel their communication to remote endpoints through the TLS connection with the current best practices applied. Applying this methodology to solve the downgrade attack of Secure Socket Layer (SSL) version 2.0 was the initial motivation of the works on the TLS proxy, but due to the drastic changes to the protocol since SSL 2.0, the final implementation is instead to use the proxy to check whether the best practice is applied.
 
 
 \section{Proxy}
 \subsubsection{Design}
 \paragraph{}
-The proxy should filter out the connnections that are negotiated to use cipher suites not recommended by RFC best practice by checking the handshake packets. It should also filter out the connections that are using certificates signed by CAs that are not trusted by the firewall system. So that even if the user device has a pre-installed malicious certificate, the certificate will be filtered by firewall and the MITM attack will fail.
+The proxy should filter out the connections that are negotiated to use cipher suites not recommended by RFC best practice by checking the handshake packets. It should also filter out the connections that are using certificates signed by CAs that are not trusted by the firewall system. So that even if the user device has a pre-installed malicious certificate, the certificate will be filtered by firewall and the MITM attack will fail.
 \paragraph{}
 The proxy should not use the MITM attack to decrypt SSL sessions. Despite using MITM attack to inspect or protect encrypted connections has been used in firewalls and proxies for many years \citep{fortigate:deepinspection}, the TLS proxy used in this firewall should not implement the same functionality. The reason is that when the firewall itself is compromised, the ability to decrypt TLS sessions will cause a disaster to the devices behind it: the attacker will be able to easily modify the encrypted data transferred over a MITM proxy while the devices behind the firewall will alert nothing about the modification. However, if the firewall could not do MITM attacks at all, the compromised firewall is still unable to see and modify encryptions, because the certificate verification of the devices behind this firewall is still working.
 \subsubsection{Implementation}
@@ -357,7 +357,7 @@ This paragraph explains how the proxy checks the ServerHello of TLS hanshake. Af
 Plaintext HTTP connections should be tunneled and encrpte through TLS proxy, if the remote server does not support encrypted connections, the request should fail.
 \subsection{Implementation}
 \paragraph{}
-hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of OCSP (Online Certificate Status Protocol) and CRL (Certificate Revocation List) servers. Only the connections to OCSP servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. Figure \ref{fig:ocsp-process-view} shows how OCSP traffic are received, handled, and forwarded to remote server. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. Figure \ref{fig:http-process-view} shows how other HTTP traffic are received, handled, and forwarded to remote server.
+hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of Online Certificate Status Protocol (OCSP) and Certificate Revocation List (CRL) servers. Only the connections to OCSP servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. Figure \ref{fig:ocsp-process-view} shows how OCSP traffic are received, handled, and forwarded to remote server. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. Figure \ref{fig:http-process-view} shows how other HTTP traffic are received, handled, and forwarded to remote server.
 
 \begin{figure}[H]
   \includegraphics[width=\textheight, angle=90]{graphics/puml/process-ocsp-traffic.png}
@@ -377,7 +377,7 @@ Sometimes, using HTTP and HTTPS alone is still not enough, other services need t
 
 \subsection{Design}
 \paragraph{}
-To maximize protection, service exposure supports only exposing services from external to the internal of the firewall. Since the protocol is unknown, the flexiblity of the proxy is limited when comparing to HTTP/TLS proxies because it is impossible for the proxy to extract the host name from handshake packets and many protocols do not include the identification of the remote host in its handshake packets.
+To maximize protection, service exposure supports only exposing services from external to the internal of the firewall. Since the protocol is unknown, the flexibility of the proxy is limited when comparing to HTTP/TLS proxies because it is impossible for the proxy to extract the host name from handshake packets and many protocols do not include the identification of the remote host in its handshake packets.
 
 \section{Implementation}
 \paragraph{}
@@ -398,7 +398,7 @@ Both the unique port number (UDP 123) and the unique domain names (time.windows.
 
 \section{Design}
 \paragraph{}
-Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response of an HTTP server to synchronize date time with acceptable accuracy. To hide from security detections, the attack vectors targeted to HTTP/HTTPS protocol usually do not want to make mistakes in the header. Even if an attacker targeted the method used by the hood firewall, It's hard to say whether this request is made for time synchronization. Thus the date field of an HTTP response is generally trustworthy.
+Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the response of an HTTP server to synchronize date time with acceptable accuracy. To hide from security detection, the attack vectors targeted to HTTP/HTTPS protocol usually do not want to make mistakes in the header. Even if an attacker targeted the method used by the hood firewall, It's hard to say whether this request is made for time synchronization. Thus the date field of an HTTP response is generally trustworthy.
 
 \section{Implementation}
 \paragraph{}
@@ -435,7 +435,7 @@ The service is implemented in a Python script named hood-actor.py. It can parse 
 
 \subsection{Action files}
 \paragraph{}
-Action files are in JSON format. An action file contains an array of objects. All objects in the array have a "type" field to let the parser know how to process it. Supported object types are descripted in \cref{tab:action_type,tab:properties_object,tab:task_object}.
+Action files are in JSON format. An action file contains an array of objects. All objects in the array have a "type" field to let the parser know how to process it. Supported object types are described in \cref{tab:action_type,tab:properties_object,tab:task_object}.
 
 \begin{table}[H]
   \centering
@@ -488,25 +488,25 @@ Action files are in JSON format. An action file contains an array of objects. Al
 
 \subsection{HoodExecutor}
 \paragraph{}
-HoodExecutor is a general-purpose multi-thread task executor written in Python. It is part of hood-actor.py It can run and schedule in parallel tasks that have dependency relationships and delay requirements. It has a thread pool of workers to execute tasks and a single thread for scheduling delayed tasks. It is required to simulate the paralleled requests sent out from real-world browsers without a third-party HTTP client based on asyncio. It is also the cornerstone of fulfilling all the execution requirements of the tasks and actions in an action file.
+HoodExecutor is a general-purpose multi-thread task executor written in Python. It is part of hood-actor.py It can run and schedule in parallel tasks that have dependency relationships and delay requirements. It has a thread pool of workers to execute tasks and a single thread for scheduling delayed tasks. It is required to simulate the paralleled requests sent out from real-world browsers without a third-party HTTP client based on the Python asynchronous I/O module asyncio. It is also the cornerstone of fulfilling all the execution requirements of the tasks and actions in an action file.
 
 \subsection{Browser}\label{sec:browser}
 \paragraph{}
-A fake browser is created to simulate network activities of browsing. It records the cookies specified in the HTTP response headers and sends them out like a real browser. It parses the HTML content of the webpage to extract the resources to be loaded and load them in parallel just like a real browser. It uses headers that are used by real browsers and uses different headers on different resources just like a real browser. Cookies are stored in memory and used in the running session. However, due to security concerns, and also to reduce the performance impacts caused by the actor, the fake browser will neither render the webpage nor evaluate scripts used by the webpage. The reasons are discussed in \cref{cha:events}.
+A fake browser is created to simulate network activities of browsing. It records the cookies specified in the HTTP response headers and sends them out like a real browser. It parses the HTML content of the web page to extract the resources to be loaded and load them in parallel just like a real browser. It uses headers that are used by real browsers and uses different headers on different resources just like a real browser. Cookies are stored in memory and used in the running session. However, due to security concerns, and also to reduce the performance impacts caused by the actor, the fake browser will neither render the web page nor evaluate scripts used by the web page. The reasons are discussed in \cref{cha:events}.
 
 \subsection{Hood action script}
 \paragraph{}
-A hood action script is a script to describe actions to be done to the actor. Each line of the script can be seen as three parts: namespaces, commands, and arguments. For example, \newline "hood:browser:goto:http://www.example.com". "hood:browser:" is to refer browser namespace from the hood namespace, "goto" is a command inside the browser namespace to tell the interpreter to use the browser to load a webpage. "http://www.example.com" is the parameter of the "goto" command. In this example, it represents the URL of the webpage to be loaded.
+A hood action script is a script to describe actions to be done to the actor. Each line of the script can be seen as three parts: namespaces, commands, and arguments. For example, \newline "hood:browser:goto:http://www.example.com". "hood:browser:" is to refer browser namespace from the hood namespace, "goto" is a command inside the browser namespace to tell the interpreter to use the browser to load a web page. "http://www.example.com" is the parameter of the "goto" command. In this example, it represents the URL of the web page to be loaded.
 \subsubsection{hood:browser:goto command}
 \paragraph{}
-Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \cref{sec:browser}) to load a URL. When the special value "random\_link" is used as the argument, the actor randomly picks a link from current webpage of the browser to go to, but nothing will be done if the current webpage contains no links.
+Its usage is "hood:browser:goto URL". Its effect is to use a fake browser (See \cref{sec:browser}) to load a URL. When the special value "random\_link" is used as the argument, the actor randomly picks a link from current web page of the browser to go to, but nothing will be done if the current web page contains no links.
 \subsubsection{hood:loop command}
 \paragraph{}
 Its usage is "hood:loop:CONDITION:COMMAND". It is used to declare a loop. Multiple conditions can be declared in the CONDITION part by syntax "key=value[,key=value]". Currently, only two types of conditions are implemented: "exit\_chance" and "delay". "exit\_chance" describes the chance of the loop to be stopped. "exit\_chance=0.33" means the loop has a 33\% chance of termination at the beginning of each loop, "0" means it will never have an end. "1" means the loop will never be executed. "delay" describes the range of delay between each loop. "delay=0-2.5" means the delay between each loop is from 0 seconds to 2.5 seconds. A Just-In-Time compiler is implemented to convert the CONDITION field into Python code. The COMMAND part is the hood action script to be executed in the loop.
 
 \subsection{Logical view}
 \paragraph{}
-\cref{fig:actor-logic-view} is the logical view of the hood-actor.py, it shows the calling relationship between different components. The program use load\_action function to load the action script and then calls play\_in\_action function which uses the HoodExecutor to schedule tasks in the action. The action tasks will call Actor class to evaluate scripts. The Actor class may call the Browser class to simuluate the browsing event. The Browser class uses HoodHTMLParser class to extract the resources need to be loaded for the webpage from HTML and then use HoodExecutor to load them in parallel.
+\cref{fig:actor-logic-view} is the logical view of the hood-actor.py, it shows the calling relationship between different components. The program use load\_action function to load the action script and then calls play\_in\_action function which uses the HoodExecutor to schedule tasks in the action. The action tasks will call Actor class to evaluate scripts. The Actor class may call the Browser class to simulate the browsing event. The Browser class uses HoodHTMLParser class to extract the resources need to be loaded for the web page from HTML and then use HoodExecutor to load them in parallel.
 \begin{figure}[H]
   \includegraphics[width=0.9\textwidth]{graphics/puml/actor.png}
   \caption{Logical view of hood-actor.py}
@@ -570,7 +570,7 @@ The dispatcher removes the firewall rules dynamically added for this instance an
 
 \chapter{Installation}\label{cha:install}
 \paragraph{}
-Installation now can only be done from Linux. install.sh is the shell script that is in charge of the installation process. It copies and applies the scripts, executables, and configuration files to the target Raspberry Pi OS filesystem. It accepts the command line arguments listed in \cref{tab:install_arg}.
+Installation now can only be done from Linux. install.sh is the shell script that is in charge of the installation process. It copies and applies the scripts, executables, and configuration files to the target Raspberry Pi OS file system. It accepts the command line arguments listed in \cref{tab:install_arg}.
 
 \begin{table}[H]
   \centering
@@ -593,7 +593,7 @@ Installation now can only be done from Linux. install.sh is the shell script tha
 
 \section{Checking target system}
 \paragraph{}
-Multiple checks to the target path are done before the beginning of the installation process to avoid potential harm to the user's computer when a wrong path is used. It first checks the type of the target, if the target path is not a directory target will be treated as a device or file and will be mounted as the pattern of a live system of Raspberry Pi OS. If the target is a file, then the target will be mounted as a disk image. If the target does not exist, "/dev/" prefix will be added and will be treated as a name of a device. Then if the content of /boot/firmware/config.txt of the target does not contain the string "dtparam", the target will not be treated as a Raspberry Pi OS filesystem and the installation process will be aborted.
+Multiple checks to the target path are done before the beginning of the installation process to avoid potential harm to the user's computer when a wrong path is used. It first checks the type of the target, if the target path is not a directory target will be treated as a device or file and will be mounted as the pattern of a live system of Raspberry Pi OS. If the target is a file, then the target will be mounted as a disk image. If the target does not exist, "/dev/" prefix will be added and will be treated as a name of a device. Then if the content of /boot/firmware/config.txt of the target does not contain the string "dtparam", the target will not be treated as a Raspberry Pi OS file system and the installation process will be aborted.
 
 \section{Disable wireless}
 \paragraph{}
@@ -610,7 +610,7 @@ Multiple methods are used to ensure the complete disablement of wireless devices
     /etc/modprobe.d/bin-y-disable-wireless-blacklist.conf & blacklist bluetooth\newline blacklist btbcm\newline blacklist hci\_uart\newline blacklist i2c\_brcmstb\newline blacklist i2c\_dev\newline blacklist brcmfmac\newline blacklist brcmutil\newline blacklist cfg80211 \\
     \hline
   \end{tabular}
-  \caption{Configurations added to target to disable wireless}
+  \caption{Configurations added to disable wireless}
   \label{tab:config_disable_wireless}
 \end{table}
 
@@ -639,7 +639,7 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
     /etc/modprobe.d/bin-y-disable-gpu-blacklist.conf & Added:\newline blacklist v3d\newline blacklist drm\newline blacklist drm\_panel\_orientation\_quirks \\
     \hline
   \end{tabular}
-  \caption{Configurations modified to target to disable GPU}
+  \caption{Configurations modified to disable GPU}
   \label{tab:config_disable_gpu}
 \end{table}
 
@@ -672,7 +672,7 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
       files related to systemd services                                                        & OMITTED                                                                                                             & enable hood services, enable required system services, and disable unsafe services \\
       \hline
     \end{tabular}
-    \caption{Configurations modified to target to disable GPU}
+    \caption{Other configurations modified}
     \label{tab:other_config}
   \end{table}
 \end{landscape}
@@ -734,7 +734,7 @@ One of the reasons to disable GPU is a stealthy GPU-based keylogger reported on 
 
 \section{Conclusions}
 \paragraph{}
-As conclusion, most of decisions on disabling things are based on the analyzation of differnt security events and supported by numbers and related threats.
+As conclusion, most of decisions on disabling things are based on the analyzation of different security events and supported by numbers and related threats.
 
 \chapter{Penetration test}\label{cha:test}
 \paragraph{}
@@ -878,7 +878,7 @@ No endpoints sprunge.us
 
 \subsection{Conclusions}
 \paragraph{}
-The experiment records show that the "hood" firewall can help a victim to bypass simple DNS hijacking couducted by network providers, the "hood" firewall could not protect the victim from IP hijacking but if the attacker wants to decrypt the TLS connection, even if the root certificate has been trusted by the victims computer, the "hood" firewall can still alert the victim and block the connection. However, without this firewall, the victim of the attacks could see nothing while using software tools normally.
+The experiment records show that the "hood" firewall can help a victim to bypass simple DNS hijacking conducted by network providers, the "hood" firewall could not protect the victim from IP hijacking but if the attacker wants to decrypt the TLS connection, even if the root certificate has been trusted by the victims computer, the "hood" firewall can still alert the victim and block the connection. However, without this firewall, the victim of the attacks could see nothing while using software tools normally.
 
 \section{Information gathering by metasploit}
 \subsection{Experiment tools}
@@ -887,7 +887,7 @@ Following devices are used in the experiment: A computer running live Kali Linux
 
 \subsection{Information gathering from university computer}
 \paragraph{}
-The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
+The following are selected commands and outputs, full records are available from project GitHub repository \citep{hood:github}:
 
 \begin{lstlisting}[language={},frame=single,breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 # first, scan opening ports
@@ -954,10 +954,10 @@ Following materials are used in the experiment: A computer running live Kali Lin
 \paragraph{}
 The prepare steps are following. First, boot the computer into Kali Linux live environment. Then enable tethering on iPhone and connect it to the computer. Then press the "Trust" button on the confirmation dialog. Then use following command from metasploit framework.
 \paragraph{}
-It shows that iOS devices could be identified by their uniuqe opened port numbers: 49152 and 62078.
+It shows that iOS devices could be identified by their unique opened port numbers: 49152 and 62078.
 
 \subsection{Information gathering from "hood" firewall}
-The following are selected commands and outputs, full records are availible from project GitHub repository \citep{hood:github}:
+The following are selected commands and outputs, full records are available from project GitHub repository \citep{hood:github}:
 
 \begin{lstlisting}[language={},frame=single,breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}]
 db_nmap -Pn -A 10.42.0.171
@@ -980,11 +980,11 @@ Following tools are used in the experiment: A computer running live Kali Linux f
 
 \subsection{Experiment steps}
 \paragraph{}
-Two environments were used to check the protection of "hood" firewall against evaesdropping.
+Two environments were used to check the protection of "hood" firewall against eavesdropping.
 \paragraph{}
-First, check what network packetscan be captured by eavesdroppers under the protection of "hood" firewall. The experiment steps on eavesdropping attack are following. First, connect the computer to internet shared by the smartphone. Then create a shared network on the network interface of the Ethernet port (Advanced Network Configuration -> Wired connection 1 -> IPv4 Settings Method Shared to other computers, IPv6 Settings disabled). Then, use Wireshark to capture on the interface of the shared network. Then use the cable connect the Ethernet port of the Raspberry Pi to the Ethernet port of the computer. Then, execute the command "curl example.com" on Raspberry Pi.
+First, check what network packet be captured by eavesdroppers under the protection of "hood" firewall. The experiment steps on eavesdropping attack are following. First, connect the computer to internet shared by the smartphone. Then create a shared network on the network interface of the Ethernet port (Advanced Network Configuration -> Wired connection 1 -> IPv4 Settings Method Shared to other computers, IPv6 Settings disabled). Then, use Wireshark to capture on the interface of the shared network. Then use the cable connect the Ethernet port of the Raspberry Pi to the Ethernet port of the computer. Then, execute the command "curl example.com" on Raspberry Pi.
 \paragraph{}
-Second experiment is made for comparsion. Use the Wireshark to capture on Kali Linux with internet connected and execute the command "curl example.com".
+Second experiment is made for comparison. Use the Wireshark to capture on Kali Linux with internet connected and execute the command "curl example.com".
 
 \subsection{Experiment results}
 \paragraph{}
@@ -1001,18 +1001,18 @@ As the results of the second experiment, Wireshark captured plaintext requests a
 \paragraph{}
 As conclusion, the "hood" firewall successfully protected against eavesdropping attacks targeting plaintext HTTP traffic and plaintext DNS traffic. It can also tell the user what certificates the remote endpoints are using and the fact that the firewall is connecting to that website
 
-\section{Management sofware}
+\section{Management software}
 \paragraph{}
 The computer at the classroom has TeamViewer pre-installed. When using the computer without "hood" firewall, the TeamViewer shows "Ready to connect (secure connection)" in its status bar, after using "hood" firewall, its status bar changed to "Only LAN connections are possible". However, other person could not access the LAN behind the firewall and thus managing this computer via TeamViewer remotely is no more possible. It shows that "hood" firewall can block some management tools.
 
 \chapter{Conclusions}\label{cha:conclustion}
 \paragraph{}
-A working firewall system is designed and implemented during this work. It narrowed the attack surface by simplifing the hardware and by avoiding the use of high risk components. It mitigated many security flaws of existing network protcols by using creative solutions. The overall money cost of using this firewall is much lower than the median of popular firewall hardwares. The statistics of past security events explained the reason of some decisions behind the design by proving the high risk of browsers and wireless communications. The test results proved the difficulty for a victim to notice a MITM attack, proved the easiness of gathering information from network devices, proved the possiblity of eavesdropping, and proved the effectiveness of the protection provided by "hood" firewall against those attack. If I had more time or a better environment to work on this thesis, more content would have added to the paper. Current version could not show the full picture of this work.
+A working firewall system is designed and implemented during this work. It narrowed the attack surface by simplifying the hardware and by avoiding the use of high risk components. It mitigated many security flaws of existing network protocols by using creative solutions. The overall money cost of using this firewall is much lower than the median of popular firewall hardware. The statistics of past security events explained the reason of some decisions behind the design by proving the high risk of browsers and wireless communications. The test results proved the difficulty for a victim to notice a MITM attack, proved the easiness of gathering information from network devices, proved the possibility of eavesdropping, and proved the effectiveness of the protection provided by "hood" firewall against those attack. If I had more time or a better environment to work on this thesis, more content would have added to the paper. Current version could not show the full picture of this work.
 
 \section{Possible improvements for future}
 \subsection{LSM and seccomp}
 \paragraph{}
-Use LSMs, like AppArmor, and seccomp to protect as many processes as possible. The programs that do not support seccomp can be changed by LD\_LOAD\_LIBRARY.
+Use Linux Security Modules (LSMs), like AppArmor, and seccomp (see \cref{sec:seccomp}) to protect as many processes as possible. The programs that do not support seccomp can be changed by LD\_LOAD\_LIBRARY.
 
 \subsection{Compile time hardening}
 \paragraph{}
@@ -1187,7 +1187,7 @@ table arp filter {
 
 \chapter{The attacks encountered during the time I was working on this thesis}
 
-\section{Malicious hardwares}
+\section{Malicious hardware}
 \paragraph{}
 Normal attackers will use the network, Bluetooth, or WiFi for communications between malware and the host. For example, casting the screen to another device via WiFi or sending keyboard inputs via Bluetooth. Those kinds of attacks can be detected by an RF detector. RF shielding fabric, RF detectors, and signal jammers could be used to fight against such kinds of attacks.
 \paragraph{}
@@ -1273,7 +1273,7 @@ Another attack that can bypass a computer without a wireless device, is to use A
 
 \section{Direct physical access}
 \paragraph{}
-A lot of my storage medias were stolen, including USB sticks, MicroSD cards, and CDs. A police told me that he does not trust me and he failed to find the thief. Sometimes they also swap my stortage media with another one with the same look but with torjan installed while I'm absent.
+A lot of my storage medias were stolen, including USB sticks, MicroSD cards, and CDs. A police told me that he does not trust me and he failed to find the thief. Sometimes they also swap my storage media with another one with the same look but with torjan installed while I'm absent.
 \paragraph{}
 And even further: the Google account of the email of my previous GitHub Account was stolen. I have two-factor authenciation (2FA) enabled and the Google Authenticator was installed on an iPhone that only for 2FA authenticators. The iPhone does not have a SIM card inserted and only uses internet for updates. However, when the Google account was stolen, both the recovery email and the recovery phone were changed, but I received nothing to alert me. This kind of attack is unlikely to happen to ordinary people and my ordinary status makes it hard to believe.
 
@@ -1286,6 +1286,9 @@ AppArmor is a Linux Security Module implementation of name-based mandatory acces
 \section{CDC-ECM}\label{sec:CDC-ECM}
 \paragraph{}
 It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
+
+\section{dhclient}\label{sec:dhclient}
+Dhclient is a Linux command line Dynamic Host Configuration Protocol client.
 
 \section{dmesg}\label{sec:dmesg}
 Dmesg is a linux command line tool that can print or control the kernel ring buffer.
@@ -1312,6 +1315,10 @@ Puppeteer is a Node.js library which provides a high-level API to control Chrome
 \section{RNDIS}\label{sec:RNDIS}
 \paragraph{}
 The Remote Network Driver Interface Specification (RNDIS) is a Microsoft proprietary protocol. It provides a virtual Ethernet link to host OS.
+
+\section{seccomp}\label{sec:seccomp}
+\paragraph{}
+Seccomp is a computer security facility in the Linux kernel. seccomp allows a process to make a one-way transition into a "secure" state where it cannot make any system calls except exit, sigreturn, read and write to already-open file descriptors.
 
 \section{systemd-udevd.service}\label{sec:systemd-udevd.service}
 \paragraph{}
