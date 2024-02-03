@@ -548,15 +548,15 @@ For the WAN port network interface, the dispatcher allows UDP packets to be sent
 For LAN port network interfaces, the dispatcher at first picks a randomized start number \(\in [2, 255]\) as the third byte of the IPv4 address, and all following LAN ports use the result of \[2 + (Last Used Number - 1) \mod 254\] as the third byte. The randomization of the start number is made after each system starts. LAN subnet randomization could help increase the difficulty of malicious code in detecting the firewall from the LAN port.
 \paragraph{}
 After randomization, the following firewall rules are added:
-\begin{table}[H]
+\begin{itemlist}[H]
   \begin{itemize}
     \item Accept the incoming TCP connections through the LAN interface if the destination IP address is the LAN IP address and the destination port is 80 or 443. For hood-http-handler.py and hood-tls-proxy
     \item Accept the incoming UDP packets through the LAN interface if the destination IP address is the LAN IP address and the destination port is 53. For the dnsmasq instance.
     \item Allow UDP packets to be sent out from the local 67 port to the remote 68 port and to be received from the remote 68 port to the local 67 port. For the dnsmasq instance.
   \end{itemize}
-  \caption{Firewall rules to be added for LAN ports}
+  \captionof{itemlist}{Firewall rules to be added for LAN ports}
   \label{lst:LAN-rules}
-\end{table}
+\end{itemlist}
 \paragraph{}
 A dnsmasq instance is started for this network interface, to assign IP addresses to connected devices, to let connected devices use the IP address of the LAN port of the firewall as the DNS server, and to respond to the IP address of the firewall LAN port for DNS requests.
 
@@ -597,7 +597,7 @@ Multiple checks to the target path are done before the beginning of the installa
 
 \section{Disable wireless}
 \paragraph{}
-Multiple methods are used to ensure the complete disablement of wireless devices. See \cref{tab:config_disable_wireless,tab:delete_disable_wireless}.
+Multiple methods are used to ensure the complete disablement of wireless devices. See \cref{tab:config_disable_wireless} and list \ref{lst:delete_disable_wireless}.
 
 \begin{table}[H]
   \centering
@@ -614,19 +614,19 @@ Multiple methods are used to ensure the complete disablement of wireless devices
   \label{tab:config_disable_wireless}
 \end{table}
 
-\begin{table}[H]
+\begin{itemlist}[H]
   \begin{itemize}
     \item /lib/firmware/brcm/*
     \item find /lib/linux-image*/broadcom -type f
     \item find /usr/lib/modules/ -name bluetooth
   \end{itemize}
-  \caption{Files deleted from target to disable wireless}
-  \label{tab:delete_disable_wireless}
-\end{table}
+  \captionof{itemlist}{Files deleted from target to disable wireless}
+  \label{lst:delete_disable_wireless}
+\end{itemlist}
 
 \section{Disable GPU}
 \paragraph{}
-Multiple methods are used to ensure the complete disablement of GPU. See \cref{tab:config_disable_gpu,tab:delete_disable_gpu}.
+Multiple methods are used to ensure the complete disablement of GPU. See \cref{tab:config_disable_gpu} and list \ref{lst:delete_disable_gpu}.
 
 \begin{table}[H]
   \centering
@@ -643,13 +643,13 @@ Multiple methods are used to ensure the complete disablement of GPU. See \cref{t
   \label{tab:config_disable_gpu}
 \end{table}
 
-\begin{table}[H]
+\begin{itemlist}[H]
   \begin{itemize}
     \item Any directory under /usr/lib/modules/ with the name "gpu"
   \end{itemize}
-  \caption{Files deleted from target to disable GPU}
-  \label{tab:delete_disable_gpu}
-\end{table}
+  \captionof{itemlist}{Files deleted from target to disable GPU}
+  \label{lst:delete_disable_gpu}
+\end{itemlist}
 
 \begin{landscape}
   \section{Other configurations modified}
