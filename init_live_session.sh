@@ -181,6 +181,8 @@ sudo tee -a /etc/hosts <<EOF
 0.0.0.0 wss.tim.qq.com
 0.0.0.0 arc.msn.com
 0.0.0.0 teams.events.data.microsoft.com
+0.0.0.0 eu-office.events.data.microsoft.com
+0.0.0.0 eu-mobile.events.data.microsoft.com
 0.0.0.0 webshell.suite.office.com
 0.0.0.0 viewscreen.githubusercontent.com
 EOF
