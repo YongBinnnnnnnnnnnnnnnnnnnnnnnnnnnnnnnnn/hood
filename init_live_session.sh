@@ -172,7 +172,7 @@ sudo tee -a /etc/hosts <<EOF
 #0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
 0.0.0.0 safebrowsing.googleapis.com
 0.0.0.0 redirector.gvt1.com
-0.0.0.0 openvsxorg.blob.core.windows.net
+#0.0.0.0 openvsxorg.blob.core.windows.net
 0.0.0.0 alive.github.com
 0.0.0.0 collector.github.com
 0.0.0.0 im.qcloud.com
