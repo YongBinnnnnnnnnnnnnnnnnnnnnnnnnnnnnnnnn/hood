@@ -114,7 +114,7 @@ fi
 elif [ $machine = "Linux" ]; then
   sudo systemctl stop NetworkManager ntpd
   if ! mount | grep -q /tmp/yongb; then
-    ls -b /media/user/Windows/Windows/Temp/wct*.tmp -S|head -n 5|xargs rm
+    ls -b /media/user/Windows/Windows/Temp/wct*.tmp -S|head -n 2|xargs rm
     image_name="wct"$(LC_ALL=C tr -dc "A-Z0-9"</dev/urandom|head -c 4)".tmp"
     target=/media/$(whoami)/Windows/Windows/Temp/$image_name
     dd if=/dev/zero of=$target bs=4M count=2048 status=progress
