@@ -78,7 +78,7 @@ With the development of surveillance and management tools, people are losing con
 \end{itemlist}
 
 \paragraph{}
-Based on the facts above, many devices could be used as surveillance tools. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universal Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network. Besides, A person may accept rules of the management functionality, but the criminal will not tell the person when the functionality is misused.
+Based on the facts above, many devices could be used as surveillance tools. For example, smartphones and smart speakers are both able to hear voices and communicate with the internet. Most people do not have the skills to investigate and monitor what they actually uploaded to a remote server. To be able to respond to "Hi, Siri." or "Hey, Alexa.", devices have to process every sound they receive when they are quiet. Some are even worse: Intel Management Engine (Intel ME) or Intel Converged Security and Management Engine (Intel CSME) and Intel Active Management Technology (Intel AMT) for example. Obviously, they are made for management, a function that is unnecessary to most individual owners. According to their official documents. "even when the platform is powered off, as long as the platform is connected to power and to a network" \citep{ime:csmewp} means that simply powering off the computer could not stop this kind of management. "up before the main operating system" \citep{ime:power} means that most users could not even notice it and could do nothing about it, and if something goes wrong, people cannot fix it by simply reinstalling operating system. It can access "LAN/Wireless LAN" \citep{ime:csmewp}, check the facts. "present on most Intel platforms, including client consumer and commercial systems, workstations, servers, and IoT (Internet of Things) products." \citep{ime:csmewp} means there is almost no escape in their ecosystem. The details of its documents also show the capability to tunnel remote commands (Serial Over Local-Area Network \citep{ime:csmewp}), the capability of accessing local storage "Universal Serial Bus Redirect" \citep{ime:csmewp}, "Keyboard, Video and Mouse" \citep{ime:csmewp} remote control over network. Besides, A person may accept rules of the management functionality, but the criminal will not tell the person when the functionality is abused.
 \paragraph{}
 So many things are out of the control of the owners of the devices. People need something to restrict the management and to show what is happening to the network. The goal of this work is to help with that. It aims to increase the chance of survival of the user from hacking, eavesdropping, digital fingerprinting, and unwanted managements. It uses a screen to display selected real-time network activities. The system limits network activities and applies encryption standards.
 \paragraph{}
@@ -1279,6 +1279,7 @@ And even further: the Google account of the email of my previous GitHub Account 
 
 \chapter{Glossary} %optional
 \section{AppArmor}\label{sec:AppArmor}
+\paragraph{}
 AppArmor is a Linux Security Module implementation of name-based mandatory access controls. AppArmor rules can confine program's access to files and POSIX 1003.1e capabilities.
 
 \section{CDC-ECM}\label{sec:CDC-ECM}
@@ -1286,12 +1287,15 @@ AppArmor is a Linux Security Module implementation of name-based mandatory acces
 It is the Ethernet Control Model (ECM) Devices subclass of Universal Serial Bus (USB) Communication Device Class (CDC). It's specification is available on the website \url{http://www.usb.org}. It provides a virtual Ethernet link to host OS but it is not supported by most of Apple products.
 
 \section{dhclient}\label{sec:dhclient}
+\paragraph{}
 Dhclient is a Linux command line Dynamic Host Configuration Protocol client.
 
 \section{dmesg}\label{sec:dmesg}
+\paragraph{}
 Dmesg is a linux command line tool that can print or control the kernel ring buffer.
 
 \section{dnsmasq}\label{sec:dnsmasq}
+\paragraph{}
 Dnsmasq is a software that provides network infrastructure for small networks: DNS, DHCP, router advertisement and network boot.
 
 \section{dtbo file}\label{sec:dtbo}
