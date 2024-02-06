@@ -187,4 +187,7 @@ sudo tee -a /etc/hosts <<EOF
 0.0.0.0 viewscreen.githubusercontent.com
 0.0.0.0 stats.g.doubleclick.net
 0.0.0.0 www.google-analytics.com
+0.0.0.0 region1.google-analytics.com
+0.0.0.0 googlesyndication.com
+0.0.0.0 googletagmanager.com
 EOF
