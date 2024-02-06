@@ -48,7 +48,7 @@ morecomment=[l]{//s},
 
 \begin{abstract}
   \paragraph{}
-  Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities, encrypts some plaintext traffic, and alerts invalid certificates. It helps device owners take back control of their own devices. It is designed for someone who needs to work in unsafe environments. The system sacrificed some compatibility to pursue better security but still achieved a balance between security and convenience. Decisions are made by the combination of the analyzation to security events and my past experience. A sensitive target, like an investigative journalist, could be a potential user of this device. The firewall showed success protection against DNS hijacking, man-in-the-middle attacks, and port scanning. It successfully blocked some management tools, and decreased the data visibility to eavesdropping attacks.
+  Design and implementation of a firewall system based on Raspberry Pi. The firewall monitors network activities, encrypts some plaintext traffic, and alerts invalid certificates. It helps device owners take back control of their own devices. It is designed for someone who needs to work in unsafe environments. The system sacrificed some compatibility to pursue better security but still achieved a balance between security and convenience. Decisions are made by the combination of the analyzation to security events and my past experience. A sensitive target, like an investigative journalist, could be a potential user of this device. The firewall showed success protection against Domain Name System (DNS) hijacking, man-in-the-middle attacks, and port scanning. It successfully blocked some management tools, and decreased the data visibility to eavesdropping attacks.
 \end{abstract}
 
 \begin{acknowledgements}
@@ -265,10 +265,10 @@ From the network administrator's view, all DNS queries sent out from the firewal
 The firewall system created hood-name-service.py to resolve domain name queries from other firewall services. It is a local remote procedure call (RPC) service that resolves domain name queries via public DNS-over-HTTPS (DoH) services. DoH can mitigate both passive surveillance and DNS spoofing attacks\citep{rfc:doh8}. DNS-over-TLS (DoT) is another DNS encryption standard that can do almost the same as DoH. The advantage of DoH over DoT is that DoT uses a unique server port number, 853, that can be easily filtered or identified as an encrypted DNS connection, while DoH uses the same port number and protocol as HTTPS, which makes it much harder to be identified or filtered.
 \subsection{Inside firewall}
 \paragraph{}
-A dnsmasq is started locally to resolve everything to localhost to make the firewall proxies system-wide.
+A dnsmasq is started locally to do DNS hijacking to make the firewall proxies system-wide.
 \subsection{Incoming requests}
 \paragraph{}
-A dnsmasq is started to resolve everything to the firewall device to make the firewall proxies apply to devices behind it.
+A dnsmasq is started to do DNS hijacking to make the devices behind the firewall use the firewall proxies.
 
 \chapter{Transport Layer Security (TLS)}\label{cha:tls}
 
