@@ -118,7 +118,7 @@ fi
 
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/lib/hood/flags/harden_only
-else if [ $raspberrypi -eq 1 ]; then
+elif [ $raspberrypi -eq 1 ]; then
   cp ./boot/overlays/joy-IT-Display-Driver-35a-overlay.dtbo $prefix/boot/firmware/overlays/
   if ! grep -q dtoverlay=joy-IT-Display-Driver-35a-overlay $prefix/boot/firmware/config.txt; then
     sudo tee -a $prefix/boot/firmware/config.txt <<EOF
