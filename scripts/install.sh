@@ -22,7 +22,7 @@ wan_port_device_path="auto-built-in-eth"
 lodevice=""
 yongbin=0
 raspberrypi=1
-yongbin_live=0
+debian_live=0
 
 prefix=""
 target="/"
@@ -35,7 +35,7 @@ for arg in "$@"; do
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
     yongbin) yongbin=1;harden_only=1;;
-    yongbin_live) yongbin_live=1;raspberrypi=0;harden_only=1;yongbin=1;usb_tether=0;disable_wireless=0;disable_gpu=0;;
+    debian_live) debian_live=1;raspberrypi=0;harden_only=1;usb_tether=0;disable_wireless=0;disable_gpu=0;;
   esac
 done
 
@@ -93,7 +93,7 @@ fi
 
 echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
 
-if [ $yongbin_live -eq 0 ] && ! grep -q dtparam $prefix/boot/firmware/config.txt; then
+if [ $debian_live -eq 0 ] && ! grep -q dtparam $prefix/boot/firmware/config.txt; then
   echo "target location unlikely to be a raspberry pi system mount"
   exit 0
   if ! test -d $target; then
@@ -340,6 +340,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
   ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
   sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
+  echo "Targeting current system, you may need 'sudo systemctl soft-reboot' to make the firewall fully functional"
 fi
 
 
