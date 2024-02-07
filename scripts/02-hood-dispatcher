@@ -121,7 +121,7 @@ function revoke_dhcp_client_access_on(){
 
 function internet_access_on(){
   echo "internet access on " $1 | tee -a $logfile > $log_device
-  ip addr show eth0|grep inet -m 1|sed -r "s/    inet ([0-9\.]*).*/\1/">/tmp/hood/wan_ip
+  ip addr show $1|grep inet -m 1|sed -r "s/    inet ([0-9\.]*).*/\1/">/tmp/hood/wan_ip
   wan_ip=$(cat /tmp/hood/wan_ip)
   
   proxy_ports=$(load_proxy_ports)
