@@ -341,6 +341,10 @@ Following content explains how the proxy resolve host names and select trusted e
 \paragraph{}
 This paragraph explains how the proxy checks the ServerHello of TLS hanshake. After forwarding the ClientHello to the server, a ServerHello will be responded and the proxy will check the final result of the handshake applies to the best practice. If a naughty attacker made the negotiation result unsafe, TLS 1.0 or the cipher suite RSA\_WITH\_NULL\_MD5 for example, the connection will be blocked.
 
+\subsubsection{Known issue and solution}
+\paragraph{}
+A known issue is caused by some maverick servers is that they prefer some weaker ciphersuites while both ends supports a stronger ciphersuite. This preference makes the TLS connections to those servers will never success because the firewall disallow weak encryption but theoretically a safe connection is possible to be made to the server. To solve this issue, a script named chromium.sh is created. Tt can detect current installed chrome or chromium browser and run the browser with hardening parameters which include the parameter to disable the support of weak ciphersuites. The remote server's preference to those weak ciphersuites is nullified after the support to the prefered weak ciphersuite is removed from the browser, because the negotiation result from the server should not be choosing a ciphersuite that is not supported by the client.
+
 \section{Process view of traffic}
 \cref{fig:tls-process-view} shows how a TLS connection are handled and interacted by different components in the whole firewall system.
 \begin{figure}[H]
@@ -1002,6 +1006,12 @@ As conclusion, the "hood" firewall successfully protected against eavesdropping 
 \section{Management software}
 \paragraph{}
 The computer at the classroom has TeamViewer pre-installed. When using the computer without "hood" firewall, the TeamViewer shows "Ready to connect (secure connection)" in its status bar, after using "hood" firewall, its status bar changed to "Only LAN connections are possible". However, other person could not access the LAN behind the firewall and thus managing this computer via TeamViewer remotely is no more possible. It shows that "hood" firewall can block some management tools.
+
+\iffalse
+\section{Browser tracking}
+\paragraph{}
+#TODO https://coveryourtracks.eff.org/
+\fi
 
 \chapter{Conclusions}\label{cha:conclustion}
 \paragraph{}
