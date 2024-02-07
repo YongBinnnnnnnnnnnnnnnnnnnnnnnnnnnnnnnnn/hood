@@ -21,6 +21,8 @@ wan_port_device_path="auto-built-in-eth"
 #rpi2b "/sys/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0"
 lodevice=""
 yongbin=0
+raspberrypi=1
+yongbin_live=0
 
 prefix=""
 target="/"
@@ -33,6 +35,7 @@ for arg in "$@"; do
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
     yongbin) yongbin=1;harden_only=1;;
+    yongbin_live) yongbin_live=1;raspberrypi=0;harden_only=1;yongbin=1;usb_tether=0;disable_wireless=0;disable_gpu=0;;
   esac
 done
 
@@ -83,12 +86,14 @@ fi
 
 if file $prefix/usr/bin/ls| grep -q "armhf"; then
   target_instrument_set="armhf"
+elif file $prefix/usr/bin/ls| grep -q "x86-64"; then
+  target_instrument_set="x64"
 fi
 
 
 echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
 
-if ! grep -q dtparam $prefix/boot/firmware/config.txt; then
+if [ $yongbin_live -eq 0 ] && ! grep -q dtparam $prefix/boot/firmware/config.txt; then
   echo "target location unlikely to be a raspberry pi system mount"
   exit 0
   if ! test -d $target; then
@@ -113,7 +118,7 @@ fi
 
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/lib/hood/flags/harden_only
-else
+else if [ $raspberrypi -eq 1 ]; then
   cp ./boot/overlays/joy-IT-Display-Driver-35a-overlay.dtbo $prefix/boot/firmware/overlays/
   if ! grep -q dtoverlay=joy-IT-Display-Driver-35a-overlay $prefix/boot/firmware/config.txt; then
     sudo tee -a $prefix/boot/firmware/config.txt <<EOF
@@ -172,7 +177,7 @@ blacklist i2c_brcmstb
 blacklist i2c_dev
 EOF
 
-if ! grep -q enable_uart=0 $prefix/boot/firmware/config.txt; then
+if [ $raspberrypi -eq 1 ] && ! grep -q enable_uart=0 $prefix/boot/firmware/config.txt; then
     sudo tee -a $prefix/boot/firmware/config.txt <<EOF
 enable_uart=0
 EOF
@@ -263,12 +268,6 @@ sudo chmod 0644 $prefix/etc/pki/nssdb/*
 
 sudo mkdir -p $prefix/etc/skel/.pki/
 sudo cp -r $prefix/etc/pki/nssdb $prefix/etc/skel/.pki/
-if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
-  mkdir -p ~/.pki/
-  cp -r $prefix/etc/pki/nssdb ~/.pki/
-  sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
-  ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
-fi
 
 sudo chmod -x  $prefix/etc/*.conf
 sudocpcontent ./dhclient.conf $prefix/etc/dhcp/
@@ -334,6 +333,15 @@ sudo cp update_eeprom $prefix/
 sudo chmod +x $prefix/update_eeprom
 sudo ln -sf /update_eeprom $prefix/run_once
 #sudo touch $prefix/do_init
+
+if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
+  mkdir -p ~/.pki/
+  cp -r $prefix/etc/pki/nssdb ~/.pki/
+  sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
+  ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
+  sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
+fi
+
 
 if ! test -d $target; then
   sudo umount /tmp/hood-install/mnt/boot/firmware
