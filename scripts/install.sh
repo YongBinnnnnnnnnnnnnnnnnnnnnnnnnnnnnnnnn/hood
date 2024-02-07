@@ -318,6 +318,8 @@ if test -f $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.ser
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
   sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
   sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service
+  sudo rm $prefix/etc/systemd/system/ntp.service
+  sudo rm $prefix/etc/systemd/system/ntpd.service
   sudo rm $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service
 fi
 
@@ -339,6 +341,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   cp -r $prefix/etc/pki/nssdb ~/.pki/
   sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
   ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
+  sudo systemctl stop ntpd
   sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
   echo "Targeting current system, you may need 'sudo systemctl soft-reboot' to make the firewall fully functional"
 fi
