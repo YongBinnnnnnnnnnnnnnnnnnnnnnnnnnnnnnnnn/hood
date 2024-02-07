@@ -120,8 +120,7 @@ elif [ $machine = "Linux" ]; then
     dd if=/dev/zero of=$target bs=4M count=2048 status=progress
     mkdir -p /tmp/yongb
     mkfs.ext4 $target
-    sudo mount $target /tmp/yongb
-    
+    sudo mount -o uid=$(id --user),gid=$(id --group) $target /tmp/yongb
   fi
   target=/tmp/yongb
   sudo mkdir -p $target/usr/share/
@@ -147,11 +146,10 @@ elif [ $machine = "Linux" ]; then
     sudo mv /var/cache/apt $target/var/cache/
     sudo ln -s $target/var/cache/apt /var/cache/
   fi
-  sudo mkdir -p $target/hood/proxy/libs
+  mkdir -p $target/hood/proxy/libs
   if ! test -h proxy/libs; then
-    sudo rm -r proxy/libs
-    sudo ln -s $target/hood/proxy/libs proxy/libs
-    sudo chown $whoami proxy/libs
+    rm -r proxy/libs
+    ln -s $target/hood/proxy/libs proxy/libs
   fi
   mkdir -p /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi
   if ! test -h ~/.cache/Raspberry\ Pi; then
