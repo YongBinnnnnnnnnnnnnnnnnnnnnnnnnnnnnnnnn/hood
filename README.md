@@ -5,8 +5,9 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 ## Table of Contents
 1. [Status](#status)
 2. [Graphics to show the concept](#graphics-to-show-the-concept)
-3. [Installation](#installation)
-4. [License](#license)
+3. [Install to Raspberry Pi](#install-to-raspberry-pi)
+4. [Install to Debian](#install-to-debian)
+5. [License](#license)
 
 ## Status
 
@@ -31,7 +32,7 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 ![HTTP traffic graph](./paper/graphics/puml/process-http-traffic.png)
 ![TLS traffic graph](./paper/graphics/puml/process-tls-traffic.png)
 
-## Installation
+## Install to Raspberry Pi
 
 If you already know how to write raspberrypi os image to a SD card, goto step 3
 
@@ -89,6 +90,30 @@ Commandline options available to the install script:
 |debian_live           |N/A                |Install to live debian environment.                                                                                 |
 |target=               |/                  |The target root/device to install firewall.                                                                         |
 |wan_port_device_path= |auto-built-in-eth  |The path of the device to be used as WAN port. `auto-built-in-eth` means find built-in Ethernet port automatically. |
+
+## Install to Debian
+
+Hood firewall now is possible to be installed to debian-based Linux systems. This feature has been tested in the live environment of Parrot OS 6.0.
+
+### Step 1. Get Hood
+
+```shell
+git clone --depth=1 https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood.git
+```
+### Step 2. Install hood
+
+```shell
+cd hood/scripts
+./install.sh debian_live
+```
+
+### Step 3. Reboot
+If your are using a live environment created by an ISO image, you may want soft-reboot
+
+```shell
+sudo systemctl soft-reboot
+```
+In other situations, a regular reboot would be a better choice.
 
 ## License
 
