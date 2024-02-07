@@ -1,4 +1,7 @@
 #!/bin/bash
+if [ "$1" = "lo" ]; then
+  exit 0
+fi
 
 log_device=/dev/tty1
 if test -f /var/lib/hood/flags/harden_only; then
@@ -163,7 +166,7 @@ function is_wan_port() {
   fi
   if [ "${wan_port_path}" = "auto-built-in-eth" ]; then
     echo "Unable to find built-in Ethernet device, guessing eth0" | tee -a $logfile > $log_device
-    if [ "$1" = "eth0" ]; then
+    if [ "$1" = "eth0" ]||[ "$1" = "eno1" ]; then
       return 0
     fi
     return 1
