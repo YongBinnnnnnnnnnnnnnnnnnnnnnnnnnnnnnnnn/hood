@@ -269,6 +269,7 @@ sudo chmod 0644 $prefix/etc/pki/nssdb/*
 
 sudo mkdir -p $prefix/etc/skel/.pki/
 sudo cp -r $prefix/etc/pki/nssdb $prefix/etc/skel/.pki/
+sudo cp ../chromium.sh $prefix/etc/skel/Desktop/
 
 sudo chmod -x  $prefix/etc/*.conf
 sudocpcontent ./dhclient.conf $prefix/etc/dhcp/
@@ -343,6 +344,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   cp -r $prefix/etc/pki/nssdb ~/.pki/
   sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
   ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
+  cp ../chromium.sh ~/Desktop
   sudo systemctl stop ntpd
   sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
   sudo /etc/rc.local
