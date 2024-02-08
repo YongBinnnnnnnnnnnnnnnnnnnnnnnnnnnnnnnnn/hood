@@ -345,13 +345,15 @@ This paragraph explains how the proxy checks the ServerHello of TLS hanshake. Af
 \paragraph{}
 A known issue is caused by some maverick servers is that they prefer some weaker ciphersuites while both ends supports a stronger ciphersuite. This preference makes the TLS connections to those servers will never success because the firewall disallow weak encryption but theoretically a safe connection is possible to be made to the server. To solve this issue, a script named chromium.sh is created. Tt can detect current installed chrome or chromium browser and run the browser with hardening parameters which include the parameter to disable the support of weak ciphersuites. The remote server's preference to those weak ciphersuites is nullified after the support to the prefered weak ciphersuite is removed from the browser, because the negotiation result from the server should not be choosing a ciphersuite that is not supported by the client.
 
-\section{Process view of traffic}
-\cref{fig:tls-process-view} shows how a TLS connection are handled and interacted by different components in the whole firewall system.
-\begin{figure}[H]
-  \includegraphics[width=\textheight, angle=90]{graphics/puml/process-tls-traffic.png}
-  \caption{Process view of TLS traffic from user}
-  \label{fig:tls-process-view}
-\end{figure}
+\begin{landscape}
+  \section{Process view of traffic}
+  \cref{fig:tls-process-view} shows how a TLS connection are handled and interacted by different components in the whole firewall system.
+  \begin{figure}[H]
+    \includegraphics[width=.9\linewidth]{graphics/puml/process-tls-traffic.png}
+    \caption{Process view of TLS traffic from user}
+    \label{fig:tls-process-view}
+  \end{figure}
+\end{landscape}
 
 \chapter{Plaintext connections and other services}\label{cha:plaintext}
 
@@ -363,17 +365,19 @@ Plaintext HTTP connections should be tunneled and encrpte through TLS proxy, if 
 \paragraph{}
 hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of Online Certificate Status Protocol (OCSP) and Certificate Revocation List (CRL) servers. Only the connections to OCSP servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. Figure \ref{fig:ocsp-process-view} shows how OCSP traffic are received, handled, and forwarded to remote server. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. Figure \ref{fig:http-process-view} shows how other HTTP traffic are received, handled, and forwarded to remote server.
 
-\begin{figure}[H]
-  \includegraphics[width=\textheight, angle=90]{graphics/puml/process-ocsp-traffic.png}
-  \caption{Process view of OCSP over HTTP traffic from user}
-  \label{fig:ocsp-process-view}
-\end{figure}
+\begin{landscape}
+  \begin{figure}[H]
+    \includegraphics[width=\linewidth]{graphics/puml/process-ocsp-traffic.png}
+    \caption{Process view of OCSP over HTTP traffic from user}
+    \label{fig:ocsp-process-view}
+  \end{figure}
 
-\begin{figure}[H]
-  \includegraphics[width=\textheight, angle=90]{graphics/puml/process-http-traffic.png}
-  \caption{Process view of normal HTTP traffic from user}
-  \label{fig:http-process-view}
-\end{figure}
+  \begin{figure}[H]
+    \includegraphics[width=\linewidth]{graphics/puml/process-http-traffic.png}
+    \caption{Process view of normal HTTP traffic from user}
+    \label{fig:http-process-view}
+  \end{figure}
+\end{landscape}
 
 \chapter{Date time synchornization}\label{cha:time}
 \section{Introduction}
