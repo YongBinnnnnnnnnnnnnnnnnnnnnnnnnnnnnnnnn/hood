@@ -13,6 +13,6 @@ participant "Website"
 Computer <-> Router: Use Dynamic Host Configuration Protocol (DHCP)\nto obtain IP address, Domain Name System (DNS) server,\nand other network parameters
 Computer <-> DNS: Use DNS protocol to obtain the IP address of the website.
 Computer <-> Website: Use Transport Layer Security (TLS) protocol establish an encrypted channel.
-Computer <-> Website: Use Hypertext Transfer Protocol (HTTP) inside TLS channel to access website resources.
+Computer <-> Website: Use Hypertext Transfer Protocol (HTTP) inside the TLS channel to access website resources.
 
 @enduml
