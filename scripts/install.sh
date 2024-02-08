@@ -345,8 +345,8 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
   sudo systemctl stop ntpd
   sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
-  sudo chmod +x $prefix/etc/rc.local
-  echo "Targeting current system, you may need 'sudo systemctl soft-reboot' to make the firewall fully functional"
+  sudo /etc/rc.local
+  echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
 fi
 
 
