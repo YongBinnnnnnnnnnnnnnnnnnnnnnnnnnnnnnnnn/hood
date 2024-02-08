@@ -217,7 +217,7 @@ Nftables (see \cref{sec:nftables}) is integrated into modern Linux systems. It c
 \paragraph{}
 Different proxies and services are created to check connections, to forward traffic, and to apply encryptions. Details are included in the chapters of corresponding protocols. See \cref{fig:http-process-view,fig:ocsp-process-view,fig:tls-process-view}. Several configuration files are created for blocking IP subnets and domain names, they are used by proxies and services. See \cref{sec:domain_blacklist.txt,sec:ip_subnet_blacklist.txt,sec:allowed_tls_ports.txt}.
 
-\chapter{Dynamic Host Configuration Protocol (DHCP)}\label{cha:dhcp}
+\chapter{The use of Dynamic Host Configuration Protocol (DHCP) protocol}\label{cha:dhcp}
 
 \section{Introduction}
 \paragraph{}
@@ -250,7 +250,7 @@ Host names of the firewall device are randomly generated during the startup of t
 \paragraph{}
 Dnsmasq is used to assign the IP address of the users of the firewall it also tells the devices behind the firewall to use the firewall as the DNS resolver.
 
-\chapter{Domain Name System (DNS)}\label{cha:dns}
+\chapter{The use of Domain Name System (DNS) protocol}\label{cha:dns}
 
 \section{Introduction}
 DNS is a protocol that translates the human-readable domain names to the IP addresses of the remote server. The default configurations of many operating systems are to make plaintext requests, which could easily be monitored by simply recording the packets and could easily be attacked by methods like DNS spoofing.
@@ -270,7 +270,7 @@ A dnsmasq is started locally to do DNS hijacking to make the firewall proxies sy
 \paragraph{}
 A dnsmasq is started to do DNS hijacking to make the devices behind the firewall use the firewall proxies.
 
-\chapter{Transport Layer Security (TLS)}\label{cha:tls}
+\chapter{Processing Transport Layer Security (TLS) protocol}\label{cha:tls}
 
 \section{Management of certificates}
 
@@ -279,7 +279,7 @@ A dnsmasq is started to do DNS hijacking to make the devices behind the firewall
 Modern major operating systems manage a collection of selected trusted certificates issued by certificate authorities (CAs). Those certificates are used to prove the validity of a public key. When making a TLS connection, local applications check the path of the certificate provided by remote with a local trusted collection to ensure secure connections.
 \subsubsection{The issue}
 \paragraph{}
-The problem is that most of TLS clients do not alert their users when the remote website presents a different certificate, which gives CAs the power to do man-in-the-middle (MITM) attacks. Even if a CA has no intention to do evil, its private key could still have been stolen. Thus, none of them are strictly trustworthy. However, the whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and without TLS, things will only be worse.
+The problem is that most of TLS clients do not alert their users when the remote website presents a different certificate, which gives CAs the power to do man-in-the-middle (MITM) attacks. Even if a CA has no intention to do evil, its private key could still have been stolen. Thus, none of them are strictly trustworthy. However, whole TLS is based on it, if we trust none of those authorities, there will be almost no website we can use and without TLS, things will only be worse.
 \subsubsection{Exsting solutions}
 \paragraph{}
 Certificate pinning can prevent MITM attacks from a trusted CA. When the user knows the CA of the remote endpoint is A, if another CA does the MITM attack, the client could know that the certificate received is not the correct one because it is not issued by A. However, configuring certificate pinning to all the endpoints is hard and time-consuming for average users, and without a basic trusted environment, people are unable to know whether the configuration has been done correctly. Even if the configuration is correct, it is still not strange for an endpoint to switch to another CA. Thus, to a firewall, this technique cannot be used as a general solution to the issue.
@@ -357,7 +357,7 @@ A known issue is caused by some maverick servers that prefer some weaker ciphers
   \end{figure}
 \end{landscape}
 
-\chapter{Plaintext connections and other services}\label{cha:plaintext}
+\chapter{Handling plaintext connections}\label{cha:plaintext}
 
 \section{HTTP}
 \subsection{Design}
