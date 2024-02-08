@@ -211,7 +211,7 @@ Network traffic should be forwarded by proxies instead of kernel. The following 
 
 \section{Implementation}
 \paragraph{}
-The balance between compatibility and security: To maximize compatibility, the firewall should allow everything to pass through it, regardless of protocol and destination, but to maximize security, nothing should be able to pass through the firewall. As a balance, modern browsers can satisfy most of the needs for working. So, allowing only HTTP and HTTPS connections could make most of the work done when facing a hostile network environment.
+The balance between compatibility and security: To maximize compatibility, the firewall should allow everything to pass through it, regardless of protocol and destination, so any software can be used behind the firewall, but to maximize security, nothing should be able to pass through the firewall, so no malware will be able to transmit data through the firewall. As a balance, modern browsers can satisfy most of the needs for working. So, allowing only HTTP and HTTPS connections could make most of the work done when facing a hostile network environment.
 \paragraph{}
 Nftables (see \cref{sec:nftables}) is integrated into modern Linux systems. It can classify and filter network traffic. The firewall uses it to filter network packets. UDP 67 or 68 port and ARP packets are allowed for assigning IP addresses. UDP 53 is allowed for users to make DNS requests to the firewall device, TCP 80, and TCP 443 are allowed for HTTP and HTTPS traffic. All other packets are filtered as early as possible.
 \paragraph{}
