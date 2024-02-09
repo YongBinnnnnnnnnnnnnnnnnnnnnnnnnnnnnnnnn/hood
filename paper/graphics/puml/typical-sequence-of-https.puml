@@ -4,7 +4,7 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam componentStyle rectangle
 
-title The typical sequence of protocols being used for accesing a HTTPS website
+title The typical sequence of protocols being used for accessing a HTTPS website
 participant "Computer"
 participant "Router"
 participant "DNS server" as DNS
