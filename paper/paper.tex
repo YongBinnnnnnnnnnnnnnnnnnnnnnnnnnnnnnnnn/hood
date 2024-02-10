@@ -263,7 +263,7 @@ DNS is a protocol that translates the human-readable domain names to the IP addr
 
 \section{Design}
 \paragraph{}
-From the network administrator's view, all DNS queries sent out from the firewall should be encrypted. From the user's view, nothing should need be specially configured.
+From the network administrator's view, all DNS queries sent out from the firewall should be encrypted. From the user's view, nothing should need be specially configured. This protocol can also be used to receive data from remote, the data can be hidden inside CNAME records, TXT records, or even the IP address of the A record. Thus, users of the firewall should not be able to access a real DNS server.
 
 \section{Implementation}
 \subsection{Outgoing requests}
