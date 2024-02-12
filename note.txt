@@ -1,3 +1,4 @@
+TODO: check Whonix and Kicksecure
 TODO: find and copy the browser hardening script to this project
 
 SRV _kerberos._tcp.dc._msdcs.usilu.net
