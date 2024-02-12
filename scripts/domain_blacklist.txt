@@ -9,6 +9,9 @@ analytics\.[^\.]+\.com
 (.*\.)?google-analytics\.com
 (.*\.)?adsensecustomsearchads\.com
 (.*\.)?adservice\.google\.com
+
+(.*\.)?phortaub\.com
+
 (.*\.)?teamviewer\.com
 (.*\.)?alive\.github\.com
 (.*\.)?collector\.github\.com
