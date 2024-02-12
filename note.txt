@@ -1,3 +1,4 @@
+TODO: proxy IMAP/POP3 traffic
 TODO: check Whonix and Kicksecure
 TODO: find and copy the browser hardening script to this project
 
