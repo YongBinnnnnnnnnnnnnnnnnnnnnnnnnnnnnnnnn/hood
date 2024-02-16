@@ -257,8 +257,9 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
   if which update-ca-certificates; then
     sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
   else
-    echo "TODO"
-    #sed -e '/^[^!]/d' -e "s|\!|/usr/share/ca-certificates/|" $prefix/etc/ca-certificates.conf|xargs -I {} sh -c "ls $prefix/etc/ssl/certs/ -l | grep {}
+    for cert in $(ls $prefix/etc/ssl/certs/*.pem -b -1); do grep "$(realpath $cert|sed -e "s|.*ca-certificates/|\!|")" $prefix/etc/ca-certificates.conf -q && sudo rm -v $cert; done
+    sudo openssl rehash $prefix/etc/ssl/certs/
+    echo "TODO: ca-certificates.crt"
   fi
 fi
  
