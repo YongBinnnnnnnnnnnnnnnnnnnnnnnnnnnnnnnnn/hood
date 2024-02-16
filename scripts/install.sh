@@ -259,7 +259,7 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
   else
     for cert in $(ls $prefix/etc/ssl/certs/*.pem -b -1); do grep "$(realpath $cert|sed -e "s|.*ca-certificates/|\!|")" $prefix/etc/ca-certificates.conf -q && sudo rm -v $cert; done
     sudo openssl rehash $prefix/etc/ssl/certs/
-    echo "TODO: ca-certificates.crt"
+    ls $prefix/etc/ssl/certs/*.pem $prefix/etc/ssl/certs/*.crt -1|grep -v ca-certificates.crt|xargs cat>$prefix/etc/ssl/certs/ca-certificates.crt
   fi
 fi
  
