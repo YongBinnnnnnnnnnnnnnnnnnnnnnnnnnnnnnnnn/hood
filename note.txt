@@ -2,6 +2,7 @@ https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 TODO: proxy IMAP/POP3 traffic
 TODO: check Whonix and Kicksecure
 TODO: find and copy the browser hardening script to this project
+TODO: DNS CAA CRL OCSP
 
 SRV _kerberos._tcp.dc._msdcs.usilu.net
 https://www.qemu.org/docs/master/system/arm/raspi.html
