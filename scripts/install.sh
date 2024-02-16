@@ -258,6 +258,7 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
     sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
   else
     echo "TODO"
+    #sed -e '/^[^!]/d' -e "s|\!|/usr/share/ca-certificates/|" $prefix/etc/ca-certificates.conf|xargs -I {} sh -c "ls $prefix/etc/ssl/certs/ -l | grep {}
   fi
 fi
  
