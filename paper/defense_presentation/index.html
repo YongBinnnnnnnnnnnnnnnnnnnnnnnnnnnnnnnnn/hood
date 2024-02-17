@@ -155,32 +155,187 @@
 				</section>
 			</section>
 
-			</div>
+
+			<section>
+				<h2>First supported hardware: Raspberry Pi</h2>
+				<p>
+					Raspberry Pi 4B has sufficient hardware and software support to work as the USB device I wanted. Its
+					price is also much lower than the majority of commercial firewalls. It is not the cheapest option
+					that can fit the design, but it is a good choice after evaluating technical support and user base.
+				</p>
+			</section>
+
+			<section>
+				<h2>Typical sequence of protocols used when accessing a HTTPS website</h2>
+				<img alt="typical-sequence-of-https.png"
+					src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/typical-sequence-of-https.png">
+			</section>
+
+			<section>
+				<style>
+					#dhcp-float-image {
+						display: inline;
+						position: fixed;
+						top: 0;
+						left: 0;
+						margin-top: 0;
+					}
+
+					#dhcp-float-image-rectangle {
+						position: fixed;
+						top: 80px;
+						left: 35px;
+						margin-top: 0;
+						height: 60px;
+						width: 420px;
+						background-color: #f00;
+						opacity: 0.3;
+					}
+				</style>
+				<script>
+					function register_dhcp_slide_handler() {
+						Reveal.on('slidechanged', event => {
+							// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+							let image = document.querySelector("#dhcp-float-image");
+							if (event.currentSlide.querySelector("h2").innerText == "DHCP") {
+								if (image) {
+									return;
+								}
+								image = document.createElement("img");
+								image.src = "https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/typical-sequence-of-https.png";
+								image.id = "dhcp-float-image";
+								document.body.appendChild(image);
+								image = document.createElement("div");
+								image.id = "dhcp-float-image-rectangle";
+								document.body.appendChild(image);
+							} else {
+								console.log(image);
+								if (image) {
+									document.body.removeChild(image);
+									image = document.querySelector("#dhcp-float-image-rectangle");
+									document.body.removeChild(image);
+								}
+							}
+						});
+					}
+				</script>
+				<h2>DHCP</h2>
+				<div>
+					<p>Leakage</p>
+					<ul>
+						<li>MAC address -> <a href="https://www.wireshark.org/tools/oui-lookup.html">manufacturer</a> ->
+							owner</li>
+						<li>Hostname -> owner (YongBin's MacBook Pro)</li>
+					</ul>
+					<div id="dhcp-router-image-container">
+						<img id="dhcp-router-image"
+							src="https://static.tp-link.com/resources/UploadFiles/image006(7).jpg">
+					</div>
+					<p><small>Figure: what network adminisitor can see from a router <a
+								href="https://www.tp-link.com/us/support/faq/363/">source</a></small></p>
+					<style>
+						#dhcp-router-image-container {
+							display: inline-block;
+							width: 554px;
+							height: 120px;
+							overflow: hidden;
+						}
+
+						#dhcp-router-image {
+							float: right;
+							width: 100%;
+							height: 100%;
+							object-fit: none;
+							object-position: 0 30%;
+						}
+					</style>
+				</div>
+				<p>Solution: randomization</p>
+			</section>
+
+			<section>
+				<h2>Clever Quotes</h2>
+				<p>
+					These guys come in two forms, inline: <q
+						cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">The
+						nice thing about standards is that there are so many to choose from</q> and block:
+				</p>
+				<blockquote
+					cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
+					&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of
+					typewriters would
+					reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
+				</blockquote>
+			</section>
+
+			<section>
+				<h2>Speaker View</h2>
+				<p>There's a <a href="https://revealjs.com/speaker-view/">speaker view</a>. It includes a timer, preview
+					of the upcoming slide as well as your speaker notes.</p>
+				<p>Press the <em>S</em> key to try it out.</p>
+
+				<aside class="notes">
+					Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you
+					open the speaker notes window (hit 's' on your keyboard).
+				</aside>
+			</section>
+
+			<section>
+				<h2>Global State</h2>
+				<p>
+					Set <code>data-state="something"</code> on a slide and <code>"something"</code>
+					will be added as a class to the document element when the slide is open. This lets you
+					apply broader style changes, like switching the page background.
+				</p>
+			</section>
+
+			<section style="text-align: left;">
+				<h1>THE END</h1>
+				<p>
+					Project homepage: <a
+						href="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood">https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood</a>
+				</p>
+				<p>(YongBin + 32 'n's, 33 'n' in total)</p>
+			</section>
 
 		</div>
 
-		<script src="reveal.js/dist/reveal.js"></script>
-		<script src="reveal.js/plugin/zoom/zoom.js"></script>
-		<script src="reveal.js/plugin/notes/notes.js"></script>
-		<script src="reveal.js/plugin/search/search.js"></script>
-		<script src="reveal.js/plugin/markdown/markdown.js"></script>
-		<script src="reveal.js/plugin/highlight/highlight.js"></script>
-		<script>
+	</div>
+	<script src="reveal.js/dist/reveal.js"></script>
+	<script src="reveal.js/plugin/zoom/zoom.js"></script>
+	<script src="reveal.js/plugin/notes/notes.js"></script>
+	<script src="reveal.js/plugin/search/search.js"></script>
+	<script src="reveal.js/plugin/markdown/markdown.js"></script>
+	<script src="reveal.js/plugin/highlight/highlight.js"></script>
+	<script lang="javascript">
+		// Also available as an ES module, see:
+		// https://revealjs.com/initialization/
+		Reveal.initialize({
+			controls: true,
+			progress: true,
+			center: true,
+			hash: true,
+			slideNumber: true,
 
-			// Also available as an ES module, see:
-			// https://revealjs.com/initialization/
-			Reveal.initialize({
-				controls: true,
-				progress: true,
-				center: true,
-				hash: true,
-				slideNumber: true,
+			highlight: {
+				beforeHighlight: hljs => {
+					hljs.registerLanguage('trojanability', function () {
+						return {
+							case_insensitive: false, // language is case-insensitive
+							keywords: { keyword: 'camera microphone sms location call clipboard without steal token tokens evidence stream' },
+							contains: []
+						}
+					})
+				}
+			},
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
-			});
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
+		})
+		register_dhcp_slide_handler()
 
-		</script>
+	</script>
 
-	</body>
+</body>
+
 </html>
