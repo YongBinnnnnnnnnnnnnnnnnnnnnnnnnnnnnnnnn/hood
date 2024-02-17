@@ -1,75 +1,159 @@
 <!doctype html>
 <html lang="en">
 
-	<head>
-		<meta charset="utf-8">
+<head>
+	<meta charset="utf-8">
 
-		<title>Design and implementation of a firewall system for working in unsafe environments</title>
+	<title>Design and implementation of a firewall system for working in unsafe environments</title>
 
-		<meta name="author" content="Bin Yong">
+	<meta name="author" content="Bin Yong">
 
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<link rel="stylesheet" href="reveal.js/dist/reset.css">
-		<link rel="stylesheet" href="reveal.js/dist/reveal.css">
-		<link rel="stylesheet" href="reveal.js/dist/theme/black.css" id="theme">
+	<link rel="stylesheet" href="reveal.js/dist/reset.css">
+	<link rel="stylesheet" href="reveal.js/dist/reveal.css">
+	<link rel="stylesheet" href="reveal.js/dist/theme/black.css" id="theme">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css">
-		<style>
-            .reveal h3 {
-              text-transform: none;
-            }
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css">
+	<style>
+		.reveal h3 {
+			text-transform: none;
+		}
 
-            .reveal .slide-number {
-              font-size: 40px;
-              left: 8px;
-              right: unset;
-              bottom: 8px;
-            }
-        </style>
-	</head>
+		.reveal .slide-number {
+			font-size: 40px;
+			left: 8px;
+			right: unset;
+			bottom: 8px;
+		}
+	</style>
+</head>
 
-	<body>
+<body>
 
-		<div class="reveal">
+	<div class="reveal">
 
-			<!-- Any section element inside of this container is displayed as a slide -->
-			<div class="slides">
+		<!-- Any section element inside of this container is displayed as a slide -->
+		<div class="slides">
+			<section>
+				<h3>Design and implementation of a firewall system for working in unsafe environments</h3>
+				<p>Bin Yong</p>
+				<p>February 2024</p>
+			</section>
+
+			<section>
+				<h2>Acknowledgements</h2>
+				<p>
+					This document is licensed under Creative Commons BY-NC-ND 4.0.
+				</p>
+				<p>
+					<a
+						href="https://creativecommons.org/licenses/by-nc-nd/4.0/">https://creativecommons.org/licenses/by-nc-nd/4.0/</a>
+				</p>
+
+			</section>
+
+			<!-- Example of nested vertical slides -->
+			<section>
 				<section>
-					<h3>Design and implementation of a firewall system for working in unsafe environments</h3>
-					<p>Bin Yong</p>
-					<p>February 2024</p>
+					<h2>Introduction</h2>
+					<p>The title says "unsafe environment" but safety is actually a relative thing: whether an
+						environment
+						is safe depends on the threat model.</p>
+					<p>So it is a firewall system for anyone who cares.</p>
+					<br>
 				</section>
+				<section data-auto-animate>
+					<h2 data-id="code-title">Problems come from everywhere</h2>
 
-				<section>
-					<h2>Acknowledgements</h2>
-					<p>
-						This document is licensed under Creative Commons BY-NC-ND 4.0.
+					<p>On 2017, an attack to Amazon Echo can <span class="hljs-keyword">steal</span> customer
+						authentication
+						<span class="hljs-keyword">token and</span> can to <span class="hljs-keyword">stream</span> live
+						<span class="hljs-keyword">microphone</span> audio to remote <span
+							class="hljs-keyword">without</span> leaving physical <span
+							class="hljs-keyword">evidence</span>
+						of tampering and without altering the
+						functionality of the device <a
+							href="https://labs.withsecure.com/publications/alexa-are-you-listening">source here</a>.
 					</p>
+				</section>
+				<section data-auto-animate>
+					<h2 data-id="code-title">Problems come from everywhere</h2>
+					<p>A malware named DogeRat has following abilities in its free version <a
+							href="https://github.com/shivaya-dav/DogeRat">source here</a>.</p>
+					<pre data-id="code-animation"><code class="hljs lang-trojanability" data-trim data-line-numbers>
+						Real time
+						custom web view
+						notification reader
+						notification sender
+						show toast message on target device
+						receive information about simcard provider
+						vibrate target device
+						receive device location
+						receive all target message
+						send sms with target device to any number
+						send sms with target device to all of his/her contacts
+						recive all target contacts
+						receive list of all installedd apps in target device
+						capture main and front camera
+						capture microphone
+						receive last clipboard text
+						auto start after device boot
+						Keylogger
+						Beautiful telegram bot interface
+					</code></pre>
+				</section>
+				<section data-auto-animate>
+					<h2>Problems come from everywhere</h2>
 					<p>
-						<a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">https://creativecommons.org/licenses/by-nc-nd/4.0/</a>
+						And here is another named AndroRAT listed following features<a
+							href="https://github.com/karma9874/AndroRAT">source</a>
 					</p>
-
+					<pre data-id="code-animation"><code class="hljs lang-trojanability" data-trim data-line-numbers>
+					Full persistent backdoor
+					Invisible icon on install
+					Light weight apk which runs 24*7 in background
+					App starts automatically on boot up
+					Can record audio, video, take picture from both camera
+					Browse call logs and SMS logs
+					Get current location, sim card details ,ip, mac address of the device
+					</code></pre>
+				</section>
+				<section data-auto-animate>
+					<h2>Problems come from everywhere</h2>
+					<p>
+						Additionally, the one named Teardroid v4 has the ability of <span class="hljs-keyword">making
+							phone
+							calls</span> <a href="https://github.com/ScRiPt1337/Teardroid-phprat">source</a>
+					</p>
 				</section>
 
-				<!-- Example of nested vertical slides -->
 				<section>
-					<section>
-						<h2>Introduction</h2>
-						<p>The title says "unsafe environment" but safety is actually a relative thing: whether an environment is safe depends on the threat model.</p>
-						<p>So it is a firewall system for anyone who cares.</p>
-						<br>
-					</section>
-					<section>
-						<h2>Problems come from everywhere</h2>
-						<p>On 2017, an attack to Amazon Echo can steal customer authentication tokens and can to stream live microphone audio to remote without leaving physical evidence of tampering and without altering the functionality of the device</p>
-						<a href="https://labs.withsecure.com/publications/alexa-are-you-listening">source here</a>
-					</section>
+					<h2>What if I don't browse/click ...?</h2>
+					<p><span class="hljs-keyword">They don't need!</span></p>
+					<p>In 2023, BLASTPASS, NSO Group iPhone Zero-Click, Zero-Day Exploit Captured in the Wild <a
+							href="https://citizenlab.ca/2023/09/blastpass-nso-group-iphone-zero-click-zero-day-exploit-captured-in-the-wild/">source</a>
+					</p>
+					<p>In 2022, PWNYOURHOME, FINDMYPWN, and LATENTIMAGE, at least three exploit chains were used in
+						real-world attacks <a
+							href="https://citizenlab.ca/2023/04/nso-groups-pegasus-spyware-returns-in-2022/">source</a>
+					</p>
+					<p>In 2021, FORCEDENTRY, NSO Group iMessage Zero-Click Exploit Captured in the Wilda <a
+							href="https://citizenlab.ca/2021/09/forcedentry-nso-group-imessage-zero-click-exploit-captured-in-the-wild/">source</a>
+					</p>
 				</section>
+
+				<section>
+					<h2>Would be better to have something to monitor the network</h2>
+					<p>
+						TODO:HOOD PIC
+					</p>
+				</section>
+			</section>
 
 			</div>
 
