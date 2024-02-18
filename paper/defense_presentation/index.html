@@ -18,7 +18,8 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/black.min.css" id="theme">
 
 	<!-- Theme used for syntax highlighting of code -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/monokai.min.css">
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/monokai.min.css">
 	<style>
 		.reveal h3 {
 			text-transform: none;
@@ -171,7 +172,7 @@
 					src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/typical-sequence-of-https.png">
 			</section>
 
-			<section>
+			<section class="yongbin-dhcp">
 				<style>
 					#dhcp-float-image {
 						display: inline;
@@ -198,7 +199,7 @@
 						Reveal.on('slidechanged', event => {
 							// event.previousSlide, event.currentSlide, event.indexh, event.indexv
 							let image = document.querySelector("#dhcp-float-image");
-							if (event.currentSlide.querySelector("h2").innerText == "DHCP") {
+							if (event.currentSlide.classList.contains("yongbin-dhcp")) {
 								if (image) {
 									return;
 								}
@@ -232,7 +233,7 @@
 						<img id="dhcp-router-image"
 							src="https://static.tp-link.com/resources/UploadFiles/image006(7).jpg">
 					</div>
-					<p><small>Figure: what network adminisitor can see from a router <a
+					<p><small>Figure: what network adminisitors can see from a router <a
 								href="https://www.tp-link.com/us/support/faq/363/">source</a></small></p>
 					<style>
 						#dhcp-router-image-container {
@@ -252,6 +253,87 @@
 					</style>
 				</div>
 				<p>Solution: randomization</p>
+			</section>
+
+			<section class="yongbin-dns">
+				<style>
+					#dns-float-image {
+						display: inline;
+						position: fixed;
+						top: 0;
+						left: 0;
+						margin-top: 0;
+						opacity: 0.5;
+					}
+
+					#dns-float-image-rectangle {
+						position: fixed;
+						top: 140px;
+						left: 35px;
+						margin-top: 0;
+						height: 30px;
+						width: 510px;
+						background-color: #f00;
+						opacity: 0.3;
+					}
+				</style>
+				<script>
+					function register_dns_slide_handler() {
+						Reveal.on('slidechanged', event => {
+							// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+							let image = document.querySelector("#dns-float-image");
+							if (event.currentSlide.parentNode.classList.contains("yongbin-dns")) {
+								if (image) {
+									return;
+								}
+								image = document.createElement("img");
+								image.src = "https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/typical-sequence-of-https.png";
+								image.id = "dns-float-image";
+								document.body.appendChild(image);
+								image = document.createElement("div");
+								image.id = "dns-float-image-rectangle";
+								document.body.appendChild(image);
+							} else {
+								console.log(image);
+								if (image) {
+									document.body.removeChild(image);
+									image = document.querySelector("#dns-float-image-rectangle");
+									document.body.removeChild(image);
+								}
+							}
+						});
+					}
+				</script>
+				<section>
+					<h2>DNS - Simplified</h2>
+					<small>Computer -> DNS server: The address of "domain" "Forbidden City" / "google.com"?</small>
+					<small>Computer <- DNS server: "Dongcheng District, Beijing, China" / "w.y.e.x" </small>
+				</section>
+				<section>
+					<h2>DNS - Leakage</h2>
+					<img src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/defense_presentation/images/dns-leak.png"
+						style="width:60%;">
+					<p><small>Figure: what network adminisitors can see from common DNS requests <a
+								href="https://wiki.wireshark.org/uploads/__moin_import__/attachments/SampleCaptures/dns.cap">source</a></small>
+					</p>
+				</section>
+				<section>
+					<h2>DNS - Attack</h2>
+					<small>Computer -> DNS server: The address of "domain" "Forbidden City" / "google.com"?</small>
+					<small>Computer <- DNS server: "1600 Pennsylvania Avenue NW, Washington, D.C., USA" / "a.b.c.d"
+							</small>
+							<p>Firewall project used this attack to apply proxies</p>
+
+				</section>
+				<section>
+					<h2>Solutions</h2>
+					<ul>
+						<li>DNSSEC: results are protected by signatures but still in plaintext, chicken and egg</li>
+						<li>DNSCrypt: encrypted communication but not having a RFC document</li>
+						<li>DNS over TLS: encrypted communication but can be easily identifed by port number 853</li>
+						<li>✓DNS over HTTPS: encrypted communication</li>
+					</ul>
+				</section>
 			</section>
 
 			<section>
@@ -294,7 +376,7 @@
 				<h1>THE END</h1>
 				<p>
 					Project homepage: <a
-						href="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood">https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood</a>
+						href="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood">https://github.com/YongBin<br />nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood</a>
 				</p>
 				<p>(YongBin + 32 'n's, 33 'n' in total)</p>
 			</section>
@@ -333,7 +415,8 @@
 			// Learn about plugins: https://revealjs.com/plugins/
 			plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
 		})
-		register_dhcp_slide_handler()
+		register_dhcp_slide_handler();
+		register_dns_slide_handler();
 
 	</script>
 
