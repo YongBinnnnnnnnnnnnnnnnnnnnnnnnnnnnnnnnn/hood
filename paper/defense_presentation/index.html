@@ -336,6 +336,96 @@
 				</section>
 			</section>
 
+			<section class="yongbin-tls">
+				<style>
+					#tls-float-image {
+						display: inline;
+						position: fixed;
+						top: 0;
+						left: 0;
+						margin-top: 0;
+						opacity: 0.5;
+					}
+
+					#tls-float-image-rectangle {
+						position: fixed;
+						top: 170px;
+						left: 35px;
+						margin-top: 0;
+						height: 30px;
+						width: 640px;
+						background-color: #f00;
+						opacity: 0.3;
+					}
+				</style>
+				<script>
+					function register_tls_slide_handler() {
+						Reveal.on('slidechanged', event => {
+							// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+							let image = document.querySelector("#tls-float-image");
+							if (event.currentSlide.parentNode.classList.contains("yongbin-tls")) {
+								if (image) {
+									return;
+								}
+								console.log(1);
+								image = document.createElement("img");
+								image.src = "https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/typical-sequence-of-https.png";
+								image.id = "tls-float-image";
+								document.body.appendChild(image);
+								image = document.createElement("div");
+								image.id = "tls-float-image-rectangle";
+								document.body.appendChild(image);
+							} else {
+								console.log(image);
+								if (image) {
+									document.body.removeChild(image);
+									image = document.querySelector("#tls-float-image-rectangle");
+									document.body.removeChild(image);
+								}
+							}
+						});
+					}
+				</script>
+
+				<section>
+					<h2>TLS - Simplified</h2>
+					<ul>
+						<li>Computer -> Server: Hello</li>
+						<li>Computer <- Server: Hello, [certificate], [encrypted data]</li>
+						<li>Computer: Is [certificate] signed by a trusted authority (CA)? Verify certificate</li>
+						<li>Computer: Decrypt [encrypted data] with known public key: let's encrypt data by key "ABCD"
+						</li>
+						<li>Computer -> Server: data encrypted by key "ABCD" </li>
+					</ul>
+				</section>
+				<section>
+					<h2>TLS - Leakage</h2>
+					<img src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/defense_presentation/images/tls-leak.png"
+						style="width:60%;">
+					<p><small>Figure: what network adminisitors can see from common TLS requests <a
+								href="https://wiki.wireshark.org/uploads/__moin_import__/attachments/SampleCaptures/tls.cap">source</a></small>
+					</p>
+				</section>
+				<section>
+					<h2>TLS - Attack</h2>
+					<small>Computer -> TLS server: The address of "domain" "Forbidden City" / "google.com"?</small>
+					<small>Computer <- TLS server: "1600 Pennsylvania Avenue NW, Washington, D.C., USA" / "a.b.c.d"
+							</small>
+							<p>Firewall project used this attack to apply proxies</p>
+
+				</section>
+				<section>
+					<h2>Solution</h2>
+					<img src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-tls-traffic.png"
+						style="width:60%;">
+				</section>
+				<section>
+					<h2>Solution - Proxy</h2>
+					<img src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-tls-proxy.png"
+						style="width:60%;">
+				</section>
+			</section>
+
 			<section>
 				<h2>Clever Quotes</h2>
 				<p>
@@ -417,6 +507,7 @@
 		})
 		register_dhcp_slide_handler();
 		register_dns_slide_handler();
+		register_tls_slide_handler();
 
 	</script>
 
