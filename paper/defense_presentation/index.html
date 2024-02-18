@@ -388,14 +388,16 @@
 				</script>
 
 				<section>
-					<h2>TLS - Simplified</h2>
-					<ul>
-						<li>Computer -> Server: Hello</li>
-						<li>Computer <- Server: Hello, [certificate], [encrypted data]</li>
+					<h2>TLS - Oversimplified</h2>
+					<ul style="font-size: 4vh;">
+						<li>Computer -> Server: Hello, [random1]</li>
+						<li>Server: Generate [random2]</li>
+						<li>Computer <- Server: Hello, [certificate], private key encrypted [random2]</li>
 						<li>Computer: Is [certificate] signed by a trusted authority (CA)? Verify certificate</li>
-						<li>Computer: Decrypt [encrypted data] with known public key: let's encrypt data by key "ABCD"
-						</li>
-						<li>Computer -> Server: data encrypted by key "ABCD" </li>
+						<li>Computer: get [random2] with known public key </li>
+						<li>Computer -> Server: public key encrypted [random3]</li>
+						<li>Server and Computer: get key "ABCD" from random1, random2, and random3</li>
+						<li>Computer <-> Server: data encrypted by key "ABCD" </li>
 					</ul>
 				</section>
 				<section>
@@ -415,14 +417,25 @@
 
 				</section>
 				<section>
+					<h2>Certificate pinning</h2>
+					<ul>
+						<li>Computer -> Server: Hello</li>
+						<li>Computer <- Server: Hello, [certificate], [encrypted data]</li>
+						<li>Computer: Is [certificate] signed by a trusted authority (CA)? Verify certificate</li>
+						<li>Computer: Decrypt [encrypted data] with known public key: let's encrypt data by key "ABCD"
+						</li>
+						<li>Computer -> Server: data encrypted by key "ABCD" </li>
+					</ul>
+				</section>
+				<section>
 					<h2>Solution</h2>
-					<img src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-tls-traffic.png"
-						style="width:60%;">
+					<img
+						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-tls-traffic.png">
 				</section>
 				<section>
 					<h2>Solution - Proxy</h2>
-					<img src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-tls-proxy.png"
-						style="width:60%;">
+					<img
+						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-tls-proxy.png">
 				</section>
 			</section>
 
