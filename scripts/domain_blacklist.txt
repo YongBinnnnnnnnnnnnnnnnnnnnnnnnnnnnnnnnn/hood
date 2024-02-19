@@ -12,6 +12,8 @@ analytics\.[^\.]+\.com
 
 (.*\.)?phortaub\.com
 (.*\.)?besmeargleor\.com
+(.*\.)?inpage-push\.com
+(.*\.)?tzegilo\.com
 
 (.*\.)?teamviewer\.com
 (.*\.)?alive\.github\.com
