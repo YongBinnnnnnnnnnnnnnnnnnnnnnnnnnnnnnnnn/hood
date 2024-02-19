@@ -79,13 +79,13 @@
 							class="hljs-keyword">evidence</span>
 						of tampering and without altering the
 						functionality of the device <a
-							href="https://labs.withsecure.com/publications/alexa-are-you-listening">source here</a>.
+							href="https://labs.withsecure.com/publications/alexa-are-you-listening">source</a>.
 					</p>
 				</section>
 				<section data-auto-animate>
 					<h2 data-id="code-title">Problems come from everywhere</h2>
 					<p>A malware named DogeRat has following abilities in its free version <a
-							href="https://github.com/shivaya-dav/DogeRat">source here</a>.</p>
+							href="https://github.com/shivaya-dav/DogeRat">source</a>.</p>
 					<pre data-id="code-animation"><code class="hljs lang-trojanability" data-trim data-line-numbers>
 						Real time
 						custom web view
@@ -111,7 +111,7 @@
 				<section data-auto-animate>
 					<h2>Problems come from everywhere</h2>
 					<p>
-						And here is another named AndroRAT listed following features<a
+						And here is another named AndroRAT listed following features <a
 							href="https://github.com/karma9874/AndroRAT">source</a>
 					</p>
 					<pre data-id="code-animation"><code class="hljs lang-trojanability" data-trim data-line-numbers>
@@ -409,19 +409,29 @@
 					</p>
 				</section>
 				<section>
-					<h2>TLS - Attack</h2>
-					<small>Computer -> TLS server: The address of "domain" "Forbidden City" / "google.com"?</small>
-					<small>Computer <- TLS server: "1600 Pennsylvania Avenue NW, Washington, D.C., USA" / "a.b.c.d"
-							</small>
-							<p>Firewall project used this attack to apply proxies</p>
-
+					<h2>TLS - Simplified Man-In-The-Middle (MITM) Attack</h2>
+					<ul style="font-size: 4vh;">
+						<li>Computer -> Server: Hello, [random1]</li>
+						<li>Server: Generate [random2]</li>
+						<li>Computer <- <span class="hljs-keyword">MITM</span>: Hello, [<span
+									class="hljs-keyword">replaced</span> certificate], private
+								key encrypted [random2]</li>
+						<li>Computer: Is [<span class="hljs-keyword">replaced</span> certificate] signed by a trusted
+							authority (CA)? Verify certificate</li>
+						<li>Computer: get [random2] with known public key </li>
+						<li>Computer -> <span class="hljs-keyword">MITM</span>: public key encrypted [random3]</li>
+						<li><span class="hljs-keyword">MITM</span> and Computer: get key "ABCD" from random1, random2,
+							and random3</li>
+						<li>Computer <-> <span class="hljs-keyword">MITM</span>: data encrypted by key "ABCD" </li>
+					</ul>
 				</section>
 				<section>
 					<h2>Certificate pinning</h2>
 					<ul>
 						<li>Computer -> Server: Hello</li>
 						<li>Computer <- Server: Hello, [certificate], [encrypted data]</li>
-						<li>Computer: Is [certificate] signed by a trusted authority (CA)? Verify certificate</li>
+						<li>Computer: Is [certificate] signed by <del>a trusted authority (CA)</del> the authority
+							YongBin? Verify certificate</li>
 						<li>Computer: Decrypt [encrypted data] with known public key: let's encrypt data by key "ABCD"
 						</li>
 						<li>Computer -> Server: data encrypted by key "ABCD" </li>
