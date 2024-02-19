@@ -676,6 +676,47 @@
 						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/actor.png">
 				</section>
 			</section>
+			<section>
+				<section>
+					<h2>Dispatcher and firewall rules</h2>
+					<p>
+						This firewall system use a dispatcher to interact with the changes in the network status or the
+						system status to dynamically configure firewall rules and to start or stop network services
+						while most firewalls use static rules after configuration.
+					</p>
+				</section>
+				<section>
+					<h2>Initial rules</h2>
+					<ul>
+						<li>Allow IPv4 and ARP</li>
+						<li>Allow connecting to 'lo'</li>
+						<li>Disallow other interfaces to send packets from/to 127.0.0.0/8</li>
+						<li>Allow ICMP fragmentation-needed packets</li>
+						<li>Drop other packets</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Interaction to WAN port</h2>
+					<ul>
+						<li>A new network device added to firewall: Accept only IPv4 and ARP</li>
+						<li>A network device connected to network: Allow DHCP to receive IP address, DNS server, and
+							Gateway</li>
+						<li>DHCP done: Disallow DHCP, allow outbound TCP connection using the assigned ip to 80, 443,
+							and other ports if configured; Do time synchornization.</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Interaction to LAN port</h2>
+					<ul>
+						<li>Accept only IPv4 and ARP</li>
+						<li>Accept incoming DHCP UDP packets</li>
+						<li>Accept incoming DNS UDP packets</li>
+						<li>Accept incoming HTTP/HTTPS connections</li>
+						<li>Set a randomized IP address</li>
+						<li>Start a dnsmasq instance to do basic DHCP and to do DNS attack</li>
+					</ul>
+				</section>
+			</section>
 			<section style="text-align: left;">
 				<h1>THE END</h1>
 				<p>
