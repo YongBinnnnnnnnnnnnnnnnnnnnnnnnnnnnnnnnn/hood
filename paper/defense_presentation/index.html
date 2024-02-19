@@ -558,12 +558,11 @@
 				<section>
 					<h2>Design</h2>
 					<p style="text-align: left;">Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the
-						response of an HTTP server
-						to synchronize date time with acceptable accuracy. To hide from security detection, the attack
-						vectors targeted to HTTP/HTTPS protocol usually do not want to make mistakes in the header. Even
-						if an attacker targeted the method used by the hood firewall, It's hard to say whether this
-						request is made for time synchronization. Thus the date field of an HTTP response is generally
-						trustworthy.</p>
+						response of an HTTP server to synchronize date time with acceptable accuracy. To hide from
+						security detection, the attack vectors targeted to HTTP/HTTPS protocol usually do not want to
+						make mistakes in the header. Even if an attacker targeted the method used by the hood firewall,
+						It's hard to say whether this request is made for time synchronization. Thus the date field of
+						an HTTP response is generally trustworthy.</p>
 				</section>
 				<section>
 					<h2>Implementation: hood-timesync.py</h2>
@@ -574,6 +573,107 @@
 						<li>Upon receiving a date: check with hard-coded anchor, accept only the date after the anchor
 						</li>
 					</ol>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Network activity simulation</h2>
+				</section>
+				<section>
+					<h2>The sad truth</h2>
+					<p>The combination of all efforts on those protocols is not enough when facing a more
+						sophisticated network analysis. The connections to update servers can be used to detect devices.
+						and the domain name leaked from TLS handshakes both telling eavesdroppers stories.
+						Virtual private networks (VPNs) may prevent that information from being captured by local
+						eavesdroppers but VPNs also have an egress, where could have other eavesdroppers. Thus, when
+						visiting internet websites, the leak of information is inevitable. </p>
+				</section>
+				<section>
+					<h2>Design</h2>
+					<div style="text-align: left;">
+						<p>Goal: hide user network activities inside the flood of fake network activities to
+							increase the difficulty of an analyzer to produce useful reports.</p>
+						<p> Risk: produce a false alarm immediately and make the user blocked for
+							tethering, make the user fired for browsing unrelated websites, etc. </p>
+					</div>
+				</section>
+				<section>
+					<h2>Design</h2>
+					<div style="text-align: left;">
+						<p>To prevent the firewall from being compromised by browser vulnerabilities, browser-based
+							simulation tools should not be used for implementation. It should also make plaintext
+							traffic to attract attention from attackers and eavesdroppers to make them less focused on
+							the actual user traffic.</p>
+					</div>
+				</section>
+				<section>
+					<h2>Implementation</h2>
+					<p style="text-align: left;">The service is implemented in a Python script named hood-actor.py. It
+						can parse and execute action files. To simulate the behaviors of a human user or a computer
+						service. All implementations inside the script are based on the base modules of Python, to avoid
+						the version management of third-party libraries being involved in the installation process of
+						the firewall.</p>
+				</section>
+				<section>
+					<h2>Action file example</h2>
+					<pre data-id="code-animation" style="font-size: 1vh;"><code class="hljs lang-json" data-trim data-line-numbers>
+[
+  {
+    "type": "properties",
+    "safe_age": 0,
+    "proper_age": [
+      6,
+      3000
+    ]
+  },
+  {
+    "type": "task",
+    "name": "browse",
+    "before": [],
+    "after": [],
+    "delay_between_actions": [
+      5,
+      20
+    ],
+    "actions": [
+      "hood:browser:goto:http://www.bing.com",
+      "hood:browser:goto:http://www.bing.com/news/search",
+      "hood:loop:exit_chance=0.8,delay=10-30:hood:browser:goto:random_link"
+    ]
+  }
+]
+					</code></pre>
+				</section>
+				<section>
+					<h2>HoodExecutor</h2>
+					<p style="text-align: left;">A general-purpose multi-thread task executor written in Python. It is
+						part of hood-actor.py It can run and schedule in parallel tasks that have dependency
+						relationships and delay requirements. It has a thread pool of worker to execute tasks and a
+						single thread for scheduling delayed tasks.</p>
+				</section>
+				<section>
+					<h2>Browser</h2>
+					<p style="text-align: left;">A fake browser is created to simulate network activities of browsing.
+						It respect cookies and load resources of the webpage in parallel. It uses headers that are used
+						by real browsers and uses different headers on different resources. Cookies are stored in memory
+						and used in the running session.</p>
+				</section>
+				<section>
+					<h2>Browser</h2>
+					<p style="text-align: left;">A fake browser is created to simulate network activities of browsing.
+						It respect cookies and load resources of the webpage in parallel. It uses headers that are used
+						by real browsers and uses different headers on different resources. Cookies are stored in memory
+						and used in the running session.</p>
+				</section>
+				<section>
+					<h2>Hood action script</h2>
+					<p style="text-align: left;">A Just-In-Time compiler is implemented to convert the CONDITION field
+						into Python code.</p>
+				</section>
+				<section>
+					<h2>Logical view</h2>
+					<img
+						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/actor.png">
 				</section>
 			</section>
 			<section style="text-align: left;">
