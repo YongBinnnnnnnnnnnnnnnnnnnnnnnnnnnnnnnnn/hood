@@ -518,13 +518,72 @@
 
 				<section>
 					<h2>Handling plaintext connections</h2>
+				</section>
+				<section>
+					<h2>Design</h2>
 					<p>
-						Design: Plaintext HTTP connections should be tunneled and encrypted through TLS proxy, if the
+						Plaintext HTTP connections should be tunneled and encrypted through TLS proxy, if the
 						remote server does not support encrypted connections, the request should fail.
 					</p>
 				</section>
+				<section>
+					<h2>Implementation</h2>
+					<img
+						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-http-traffic.png">
+				</section>
+				<section>
+					<h2>Implementation</h2>
+					<img
+						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/process-ocsp-traffic.png">
+				</section>
 			</section>
-
+			<section>
+				<section>
+					<h2>Date time synchornization</h2>
+				</section>
+				<section>
+					<h2>Limitation of Raspberry Pi</h2>
+					<p>No having a battery to keep the clock ticking</p>
+				</section>
+				<section>
+					<h2>Network Time Protocol</h2>
+					<div style="text-align: left;">
+						<p>The triditional way to synchornize time between computer and network.</p>
+						<p>Leak information by domain names (time.windows.com, time.apple.com, and ubuntu.pool.ntp.org).
+						</p>
+						<p>Targeted by attackers and can be attacked <a
+								href="https://www.usenix.org/system/files/usenixsecurity23-kwon.pdf">SOURCE</a></p>
+					</div>
+				</section>
+				<section>
+					<h2>Design</h2>
+					<p style="text-align: left;">Give up on NTP, use HTTP/HTTPS instead. Use the "Date" header from the
+						response of an HTTP server
+						to synchronize date time with acceptable accuracy. To hide from security detection, the attack
+						vectors targeted to HTTP/HTTPS protocol usually do not want to make mistakes in the header. Even
+						if an attacker targeted the method used by the hood firewall, It's hard to say whether this
+						request is made for time synchronization. Thus the date field of an HTTP response is generally
+						trustworthy.</p>
+				</section>
+				<section>
+					<h2>Implementation: hood-timesync.py</h2>
+					<ol style="font-size: 4vh;">
+						<li>Try get date from HTTPS</li>
+						<li>If failed, try get date from HTTP</li>
+						<li>If successed, try get date from HTTPS</li>
+						<li>Upon receiving a date: check with hard-coded anchor, accept only the date after the anchor
+						</li>
+					</ol>
+				</section>
+			</section>
+			<section style="text-align: left;">
+				<h1>THE END</h1>
+				<p>
+					Project homepage: <a
+						href="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood">https://github.com/YongBin<br />nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood</a>
+				</p>
+				<p>(YongBin + 32 'n's, 33 'n' in total)</p>
+			</section>
 			<section>
 				<h2>Clever Quotes</h2>
 				<p>
@@ -550,14 +609,6 @@
 					Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you
 					open the speaker notes window (hit 's' on your keyboard).
 				</aside>
-			</section>
-			<section style="text-align: left;">
-				<h1>THE END</h1>
-				<p>
-					Project homepage: <a
-						href="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood">https://github.com/YongBin<br />nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood</a>
-				</p>
-				<p>(YongBin + 32 'n's, 33 'n' in total)</p>
 			</section>
 
 		</div>
