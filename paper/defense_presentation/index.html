@@ -717,6 +717,126 @@
 					</ul>
 				</section>
 			</section>
+			<section>
+				<section>
+					<h2>Installation</h2>
+				</section>
+				<section>
+					<h2>Command-line parameters</h2>
+					<table style="font-size: 2vh;">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Default Value</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>usb_tether=</td>
+								<td>1</td>
+								<td>Share network to computer via USB cable</td>
+							</tr>
+							<tr>
+								<td>harden_only=</td>
+								<td>0</td>
+								<td>Only apply hardening parts. Let the target SBC can still be used as a computer.</td>
+							</tr>
+							<tr>
+								<td>disable_wireless=</td>
+								<td>1</td>
+								<td>Disable WiFi and Bluetooth.</td>
+							</tr>
+							<tr>
+								<td>disable_gpu=</td>
+								<td>1</td>
+								<td>Disable GPU.</td>
+							</tr>
+							<tr>
+								<td>debian_live</td>
+								<td>N/A</td>
+								<td>Install to live debian environment.</td>
+							</tr>
+							<tr>
+								<td>target=</td>
+								<td>/</td>
+								<td>The target root/device to install firewall.</td>
+							</tr>
+							<tr>
+								<td>wan_port_device_path=</td>
+								<td>auto-built-in-eth</td>
+								<td>The path of the device to be used as WAN port. <code>auto-built-in-eth</code> means
+									find built-in Ethernet port automatically.</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section>
+					<h2>Easy to use</h2>
+					<ul>
+						<li>Mount and unmount block devices and image files automatically</li>
+						<li>Check Raspberry Pi OS to avoid data loss</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Bluetooth and WiFi</h2>
+					<p>Bluetooth and WiFi are disabled by default. When disabling them, system configurations are
+						modified and their drivers are also deleted.</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Showing network activities</h2>
+					<div id="network-act1">
+						<img
+							src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/penetration_test/hoodcurlexample_tty_output.png">
+					</div>
+					<style>
+						#network-act1 {
+							display: inline-block;
+							width: 50vw;
+							height: 300px;
+							overflow: hidden;
+						}
+
+						#network-act1 img {
+							float: right;
+							width: 100%;
+							height: 100%;
+							object-fit: none;
+							object-position: 0 23%;
+						}
+					</style>
+					<p><small>A success connection to bing.com</small></p>
+					<div id="network-act2">
+						<img
+							src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/penetration_test/hoodcurlexample_tty_output.png">
+					</div>
+					<style>
+						#network-act2 {
+							display: inline-block;
+							width: 50vw;
+							height: 110px;
+							overflow: hidden;
+						}
+
+						#network-act2 img {
+							float: right;
+							width: 100%;
+							height: 100%;
+							object-fit: none;
+							object-position: 0 100%;
+						}
+					</style>
+					<p><small>A success connection to example.com</small></p>
+				</section>
+				<section>
+					<h2>Showing network activities</h2>
+					<img
+						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/penetration_test/mitm_hood_output.png">
+					<p><small>A failed connection to sprunge.com due to invalid certificate</small></p>
+				</section>
+			</section>
 			<section style="text-align: left;">
 				<h1>THE END</h1>
 				<p>
