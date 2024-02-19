@@ -368,7 +368,7 @@ A known issue is caused by some maverick servers that prefer some weaker ciphers
 \section{HTTP}
 \subsection{Design}
 \paragraph{}
-Plaintext HTTP connections should be tunneled and encrpte through TLS proxy, if the remote server does not support encrypted connections, the request should fail.
+Plaintext HTTP connections should be tunneled and encrypted through TLS proxy, if the remote server does not support encrypted connections, the request should fail.
 \subsection{Implementation}
 \paragraph{}
 hood-http-handler.py is the proxy created to filter and protect HTTP plaintext connections. The proxy checks the host name with a known list of Online Certificate Status Protocol (OCSP) and Certificate Revocation List (CRL) servers. Only the connections to OCSP servers are allowed to be plaintext because those connections usually be OCSP over HTTP connections, which have no reason to be protected. Figure \ref{fig:ocsp-process-view} shows how OCSP traffic are received, handled, and forwarded to remote server. The connections to other servers are tunneled via TLS protocol through the hood-tls-proxy service. Figure \ref{fig:http-process-view} shows how other HTTP traffic are received, handled, and forwarded to remote server.
