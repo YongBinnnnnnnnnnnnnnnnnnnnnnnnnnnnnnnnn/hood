@@ -11,7 +11,7 @@ analytics\.[^\.]+\.com
 (.*\.)?adservice\.google\.com
 
 (.*\.)?phortaub\.com
-(.*\.)?besmeargleor]\.com
+(.*\.)?besmeargleor\.com
 
 (.*\.)?teamviewer\.com
 (.*\.)?alive\.github\.com
