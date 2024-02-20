@@ -178,7 +178,6 @@
 				<img alt="typical-sequence-of-https.png"
 					src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/typical-sequence-of-https.png">
 			</section>
-
 			<section class="yongbin-dhcp">
 				<style>
 					#dhcp-float-image {
@@ -206,7 +205,7 @@
 						Reveal.on('slidechanged', event => {
 							// event.previousSlide, event.currentSlide, event.indexh, event.indexv
 							let image = document.querySelector("#dhcp-float-image");
-							if (event.currentSlide.classList.contains("yongbin-dhcp")) {
+							if (event.currentSlide.parentNode.classList.contains("yongbin-dhcp")) {
 								if (image) {
 									return;
 								}
@@ -228,38 +227,47 @@
 						});
 					}
 				</script>
-				<h2>DHCP</h2>
-				<div>
-					<p>Leakage</p>
-					<ul>
-						<li>MAC address -> <a href="https://www.wireshark.org/tools/oui-lookup.html">manufacturer</a> ->
-							owner</li>
-						<li>Hostname -> owner (YongBin's MacBook Pro)</li>
-					</ul>
-					<div id="dhcp-router-image-container">
-						<img id="dhcp-router-image"
-							src="https://static.tp-link.com/resources/UploadFiles/image006(7).jpg">
-					</div>
-					<p><small>Figure: what network adminisitors can see from a router <a
-								href="https://www.tp-link.com/us/support/faq/363/">SOURCE</a></small></p>
-					<style>
-						#dhcp-router-image-container {
-							display: inline-block;
-							width: 554px;
-							height: 120px;
-							overflow: hidden;
-						}
+				<section>
+					<h2>DHCP</h2>
+				</section>
+				<section>
+					<div>
+						<h2>Leakage</h2>
+						<div id="dhcp-router-image-container">
+							<img id="dhcp-router-image"
+								src="https://live.staticflickr.com/7027/6389103643_47052314a7_o.png">
+						</div>
+						<p><small>Figure: what network adminisitors can see from a router <a
+									href="https://www.flickr.com/photos/28622838@N00/6389103643">Shared by Kyle
+									McDonald under license CC-BY 2.0</a></small></p>
+						<ul>
+							<li>MAC address -> <a
+									href="https://www.wireshark.org/tools/oui-lookup.html">manufacturer</a> ->
+								owner</li>
+							<li>Hostname -> owner (YongBin's MacBook Pro)</li>
+						</ul>
+						<style>
+							#dhcp-router-image-container {
+								display: inline-block;
+								width: 760px;
+								height: 300px;
+								overflow: hidden;
+							}
 
-						#dhcp-router-image {
-							float: right;
-							width: 100%;
-							height: 100%;
-							object-fit: none;
-							object-position: 0 30%;
-						}
-					</style>
-				</div>
-				<p>Solution: randomization</p>
+							#dhcp-router-image {
+								float: right;
+								width: 100%;
+								height: 100%;
+								object-fit: none;
+								object-position: 0 0;
+							}
+						</style>
+					</div>
+				</section>
+				<section>
+					<h2>Solution</h2>
+					<p>Randomization</p>
+				</section>
 			</section>
 
 			<section class="yongbin-dns">
