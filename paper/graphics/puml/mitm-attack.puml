@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title The MITM attack conducted during the test
+participant "Computer 1 (victim)" as victim
+participant "Computer 2 (attacker, CA, ISP)" as attacker
+participant Others
+participant "Website"
+
+victim -> attacker: Computer 1 says: *POLITE_TEXT*
+attacker -> Website: Computer 1 says: *RUDE_TEXT*
+victim -> attacker: What did I say?
+victim <- attacker: *POLITE_TEXT*
+Others -> Website: What did Computer 1 say?
+Others <- Website: *RUDE_TEXT*
+
+@enduml
