@@ -7,8 +7,8 @@ skinparam componentStyle rectangle
 title The MITM attack conducted during the test
 participant "Computer 1 (victim)" as victim
 participant "Computer 2 (attacker, CA, ISP)" as attacker
-participant Others
 participant "Website"
+participant Others
 
 victim -> attacker: Computer 1 says: *POLITE_TEXT*
 attacker -> Website: Computer 1 says: *RUDE_TEXT*
