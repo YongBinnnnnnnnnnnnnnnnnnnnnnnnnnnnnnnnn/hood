@@ -896,6 +896,227 @@
 				</section>
 			</section>
 
+			<section>
+				<section>
+					<h2>Tests</h2>
+				</section>
+
+				<section>
+					<h2>MITM attack, DNS hijacking, and IP hijacking</h2>
+					<img
+						src="https://raw.githubusercontent.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood/main/paper/graphics/puml/mitm-attack.png">
+					<p>During the process, the Computer 1 thinks that it is talking to the Website and the Website
+						thinks that the Computer 2 is the Computer 1</p>
+
+				</section>
+
+				<section>
+					<h2>MITM attack, DNS hijacking, and IP hijacking</h2>
+
+					<table style="font-size: 3vh;">
+						<thead>
+							<tr>
+								Without "hood"
+							</tr>
+							<tr>
+								<th></th>
+								<th>What the victim see</th>
+								<th>What other people</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Without attack</td>
+								<td>Successfull posted a polite text</td>
+								<td>Successfull posted a polite text</td>
+							</tr>
+							<tr>
+								<td>MITM attack by DNS hijacking</td>
+								<td>Successfull posted a polite text</td>
+								<td>The victim posted a rude text</td>
+							</tr>
+							<tr>
+								<td>MITM attack by IP hijacking</td>
+								<td>-</td>
+								<td>-</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+				<section>
+					<h2>MITM attack, DNS hijacking, and IP hijacking</h2>
+
+					<table style="font-size: 3vh;">
+						<thead>
+							<tr>
+								With "hood"
+							</tr>
+							<tr>
+								<th></th>
+								<th>What the victim see</th>
+								<th>What other people</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Without attack</td>
+								<td>-</td>
+								<td>-</td>
+							</tr>
+							<tr>
+								<td>MITM attack by DNS hijacking</td>
+								<td>The text posted under MITM attack is rude, the man in the middle is bypassed</td>
+								<td>-</td>
+							</tr>
+							<tr>
+								<td>MITM attack by IP hijacking</td>
+								<td>curl reported error, "hood" shows the connection to the website is failed due to
+									certificate problem</td>
+								<td>-</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section>
+					<h2>Information gathering by metasploit</h2>
+					<table style="font-size: 3vh;">
+						<thead>
+							<tr>
+								<th>Target</th>
+								<th>Information gathered</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Classroom computer</td>
+								<td>manufacturer, operating system, system version, clock skew, domain, host name, time.
+								</td>
+							</tr>
+							<tr>
+								<td>iPhone</td>
+								<td>unique opened port numbers: 49152 and 62078 </td>
+							</tr>
+							<tr>
+								<td>hood firewall</td>
+								<td>nothing</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+				<section>
+					<h2>Eavesdropping</h2>
+
+					<table style="font-size: 3vh;">
+						<thead>
+							<tr>
+								Wireshark captured information from command "curl example.com"
+							</tr>
+							<tr>
+								<th>Protocol</th>
+								<th>Without hood</th>
+								<th>With hood</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>DNS</td>
+								<td>Plaintext request and response</td>
+								<td>Cound not see DNS protocol</td>
+							</tr>
+							<tr>
+								<td>HTTP</td>
+								<td>Plaintext request and response</td>
+								<td>Cound not see HTTP protocol</td>
+							</tr>
+							<tr>
+								<td>TLS</td>
+								<td>Could not see TLS protocol</td>
+								<td>TLS handshakes to DNS server and to example.com</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+				<section>
+					<h2>Management software</h2>
+
+					<table style="font-size: 3vh;">
+						<thead>
+							<tr>
+								Teamviewer status bar
+							</tr>
+							<tr>
+								<th>Without hood</th>
+								<th>With hood</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Ready to connect (secure connection)</td>
+								<td>Only LAN connections are possible</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+			</section>
+
+			<section>
+				<section>
+					<h2>Conclusions</h2>
+				</section>
+
+				<section>
+					<h2>Conclusions</h2>
+					<p style="text-align: left; font-size: 3.3vh;">
+						A working firewall system is designed and implemented during this work. It narrowed the
+						attack surface by simplifying the hardware and by avoiding the use of high risk components.
+						It mitigated many security flaws of existing network protocols by using creative solutions. The
+						money cost of using this firewall is much lower than the median of popular firewall
+						hardware. The analyzation to security events supported decisions behind the design by proving
+						the high risk of browsers and wireless communications.
+					</p>
+				</section>
+				<section>
+					<h2>Conclusions</h2>
+					<p style="text-align: left; font-size: 3.3vh;">
+						The test results proved the difficulty of
+						noticing a MITM attack, proved the easiness of gathering information from network devices,
+						proved the possibility of eavesdropping, and proved the effectiveness of the protection provided
+						by "hood" firewall against those attack. This project is still evolving. This document could not
+						show the full picture of this work.
+					</p>
+				</section>
+				<section>
+					<h2>Possible improvements for future</h2>
+					<p style="text-align: left; font-size: 3.3vh;">
+						Use Linux Security Modules (LSMs), like AppArmor, and seccomp (see appendix B.14) to protect as
+						many processes as possible. The programs that do not support seccomp can be changed
+						by LD_LOAD_LIBRARY
+					</p>
+					<p style="text-align: left; font-size: 3.3vh;">
+						Use strict compiler options to harden everything, including kernel, like what Gentoo Linux is
+						doing now, to try to mitigate some unpublished vulnerabilities, and also to increase the
+						difficulty of attacking the firewall itself.
+					</p>
+					<p style="text-align: left; font-size: 3.3vh;">
+						Spoof network stacks, like TCP stacks and TLS stacks, make the firewall and the devices
+						behind it to be less detectable
+					</p>
+				</section>
+				<section>
+					<h2>Possible improvements for future</h2>
+					<p style="text-align: left; font-size: 3.3vh;">
+						Libcomposite can make the device show multiple roles to a host (a computer), which means
+						the device can at the same time work as a USB mass storage device or as a USB CDROM, both
+						of which can be used as a media of a Live DVD. Then the computer will be able to boot a live
+						system from it. For a computer that is password protected to boot from USB, we can also use
+						this small device as a PXE server to make that computer boot from the network of the USB
+						device.
+					</p>
+				</section>
+			</section>
 			<section style="text-align: left;">
 				<h1>THE END</h1>
 				<p>
