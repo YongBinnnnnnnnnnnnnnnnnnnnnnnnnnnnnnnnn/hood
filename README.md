@@ -33,6 +33,10 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 ![HTTP traffic graph](./paper/graphics/puml/process-http-traffic.png)
 ![TLS traffic graph](./paper/graphics/puml/process-tls-traffic.png)
 
+## Recommended hardware
+ - SBC: Raspberry Pi 4B
+ - Screen: Waveshare 35a / Joy-IT RB-TFT3.5 
+
 ## Install to Raspberry Pi
 
 If you already know how to write raspberrypi os image to a SD card, goto step 3
@@ -89,9 +93,12 @@ Commandline options available to the install script:
 |disable_wireless=     |1                  |Disable WiFi and Bluetooth.                                                                                         |
 |disable_gpu=          |1                  |Disable GPU.                                                                                                        |
 |debian_live           |N/A                |Install to live debian environment.                                                                                 |
+|gpio_shutdown_pin=    |21                 |The GPIO pin used for shutdown the computer                                                                         |
+|screen_dtbo=          |OMITTED            |The path of the dtbo file for the screen used for the computer                                                      |
 |target=               |/                  |The target root/device to install firewall.                                                                         |
 |wan_port_device_path= |auto-built-in-eth  |The path of the device to be used as WAN port. `auto-built-in-eth` means find built-in Ethernet port automatically. |
 
+gpio_shutdown_pin=21
 ## Install to Debian
 
 Hood firewall now is possible to be installed to debian-based Linux systems. This feature has been tested in the live environment of Parrot OS 6.0.
