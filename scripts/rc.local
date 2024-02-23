@@ -20,6 +20,7 @@ fi
 
 hostnamectl set-hostname $hostname
 
+exit 0
 if test -f /var/lib/hood/flags/harden_only; then
   exit 0
 fi
