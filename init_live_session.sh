@@ -113,6 +113,7 @@ if sudo -E pkg upgrade -y firefox; then
 fi
 elif [ $machine = "Linux" ]; then
   sudo systemctl stop NetworkManager ntpd avahi-daemon cups cups-browsed exim4
+  sudo rmmod mei_wdt mei_hdcp mei_me mei
   sudo ./scripts/rc.local
   killall qlipper
   if test -d /media/user/Windows/Windows; then
