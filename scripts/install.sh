@@ -34,6 +34,7 @@ for arg in "$@"; do
     harden_only=*) harden_only=$(echo $arg|sed "s/[^=]*=//");;
     disable_wireless=*) disable_wireless=$(echo $arg|sed "s/[^=]*=//");;
     disable_gpu=*) disable_gpu=$(echo $arg|sed "s/[^=]*=//");;
+    gpio_shutdown_pin=*) gpio_shutdown_pin=$(echo $arg|sed "s/[^=]*=//");;
     screen_dtbo=*) screen_dtbo=$(echo $arg|sed "s/[^=]*=//");;
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
