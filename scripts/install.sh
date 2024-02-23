@@ -24,6 +24,7 @@ yongbin=0
 raspberrypi=1
 debian_live=0
 screen_dtbo="./boot/overlays/joy-IT-Display-Driver-35a-overlay.dtbo"
+gpio_shutdown_pin=21
 
 prefix=""
 target="/"
@@ -131,6 +132,7 @@ elif [ $raspberrypi -eq 1 ]; then
   sudo cp $screen_dtbo $prefix/boot/firmware/overlays/
   if ! grep -q dtoverlay=joy-IT-Display-Driver-35a-overlay $prefix/boot/firmware/config.txt; then
     echo "dtoverlay=$(echo $screen_dtbo|sed -r -s "s|.*/(.*)\.dtbo|\1|"),rotate=90,swapxy=1" | sudo tee -a $prefix/boot/firmware/config.txt 
+    echo "dtoverlay=gpio-shutdown,gpio_pin=$gpio_shutdown_pin" | sudo tee -a $prefix/boot/firmware/config.txt 
   fi
 
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/userconfig.service
