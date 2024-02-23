@@ -90,6 +90,9 @@ elif file $prefix/usr/bin/ls| grep -q "x86-64"; then
   target_instrument_set="x64"
 fi
 
+sudosedi "s|http://deb.debian.org/|https://deb.debian.org/|g" $prefix/etc/apt/sources.list
+sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
+
 if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   sudo apt update
   sudo apt install -y dnsmasq network-manager
@@ -306,8 +309,6 @@ sudosedi "s|contrib non-free||g" $prefix/etc/apt/sources.list
 # todo: find a safer source, both init7 and rasp are not safe
 # what can I do if the signing key of the apt source no more trustworthy?
 
-sudosedi "s|http://deb.debian.org/debian|https://deb.debian.org/debian|g" $prefix/etc/apt/sources.list
-sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
 
 sudocpcontent ./before-network.service $prefix/usr/lib/systemd/system/
 sudocpcontent ./hood-network-services.service $prefix/usr/lib/systemd/system/
@@ -356,7 +357,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
     && systemctl --version|grep -q 252; then
     echo "Debian bookworm live environment found!"
     echo "Install new systemd from backports to enable soft-reboot"
-    echo "deb http://deb.debian.org/debian/ bookworm-backports main"|sudo tee -a /etc/apt/sources.list
+    echo "deb https://deb.debian.org/debian/ bookworm-backports main"|sudo tee -a /etc/apt/sources.list
     sudo apt update
     sudo apt install -y -t bookworm-backports systemd
     sudo rm /etc/network/interfaces
@@ -372,6 +373,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
   if [ $yongbin -eq 1 ] && [ $debian_live -eq 1 ]; then
     sudo apt install -y git bash-completion chromium
+    sudo apt autoremove --purge avahi-daemon
     sudo systemctl soft-reboot
   fi
 fi
