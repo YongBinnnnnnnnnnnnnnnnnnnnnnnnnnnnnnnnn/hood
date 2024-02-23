@@ -112,53 +112,57 @@ if sudo -E pkg upgrade -y firefox; then
   sudo -E pkg -o INSTALL_AS_USER=true install -y tex-dvipsk
 fi
 elif [ $machine = "Linux" ]; then
-  sudo systemctl stop NetworkManager ntpd
-  if ! mount | grep -q /tmp/yongb; then
-    ls -b /media/user/Windows/Windows/Temp/wct*.tmp -S|head -n 2|xargs rm
-    image_name="wct"$(LC_ALL=C tr -dc "A-Z0-9"</dev/urandom|head -c 4)".tmp"
-    target=/media/$(whoami)/Windows/Windows/Temp/$image_name
-    dd if=/dev/zero of=$target bs=4M count=2048 status=progress
-    mkdir -p /tmp/yongb
-    mkfs.ext4 $target
-    sudo mount -o uid=$(id --user),gid=$(id --group) $target /tmp/yongb
-  fi
-  target=/tmp/yongb
-  sudo mkdir -p $target/usr/share/
-  if ! test -h /usr/share/texlive; then
-    sudo mv /usr/share/texlive $target/usr/share/
-    sudo ln -s $target/usr/share/texlive /usr/share/
-  fi
-  if ! test -h /usr/share/texmf; then
-    sudo mv /usr/share/texmf $target/usr/share/
-    sudo ln -s $target/usr/share/texmf /usr/share/
-  fi
-  if ! test -h /usr/share/tex-common; then
-    sudo mv /usr/share/tex-common $target/usr/share/
-    sudo ln -s $target/usr/share/tex-common /usr/share/
-  fi
-  sudo mkdir -p $target/usr/local/share/
-  if ! test -h /usr/share/tex-common; then
-    sudo mv /usr/local/share/texmf $target/usr/local/share/
-    sudo ln -s $target/usr/share/texmf /usr/local/share/
-  fi
-  sudo mkdir -p $target/var/cache/
-  if ! test -h /usr/share/tex-common; then
-    sudo mv /var/cache/apt $target/var/cache/
-    sudo ln -s $target/var/cache/apt /var/cache/
-  fi
-  mkdir -p $target/hood/proxy/libs
-  if ! test -h proxy/libs; then
-    rm -r proxy/libs
-    ln -s $target/hood/proxy/libs proxy/libs
-  fi
-  mkdir -p /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi
-  if ! test -h ~/.cache/Raspberry\ Pi; then
-    rm -r ~/.cache/Raspberry\ Pi
-    ln -s /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi ~/.cache/Raspberry\ Pi
-  fi
-  if ! test -h ~/Downloads; then
-    rm -r ~/Downloads
-    ln -s /media/$(whoami)/Windows/Windows/Temp ~/Downloads
+  sudo systemctl stop NetworkManager ntpd avahi-daemon cups cups-browsed exim4
+  sudo ./scripts/rc.local
+  killall qlipper
+  if test -d /media/user/Windows/Windows; then
+    if ! mount | grep -q /tmp/yongb; then
+      ls -b /media/user/Windows/Windows/Temp/wct*.tmp -S|head -n 2|xargs rm
+      image_name="wct"$(LC_ALL=C tr -dc "A-Z0-9"</dev/urandom|head -c 4)".tmp"
+      target=/media/$(whoami)/Windows/Windows/Temp/$image_name
+      dd if=/dev/zero of=$target bs=4M count=2048 status=progress
+      mkdir -p /tmp/yongb
+      mkfs.ext4 $target
+      sudo mount -o uid=$(id --user),gid=$(id --group) $target /tmp/yongb
+    fi
+    target=/tmp/yongb
+    sudo mkdir -p $target/usr/share/
+    if ! test -h /usr/share/texlive; then
+      sudo mv /usr/share/texlive $target/usr/share/
+      sudo ln -s $target/usr/share/texlive /usr/share/
+    fi
+    if ! test -h /usr/share/texmf; then
+      sudo mv /usr/share/texmf $target/usr/share/
+      sudo ln -s $target/usr/share/texmf /usr/share/
+    fi
+    if ! test -h /usr/share/tex-common; then
+      sudo mv /usr/share/tex-common $target/usr/share/
+      sudo ln -s $target/usr/share/tex-common /usr/share/
+    fi
+    sudo mkdir -p $target/usr/local/share/
+    if ! test -h /usr/share/tex-common; then
+      sudo mv /usr/local/share/texmf $target/usr/local/share/
+      sudo ln -s $target/usr/share/texmf /usr/local/share/
+    fi
+    sudo mkdir -p $target/var/cache/
+    if ! test -h /usr/share/tex-common; then
+      sudo mv /var/cache/apt $target/var/cache/
+      sudo ln -s $target/var/cache/apt /var/cache/
+    fi
+    mkdir -p $target/hood/proxy/libs
+    if ! test -h proxy/libs; then
+      rm -r proxy/libs
+      ln -s $target/hood/proxy/libs proxy/libs
+    fi
+    mkdir -p /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi
+    if ! test -h ~/.cache/Raspberry\ Pi; then
+      rm -r ~/.cache/Raspberry\ Pi
+      ln -s /media/$(whoami)/Windows/Windows/Temp/.cache/Raspberry\ Pi ~/.cache/Raspberry\ Pi
+    fi
+    if ! test -h ~/Downloads; then
+      rm -r ~/Downloads
+      ln -s /media/$(whoami)/Windows/Windows/Temp ~/Downloads
+    fi
   fi
 fi
 sudo tee -a /etc/hosts <<EOF
