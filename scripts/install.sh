@@ -23,6 +23,7 @@ lodevice=""
 yongbin=0
 raspberrypi=1
 debian_live=0
+screen_dtbo="./boot/overlays/joy-IT-Display-Driver-35a-overlay.dtbo"
 
 prefix=""
 target="/"
@@ -32,6 +33,7 @@ for arg in "$@"; do
     harden_only=*) harden_only=$(echo $arg|sed "s/[^=]*=//");;
     disable_wireless=*) disable_wireless=$(echo $arg|sed "s/[^=]*=//");;
     disable_gpu=*) disable_gpu=$(echo $arg|sed "s/[^=]*=//");;
+    screen_dtbo=*) screen_dtbo=$(echo $arg|sed "s/[^=]*=//");;
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
     yongbin) yongbin=1;harden_only=1;;
@@ -126,11 +128,9 @@ fi
 if [ $harden_only -eq 1 ]; then
   sudo touch $prefix/var/lib/hood/flags/harden_only
 elif [ $raspberrypi -eq 1 ]; then
-  cp ./boot/overlays/joy-IT-Display-Driver-35a-overlay.dtbo $prefix/boot/firmware/overlays/
+  sudo cp $screen_dtbo $prefix/boot/firmware/overlays/
   if ! grep -q dtoverlay=joy-IT-Display-Driver-35a-overlay $prefix/boot/firmware/config.txt; then
-    sudo tee -a $prefix/boot/firmware/config.txt <<EOF
-dtoverlay=joy-IT-Display-Driver-35a-overlay,rotate=90,swapxy=1
-EOF
+    echo "dtoverlay=$(echo $screen_dtbo|sed -r -s "s|.*/(.*)\.dtbo|\1|"),rotate=90,swapxy=1" | sudo tee -a $prefix/boot/firmware/config.txt 
   fi
 
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/userconfig.service
