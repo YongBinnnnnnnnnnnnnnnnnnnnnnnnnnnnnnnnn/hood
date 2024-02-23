@@ -83,8 +83,8 @@ function revoke_proxy_access_on(){
 }
 
 function add_arp_access_on(){
-  nft_handle_to_file /tmp/hood/$1_arp_i_rule add rule arp filter input iif $1 log prefix \"[HOOD A]\" flags all accept
-  nft_handle_to_file /tmp/hood/$1_arp_o_rule add rule arp filter output oif $1 log prefix \"[HOOD A]\" flags all accept
+  nft_handle_to_file /tmp/hood/$1_arp_i_rule add rule arp filter input iif $1 accept
+  nft_handle_to_file /tmp/hood/$1_arp_o_rule add rule arp filter output oif $1 accept
 }
 function revoke_arp_access_on(){
   while read handle; do
