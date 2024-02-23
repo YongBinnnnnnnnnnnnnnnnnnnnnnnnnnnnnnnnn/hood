@@ -5,6 +5,7 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 ## Table of Contents
 1. [Status](#status)
 2. [Graphics to show the concept](#graphics-to-show-the-concept)
+2. [Recommended hardware](#recommended-hardware)
 3. [Install to Raspberry Pi](#install-to-raspberry-pi)
 4. [Install to Debian](#install-to-debian)
 5. [License](#license)
