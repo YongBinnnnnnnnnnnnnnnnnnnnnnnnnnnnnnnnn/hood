@@ -18,7 +18,7 @@ It's not hard to point out someone is wearing a hood, but the hood makes it hard
 
 ### Operating systems to use the firewall
  - [x] Windows 10
- - [x] Linux ([Raspberry Pi OS](https://www.raspberrypi.com/software/operating-systems/) /  [Parrot OS](https://www.parrotsec.org/)
+ - [x] Linux ([Raspberry Pi OS](https://www.raspberrypi.com/software/operating-systems/) / [Debian live](https://www.debian.org/CD/live/) / [Parrot OS](https://www.parrotsec.org/))
  - [x] Mac OS
 
 ### Todo
