@@ -353,6 +353,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
     && grep -q "/run/live/medium" /etc/apt/sources.list\
     && grep -q "deb.debian.org" /etc/apt/sources.list\
     && systemctl --version|grep -q 252; then
+    sudo rmmod mei_wdt mei_hdcp mei_me mei
     echo "Debian bookworm live environment found!"
     echo "Install new systemd from backports to enable soft-reboot"
     echo "deb https://deb.debian.org/debian/ bookworm-backports main"|sudo tee -a /etc/apt/sources.list
