@@ -90,6 +90,10 @@ elif file $prefix/usr/bin/ls| grep -q "x86-64"; then
   target_instrument_set="x64"
 fi
 
+if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
+  sudo apt update
+  sudo apt install -y dnsmasq network-manager
+fi
 
 echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
 
@@ -254,7 +258,7 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
   sudosedi "s/^[^\!].*(AffirmTrust|Certainly|Starfield|Trustwave|XRamp|emSign).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
   
   sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
-  if which update-ca-certificates; then
+  if test -f /usr/sbin/update-ca-certificates; then
     sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
   else
     for cert in $(ls $prefix/etc/ssl/certs/*.pem -b -1); do grep "$(realpath $cert|sed -e "s|.*ca-certificates/|\!|")" $prefix/etc/ca-certificates.conf -q && sudo rm -v $cert; done
@@ -320,6 +324,10 @@ if test -f $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.ser
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.service
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups-browsed.service
   sudo rm $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
+  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/networking.service
+  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/connman.service
+  sudo rm $prefix/etc/systemd/system/network-online.target.wants/networking.service
+  sudo rm $prefix/etc/systemd/system/network-online.target.wants/connman-wait-online.service
   sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
   sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service
   sudo rm $prefix/etc/systemd/system/ntp.service
@@ -342,6 +350,17 @@ sudo ln -sf /update_eeprom $prefix/run_once
 #sudo touch $prefix/do_init
 
 if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
+  if [ $debian_live -eq 1 ]\
+    && grep -q "/run/live/medium" /etc/apt/sources.list\
+    && grep -q "deb.debian.org" /etc/apt/sources.list\
+    && systemctl --version|grep -q 252; then
+    echo "Debian bookworm live environment found!"
+    echo "Install new systemd from backports to enable soft-reboot"
+    echo "deb http://deb.debian.org/debian/ bookworm-backports main"|sudo tee -a /etc/apt/sources.list
+    sudo apt update
+    sudo apt install -y -t bookworm-backports systemd
+    sudo rm /etc/network/interfaces
+  fi
   mkdir -p ~/.pki/
   cp -r $prefix/etc/pki/nssdb ~/.pki/
   sudocpcontent  /etc/pki/nssdb/cert9.db ~/.pki/nssdb/cert9.db
@@ -351,6 +370,9 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
   sudo /etc/rc.local
   echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
+  if [ $yongbin -eq 1 ] && [ $debian_live -eq 1 ]; then
+    sudo systemctl soft-reboot
+  fi
 fi
 
 
