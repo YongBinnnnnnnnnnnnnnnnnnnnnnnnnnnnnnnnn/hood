@@ -371,7 +371,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   sudo /etc/rc.local
   echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
   if [ $yongbin -eq 1 ] && [ $debian_live -eq 1 ]; then
-    sudo apt install -y git bash-completion
+    sudo apt install -y git bash-completion chromium
     sudo systemctl soft-reboot
   fi
 fi
