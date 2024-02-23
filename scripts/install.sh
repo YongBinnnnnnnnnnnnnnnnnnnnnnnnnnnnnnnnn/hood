@@ -319,23 +319,21 @@ sudo ln -sf /lib/systemd/system/NetworkManager.service $prefix/etc/systemd/syste
 sudo ln -sf /lib/systemd/system/NetworkManager-wait-online.service $prefix/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
 sudo ln -sf /lib/systemd/system/NetworkManager-dispatcher.service $prefix/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service
 
-if test -f $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service; then
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/avahi-daemon.service
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.path
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups.service
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/cups-browsed.service
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/networking.service
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/connman.service
-  sudo rm $prefix/etc/systemd/system/network-online.target.wants/networking.service
-  sudo rm $prefix/etc/systemd/system/network-online.target.wants/connman-wait-online.service
-  sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
-  sudo rm $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service
-  sudo rm $prefix/etc/systemd/system/ntp.service
-  sudo rm $prefix/etc/systemd/system/ntpd.service
-  sudo rm $prefix/etc/systemd/system/multi-user.target.wants/ntpsec.service
-  sudo rm $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service
-fi
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/avahi-daemon.service
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/cups.path
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/cups.service
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/cups-browsed.service
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/dhcpcd.service
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/networking.service
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/connman.service
+sudo rm -f $prefix/etc/systemd/system/network-online.target.wants/networking.service
+sudo rm -f $prefix/etc/systemd/system/network-online.target.wants/connman-wait-online.service
+sudo rm -f $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
+sudo rm -f $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service
+sudo rm -f $prefix/etc/systemd/system/ntp.service
+sudo rm -f $prefix/etc/systemd/system/ntpd.service
+sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/ntpsec.service
+sudo rm -f $prefix/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service
 
 sudo cp 02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/
 sudo ln -sf /etc/NetworkManager/dispatcher.d/02-hood-dispatcher $prefix/etc/NetworkManager/dispatcher.d/pre-up.d/02-hood-dispatcher
