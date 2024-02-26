@@ -9,13 +9,15 @@ portin "USB-C port" as piusb
 port "GPIO port" as gpiopi
 portout "ethernet port" as piethernet
 component Screen
+component "Shutdown button" as button
 }
 }
 node "Router / Switch / Modem" as router {
 port "ethernet port" as routerethernet
 }
 computerusb -- piusb : USB cable
-gpiopi - Screen : fixed
+gpiopi - button 
+gpiopi - Screen 
 piethernet -- routerethernet : ethernet cable
 
 @enduml
