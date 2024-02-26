@@ -99,7 +99,6 @@ Commandline options available to the install script:
 |target=               |/                  |The target root/device to install firewall.                                                                         |
 |wan_port_device_path= |auto-built-in-eth  |The path of the device to be used as WAN port. `auto-built-in-eth` means find built-in Ethernet port automatically. |
 
-gpio_shutdown_pin=21
 ## Install to Debian
 
 Hood firewall now is possible to be installed to debian-based Linux systems. This feature has been tested in the live environment of Parrot OS 6.0.
