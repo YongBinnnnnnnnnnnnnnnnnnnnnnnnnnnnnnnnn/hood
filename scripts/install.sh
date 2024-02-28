@@ -375,14 +375,14 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
   cp ../chromium.sh ~/Desktop
   sudo systemctl stop ntpd
-  sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
-  sudo /etc/rc.local
-  echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
   if [ $yongbin -eq 1 ] && [ $debian_live -eq 1 ]; then
     sudo apt install -y git bash-completion chromium
     sudo apt autoremove -y --purge avahi-daemon
     sudo systemctl soft-reboot
   fi
+  sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
+  sudo /etc/rc.local
+  echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
 fi
 
 
