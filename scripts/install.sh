@@ -348,6 +348,7 @@ sudo rm -f $prefix/etc/systemd/system/network-online.target.wants/networking.ser
 sudo rm -f $prefix/etc/systemd/system/network-online.target.wants/connman-wait-online.service
 sudo rm -f $prefix/etc/systemd/system/dbus-org.freedesktop.Avahi.service
 sudo rm -f $prefix/etc/systemd/system/dbus-org.freedesktop.timesync1.service
+sudo rm -f $prefix/etc/systemd/system/sockets.target.wants/avahi-daemon.socket
 sudo rm -f $prefix/etc/systemd/system/ntp.service
 sudo rm -f $prefix/etc/systemd/system/ntpd.service
 sudo rm -f $prefix/etc/systemd/system/multi-user.target.wants/ntpsec.service
