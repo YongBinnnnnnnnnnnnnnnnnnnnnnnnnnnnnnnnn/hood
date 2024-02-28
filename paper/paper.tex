@@ -750,7 +750,7 @@ To be close to real-world application of this tool, a computer from the universi
 \section{Man-in-the-middle (MITM) attack, DNS hijacking, and IP hijacking}
 \subsection{Experiment tools}
 \paragraph{}
-Following devices are used in the experiment: Two computers running live Parrot OS from Parrot-htb-6.0\_amd64.iso. A Raspberry Pi 4B running hood firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz.
+Following devices are used in the experiment: Two computers running live Parrot OS from Parrot-htb-6.0\_amd64.iso (See \cref{sec:parrot-iso}). A Raspberry Pi 4B running hood firewall installed with the parameter "harden\_only=1" to 2023-12-05-raspios-bookworm-arm64.img.xz.
 
 \subsection{Experiment steps}
 \paragraph{}
@@ -1204,6 +1204,9 @@ table arp filter {
   }
 }
 \end{lstlisting}
+
+\section{Parrot OS image}\label{sec:parrot-iso}
+Parrot OS website changed its 6.0 release without changing version number. To be clear, the hashes of the Parrot-htb-6.0\_amd64.iso that I used for testing are MD5: 1879bfa2a00cf1579465a945a2c3c344 SHA256: d380042d80f2f92311b5a0307f659a471d1f279f8a7fa596c3fac4a1d2d8ba42.
 
 \chapter{The attacks encountered during the time I was working on this thesis}
 
