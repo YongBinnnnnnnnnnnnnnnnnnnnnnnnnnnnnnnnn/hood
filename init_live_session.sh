@@ -112,7 +112,8 @@ if sudo -E pkg upgrade -y firefox; then
   sudo -E pkg -o INSTALL_AS_USER=true install -y tex-dvipsk
 fi
 elif [ $machine = "Linux" ]; then
-  sudo systemctl stop NetworkManager ntpd avahi-daemon avahi-daemon.socket cups cups-browsed exim4
+  sudo systemctl disable avahi-daemon
+  sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
   sudo rmmod mei_wdt mei_hdcp mei_me mei
   sudo ./scripts/rc.local
   killall qlipper
