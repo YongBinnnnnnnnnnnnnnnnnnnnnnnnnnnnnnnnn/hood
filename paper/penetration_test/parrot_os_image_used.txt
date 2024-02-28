@@ -1,0 +1,5 @@
+MD5 1879bfa2a00cf1579465a945a2c3c344
+SHA256 d380042d80f2f92311b5a0307f659a471d1f279f8a7fa596c3fac4a1d2d8ba42
+SHA512 b35fd92cbe0e65df7f5b8ba1de7959c7740b82cb0b63bbb4f46e334253dc697dd407d8a84a0ceb9bedab64cec7f574b897c1b81c199956c8b71035a9e33b6e71
+https://web.archive.org/web/20240228114108/http://web.archive.org/screenshot/https://duckduckgo.com/?q=1879bfa2a00cf1579465a945a2c3c344
+https://archive.org/details/parrot-htb-6.0-amd-64
