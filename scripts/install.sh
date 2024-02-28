@@ -97,14 +97,24 @@ fi
 sudosedi "s|http://deb.debian.org/|https://deb.debian.org/|g" $prefix/etc/apt/sources.list
 sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/etc/apt/sources.list
 
+apt_update_done=0
+apt_update() {
+  if [ $apt_update_done -eq 0 ]; then
+    sudo apt update
+    apt_update_done=1
+  fi
+}
+
+apt_install() {
+  if ! apt list --installed $1 2>/dev/null|grep -q $1; then
+    apt_update
+    sudo apt install -y $1
+  fi
+}
+
 if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
-  sudo apt update
-  if ! apt list --installed dnsmasq 2>/dev/null|grep -q dnsmasq; then
-    sudo apt install -y dnsmasq
-  fi
-  if ! apt list --installed network-manager 2>/dev/null|grep -q network-manager; then
-    sudo apt install -y network-manager
-  fi
+  apt_install dnsmasq
+  apt_install network-manager
 fi
 
 echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
