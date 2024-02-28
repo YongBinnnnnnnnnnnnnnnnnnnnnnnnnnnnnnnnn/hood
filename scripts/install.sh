@@ -99,7 +99,12 @@ sudosedi "s|http://security.debian.org/|https://security.debian.org/|g" $prefix/
 
 if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   sudo apt update
-  sudo apt install -y dnsmasq network-manager
+  if ! apt list --installed dnsmasq 2>/dev/null|grep -q dnsmasq; then
+    sudo apt install -y dnsmasq
+  fi
+  if ! apt list --installed network-manager 2>/dev/null|grep -q dnsmasq; then
+    sudo apt install -y network-manager
+  fi
 fi
 
 echo $harden_only $usb_tether $disable_wireless $prefix $target $target_instrument_set $lodevice
