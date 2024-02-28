@@ -102,7 +102,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   if ! apt list --installed dnsmasq 2>/dev/null|grep -q dnsmasq; then
     sudo apt install -y dnsmasq
   fi
-  if ! apt list --installed network-manager 2>/dev/null|grep -q dnsmasq; then
+  if ! apt list --installed network-manager 2>/dev/null|grep -q network-manager; then
     sudo apt install -y network-manager
   fi
 fi
@@ -380,7 +380,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
   if [ $yongbin -eq 1 ] && [ $debian_live -eq 1 ]; then
     sudo apt install -y git bash-completion chromium
-    sudo apt autoremove --purge avahi-daemon
+    sudo apt autoremove -y --purge avahi-daemon
     sudo systemctl soft-reboot
   fi
 fi
