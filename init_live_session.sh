@@ -114,6 +114,13 @@ fi
 elif [ $machine = "Linux" ]; then
   sudo systemctl disable avahi-daemon
   sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
+  sudo cp ./scripts/dhclient.conf /etc/dhcp/
+  echo "deny /{,usr/}bin/bash mr," | sudo tee /etc/apparmor.d/local/sbin.dhclient > /dev/null
+  sudo apparmor_parser -r /etc/apparmor.d/sbin.dhclient
+  sudo cp ./scripts/dnsmasq.conf /etc/NetworkManager/dnsmasq.d/dnsmasq.conf
+  sudo chmod -x  /etc/NetworkManager/dnsmasq.d/dnsmasq.conf
+  sudo ln -s /etc/NetworkManager/dnsmasq.d/dnsmasq.conf /etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
+  sudo cp ./scripts/NetworkManager.conf /etc/NetworkManager/NetworkManager.conf
   sudo rmmod mei_wdt mei_hdcp mei_me mei
   sudo ./scripts/rc.local
   killall qlipper
