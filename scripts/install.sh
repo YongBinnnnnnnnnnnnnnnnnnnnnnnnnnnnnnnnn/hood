@@ -391,6 +391,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
     sudo apt autoremove -y --purge avahi-daemon
     sudo systemctl soft-reboot
   fi
+  sudo apparmor_parser -r /etc/apparmor.d/sbin.dhclient
   sudo systemctl reload-or-restart before-network nftables NetworkManager NetworkManager-dispatcher hood-network-services
   sudo /etc/rc.local
   echo "Targeting current system, you may need to reboot or soft-reboot to make the firewall fully functional"
