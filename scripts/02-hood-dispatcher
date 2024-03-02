@@ -169,6 +169,10 @@ function is_wan_port() {
     if [ "$1" = "eth0" ]||[ "$1" = "eno1" ]; then
       return 0
     fi
+    if [ $(ls /sys/class/net --ignore=lo -b|wc -l) -eq 1 ]; then
+      # only one excluding lo
+      return 0
+    fi
     return 1
   fi
   if test -d /sys/class/net/$1; then
