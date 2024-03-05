@@ -195,7 +195,6 @@ sudo tee -a /etc/hosts <<EOF
 0.0.0.0 eu-office.events.data.microsoft.com
 0.0.0.0 eu-mobile.events.data.microsoft.com
 0.0.0.0 webshell.suite.office.com
-0.0.0.0 viewscreen.githubusercontent.com
 0.0.0.0 stats.g.doubleclick.net
 0.0.0.0 www.google-analytics.com
 0.0.0.0 region1.google-analytics.com

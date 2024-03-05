@@ -7,11 +7,15 @@
 146.112.41.2 doh.opendns.com
 104.16.132.229 dns.cloudflare.com
 104.16.248.249 cloudflare-dns.com
+172.64.41.3 chrome.cloudflare-dns.com
+162.159.61.3 chrome.cloudflare-dns.com
+162.159.61.4 mozilla.cloudflare-dns.com
+162.159.61.4 mozilla.cloudflare-dns.com
 130.59.31.248 dns.switch.ch
 92.223.65.71 dns.comss.one
 193.17.47.1 odvr.nic.cz
 13.107.4.52 www.msftconnecttest.com
-195.176.55.173 ise.usi.ch
+#195.176.55.173 ise.usi.ch
 0.0.0.0 firefox.settings.services.mozilla.com
 0.0.0.0 contile.services.mozilla.com
 0.0.0.0 shavar.services.mozilla.com
