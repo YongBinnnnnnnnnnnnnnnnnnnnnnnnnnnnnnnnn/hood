@@ -121,7 +121,8 @@ elif [ $machine = "Linux" ]; then
   sudo chmod -x  /etc/NetworkManager/dnsmasq.d/dnsmasq.conf
   sudo ln -s /etc/NetworkManager/dnsmasq.d/dnsmasq.conf /etc/NetworkManager/dnsmasq-shared.d/dnsmasq.conf
   sudo cp ./scripts/NetworkManager.conf /etc/NetworkManager/NetworkManager.conf
-  sudo rmmod mei_wdt mei_hdcp mei_me mei
+  sudo rmmod mei_wdt mei_hdcp mei_me mei acer_wmi wmi_bmot pmt_telemetry pmt_class serio_raw
+  find /lib/modules/$(uname -r)/|grep pmt_|xargs sudo rm 
   sudo ./scripts/rc.local
   killall qlipper
   if test -d /media/user/Windows/Windows; then
