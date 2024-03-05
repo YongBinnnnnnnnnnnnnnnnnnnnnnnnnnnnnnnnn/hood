@@ -197,10 +197,14 @@ if __name__ == '__main__':
             return cache["result"]
           else:
             self.cache.pop(name, None)
-        client = self.clients[self.pointer]
-        self.pointer += 1
-        if self.pointer == len(self.clients):
-          self.pointer = 0
+        while True:
+          client = self.clients[self.pointer]
+          self.pointer += 1
+          if self.pointer == len(self.clients):
+            self.pointer = 0
+          if not client.busy:
+            break
+          asyncio.sleep(0)
         answer = await client.resolve(name)
 
         if "Status" not in answer:
