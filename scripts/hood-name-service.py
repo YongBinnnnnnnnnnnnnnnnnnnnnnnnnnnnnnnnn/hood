@@ -86,6 +86,8 @@ if __name__ == '__main__':
     "dns.google": "/resolve",
   #  "dns10.quad9.net",
     "1.1.1.1": "/dns-query",
+    "mozilla.cloudflare-dns.com": "/dns-query",
+    "chrome.cloudflare-dns.com": "/dns-query",
   #  "doh.opendns.com",
   };
 
