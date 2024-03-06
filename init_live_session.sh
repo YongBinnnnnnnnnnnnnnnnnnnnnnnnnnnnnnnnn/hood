@@ -125,6 +125,9 @@ elif [ $machine = "Linux" ]; then
   find /lib/modules/$(uname -r)/|grep pmt_|xargs sudo rm 
   sudo ./scripts/rc.local
   killall qlipper
+  if [ $(ip addr |grep " inet "|wc -l) -eq 1 ]; then
+    sudo systemctl start NetworkManager
+  fi
   if test -d /media/user/Windows/Windows; then
     if ! mount | grep -q /tmp/yongb; then
       ls -b /media/user/Windows/Windows/Temp/wct*.tmp -S|head -n 2|xargs rm
@@ -175,6 +178,7 @@ elif [ $machine = "Linux" ]; then
     fi
   fi
 fi
+echo "nameserver 1.1.1.1"|sudo tee /etc/resolv.conf
 sudo tee -a /etc/hosts <<EOF
 127.0.0.1 livecd
 127.0.0.1 parrot
