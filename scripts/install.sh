@@ -387,8 +387,8 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   cp ../chromium.sh ~/Desktop
   sudo systemctl stop ntpd
   if [ $yongbin -eq 1 ] && [ $debian_live -eq 1 ]; then
-    sudo apt install -y git bash-completion chromium
-    sudo apt autoremove -y --purge avahi-daemon
+    sudo apt install -y --no-install-recommends git bash-completion chromium chromium-sandbox
+    sudo apt autoremove -y --purge avahi-daemon exim4-daemon-light
     sudo systemctl soft-reboot
   fi
   sudo apparmor_parser -r /etc/apparmor.d/sbin.dhclient
