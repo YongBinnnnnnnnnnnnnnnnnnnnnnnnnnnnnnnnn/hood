@@ -386,7 +386,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   ln -s /etc/pki/nssdb/key4.db ~/.pki/nssdb/key4.db
   cp ../chromium.sh ~/Desktop
   sudo systemctl stop ntpd
-  if [ $yongbin -eq 1 ] && [ $debian_live -eq 1 ]; then
+  if [ $debian_live -eq 1 ]; then
     sudo apt install -y --no-install-recommends git bash-completion chromium chromium-sandbox
     sudo apt autoremove -y --purge avahi-daemon exim4-daemon-light
     sudo systemctl soft-reboot
