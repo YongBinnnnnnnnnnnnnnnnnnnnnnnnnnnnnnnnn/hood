@@ -3,7 +3,9 @@
 #echo '1-1' > /sys/class/backlight/
 #ls /sys/class/backlight/ > /var/tmp/test
 
-hostname_format=$(($RANDOM % 6))
+boltctl config global.auth-mode disabled
+
+hostname_format=$(($RANDOM % 12))
 if [[ $hostname_format == 0 ]]; then
   hostname="WIN-"`cat /dev/random | tr -dc "A-Z0-9"|head -c 11`
 elif [[ $hostname_format == 1 ]]; then
@@ -16,6 +18,18 @@ elif [[ $hostname_format == 4 ]]; then
   hostname="iPhone"
 elif [[ $hostname_format == 5 ]]; then
   hostname="Apple Watch"
+elif [[ $hostname_format == 6 ]]; then
+  hostname="ZENBOOK"
+elif [[ $hostname_format == 7 ]]; then
+  hostname="lenovo"
+elif [[ $hostname_format == 8 ]]; then
+  hostname="samsung"
+elif [[ $hostname_format == 9 ]]; then
+  hostname="huawei"
+elif [[ $hostname_format == 10 ]]; then
+  hostname="HP"
+elif [[ $hostname_format == 11 ]]; then
+  hostname="DELL"
 fi
 
 hostnamectl set-hostname $hostname

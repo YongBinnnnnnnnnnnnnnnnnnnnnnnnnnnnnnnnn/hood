@@ -112,6 +112,7 @@ if sudo -E pkg upgrade -y firefox; then
   sudo -E pkg -o INSTALL_AS_USER=true install -y tex-dvipsk
 fi
 elif [ $machine = "Linux" ]; then
+  boltctl config global.auth-mode disabled
   sudo systemctl disable avahi-daemon
   sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
   sudo cp ./scripts/dhclient.conf /etc/dhcp/
