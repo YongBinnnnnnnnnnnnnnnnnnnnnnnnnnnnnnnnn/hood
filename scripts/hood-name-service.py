@@ -207,7 +207,7 @@ if __name__ == '__main__':
           if not client.busy:
             break
           if self.pointer == 0:
-            asyncio.sleep(0)
+            await asyncio.sleep(0)
         answer = await client.resolve(name)
 
         if "Status" not in answer:
