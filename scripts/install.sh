@@ -112,6 +112,31 @@ apt_install() {
   fi
 }
 
+if grep "#" $prefix/etc/ca-certificates.conf; then 
+  sed -e '/^$/d' -e '/^#/d' $prefix/etc/ca-certificates.conf | xargs -I {} sh -c "openssl x509 -text -in $prefix/usr/share/ca-certificates/{}|grep -q \"C = US,\"||echo -n \!;echo {}" > /tmp/hood-install/ca-certificates.conf
+  sudosedi "s/^!(.*(Comodo|GlobalSign|Baltimore_CyberTrust).*)/\1/ig" /tmp/hood-install/ca-certificates.conf
+  sudosedi "s/^[^\!].*(AffirmTrust|Certainly|Starfield|Trustwave|XRamp|emSign).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
+  
+  sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
+  if test -f /usr/sbin/update-ca-certificates; then
+    sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
+  else
+    for cert in $(ls $prefix/etc/ssl/certs/*.pem -b -1); do grep "$(realpath $cert|sed -e "s|.*ca-certificates/|\!|")" $prefix/etc/ca-certificates.conf -q && sudo rm -v $cert; done
+    sudo openssl rehash $prefix/etc/ssl/certs/
+    ls $prefix/etc/ssl/certs/*.pem $prefix/etc/ssl/certs/*.crt -1|grep -v ca-certificates.crt|xargs cat>$prefix/etc/ssl/certs/ca-certificates.crt
+  fi
+fi
+ 
+sudo mkdir -p $prefix/etc/pki/nssdb
+sudocpcontent nssdb/cert9.db $prefix/etc/pki/nssdb
+sudocpcontent nssdb/key4.db $prefix/etc/pki/nssdb
+sudocpcontent nssdb/pkcs11.txt $prefix/etc/pki/nssdb
+sudo chmod 0644 $prefix/etc/pki/nssdb/*
+
+sudo mkdir -p $prefix/etc/skel/.pki/
+sudo cp -r $prefix/etc/pki/nssdb $prefix/etc/skel/.pki/
+sudo cp ../chromium.sh $prefix/etc/skel/Desktop/
+
 if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   apt_install dnsmasq
   apt_install network-manager
@@ -191,8 +216,14 @@ sudo cp hood-expose.py $prefix/usr/local/lib/hood/
 sudo chmod 0755 $prefix/usr/local/lib/hood/hood-expose.py
 sudocpcontent ./hood_proxy.conf $prefix/etc/
 
-if ! grep -q "apparmor" $prefix/boot/firmware/cmdline.txt; then 
-  sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" $prefix/boot/firmware/cmdline.txt
+if [ $debian_live -eq 0 ]; then
+  if ! grep -q "apparmor" $prefix/boot/firmware/cmdline.txt; then 
+    sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" $prefix/boot/firmware/cmdline.txt
+  fi
+elif [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
+  if ! grep -q "apparmor" /proc/cmdline; then 
+    sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" /proc/cmdline
+  fi
 fi
 
 sudo tee $prefix/etc/modprobe.d/bin-y-blacklist.conf > /dev/null <<EOF
@@ -272,31 +303,6 @@ sudo chmod +x $prefix/etc/rc.local
 sudocpcontent ./hosts $prefix/etc/
 sudocpcontent ./sysctl.conf $prefix/etc/
 sudocpcontent ./nftables.conf $prefix/etc/
-
-if grep "#" $prefix/etc/ca-certificates.conf; then 
-  sed -e '/^$/d' -e '/^#/d' $prefix/etc/ca-certificates.conf | xargs -I {} sh -c "openssl x509 -text -in $prefix/usr/share/ca-certificates/{}|grep -q \"C = US,\"||echo -n \!;echo {}" > /tmp/hood-install/ca-certificates.conf
-  sudosedi "s/^!(.*(Comodo|GlobalSign|Baltimore_CyberTrust).*)/\1/ig" /tmp/hood-install/ca-certificates.conf
-  sudosedi "s/^[^\!].*(AffirmTrust|Certainly|Starfield|Trustwave|XRamp|emSign).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
-  
-  sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
-  if test -f /usr/sbin/update-ca-certificates; then
-    sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
-  else
-    for cert in $(ls $prefix/etc/ssl/certs/*.pem -b -1); do grep "$(realpath $cert|sed -e "s|.*ca-certificates/|\!|")" $prefix/etc/ca-certificates.conf -q && sudo rm -v $cert; done
-    sudo openssl rehash $prefix/etc/ssl/certs/
-    ls $prefix/etc/ssl/certs/*.pem $prefix/etc/ssl/certs/*.crt -1|grep -v ca-certificates.crt|xargs cat>$prefix/etc/ssl/certs/ca-certificates.crt
-  fi
-fi
- 
-sudo mkdir -p $prefix/etc/pki/nssdb
-sudocpcontent nssdb/cert9.db $prefix/etc/pki/nssdb
-sudocpcontent nssdb/key4.db $prefix/etc/pki/nssdb
-sudocpcontent nssdb/pkcs11.txt $prefix/etc/pki/nssdb
-sudo chmod 0644 $prefix/etc/pki/nssdb/*
-
-sudo mkdir -p $prefix/etc/skel/.pki/
-sudo cp -r $prefix/etc/pki/nssdb $prefix/etc/skel/.pki/
-sudo cp ../chromium.sh $prefix/etc/skel/Desktop/
 
 sudo chmod -x  $prefix/etc/*.conf
 sudocpcontent ./dhclient.conf $prefix/etc/dhcp/
