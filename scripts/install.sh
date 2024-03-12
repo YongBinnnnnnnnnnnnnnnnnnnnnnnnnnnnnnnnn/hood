@@ -225,6 +225,7 @@ elif [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   #if ! grep -q "apparmor" /proc/cmdline; then 
   #  sudosedi "s/ quiet / quiet ipv6.disable=1 apparmor=1 security=apparmor /" /proc/cmdline
   #fi
+  true
 fi
 
 sudo tee $prefix/etc/modprobe.d/bin-y-blacklist.conf > /dev/null <<EOF
