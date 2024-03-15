@@ -380,6 +380,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
     && grep -q "/run/live/medium" /etc/apt/sources.list\
     && grep -q "deb.debian.org" /etc/apt/sources.list\
     && systemctl --version|grep -q 252; then
+    lspci -D |grep hunderbolt | grep "PCI\|NHI" |sed -E "s|(\w+:\w+)([^ ]+).*|\1/\1\2|"|xargs -L 1 -I {} sh -c "echo 1 | sudo tee /sys/devices/pci{}/remove"
     sudo rmmod mei_wdt mei_hdcp mei_me mei
     echo "Debian bookworm live environment found!"
     echo "Install new systemd from backports to enable soft-reboot"
