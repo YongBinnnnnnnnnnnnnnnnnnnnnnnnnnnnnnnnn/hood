@@ -112,6 +112,8 @@ if sudo -E pkg upgrade -y firefox; then
   sudo -E pkg -o INSTALL_AS_USER=true install -y tex-dvipsk
 fi
 elif [ $machine = "Linux" ]; then
+  # failed concept
+  # lspci|grep hunderbolt | grep "PCI\|NHI" |cut -d ' ' -f 1|xargs -L 1 -I {} sudo setpci -s {} CAP_PM+4.b=0b
   boltctl config global.auth-mode disabled
   sudo systemctl disable avahi-daemon
   sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
