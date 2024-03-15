@@ -126,6 +126,9 @@ elif [ $machine = "Linux" ]; then
   find /lib/modules/$(uname -r)/|grep pmt_|xargs sudo rm 
   sudo ./scripts/rc.local
   killall qlipper
+  if cat /sys/class/dmi/id/product_name |grep -q SP513-55N; then
+    echo 0|sudo tee /sys/bus/usb/devices/usb3/authorized
+  fi
   if [ $(ip addr |grep " inet "|wc -l) -eq 1 ]; then
     sudo systemctl start NetworkManager
   fi
