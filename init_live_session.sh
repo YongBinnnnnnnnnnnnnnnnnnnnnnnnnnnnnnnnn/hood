@@ -114,7 +114,7 @@ fi
 elif [ $machine = "Linux" ]; then
   # failed concept
   # lspci|grep hunderbolt | grep "PCI\|NHI" |cut -d ' ' -f 1|xargs -L 1 -I {} sudo setpci -s {} CAP_PM+4.b=0b
-  lspci -D |grep hunderbolt | grep "PCI\|NHI" |sed -E "s|(\w+:\w+)([^ ]+).*|\1/\1\2|"|xargs -L 1 -I {} echo {}
+  lspci -D |grep hunderbolt | grep "PCI\|NHI" |sed -E "s|(\w+:\w+)([^ ]+).*|\1/\1\2|"|xargs -L 1 -I {} sh -c "echo 1 | sudo tee /sys/devices/pci{}/remove"
   boltctl config global.auth-mode disabled
   sudo systemctl disable avahi-daemon
   sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
