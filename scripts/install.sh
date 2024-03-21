@@ -126,7 +126,8 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
     ls $prefix/etc/ssl/certs/*.pem $prefix/etc/ssl/certs/*.crt -1|grep -v ca-certificates.crt|xargs cat>$prefix/etc/ssl/certs/ca-certificates.crt
   fi
 fi
- 
+
+sudocpcontent openssl.cnf $prefix/etc/ssl/
 sudo mkdir -p $prefix/etc/pki/nssdb
 sudocpcontent nssdb/cert9.db $prefix/etc/pki/nssdb
 sudocpcontent nssdb/key4.db $prefix/etc/pki/nssdb
