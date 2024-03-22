@@ -4,7 +4,9 @@ TODO: proxy IMAP/POP3 traffic
 TODO: check Whonix and Kicksecure
 TODO: find and copy the browser hardening script to this project
 TODO: DNS CAA CRL OCSP
- TODO: Bruce Schneier, The NSA Is Breaking Most Encryption on the Internet (2013)
+
+ Bruce Schneier, The NSA Is Breaking Most Encryption on the Internet (2013)
+https://www.schneier.com/blog/archives/2013/09/the_nsa_is_brea.html
 
 SRV _kerberos._tcp.dc._msdcs.usilu.net
 https://www.qemu.org/docs/master/system/arm/raspi.html
