@@ -41,7 +41,7 @@ tar -xmf $openssl_src
 openssl_src=$(echo $openssl_src |sed "s/.......$//")
 cd $openssl_src
 ./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers --prefix="../$(uname -s)/$arch/${openssl_src}"
-make
+make -j ${HOOD_PROXY_BUILD_CONCURRENCY}
 make install
 
 # ---- begin code copied and modified from carla Simulator which is MIT License
