@@ -42,7 +42,7 @@ openssl_src=$(echo $openssl_src |sed "s/.......$//")
 cd $openssl_src
 ./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers --prefix="../$(uname -s)/$arch/${openssl_src}"
 make
-sudo make install
+make install
 
 # ---- begin code copied and modified from carla Simulator which is MIT License
 # ==============================================================================
