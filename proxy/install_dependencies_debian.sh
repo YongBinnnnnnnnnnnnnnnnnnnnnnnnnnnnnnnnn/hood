@@ -7,7 +7,29 @@ if [ -z $HOOD_PROXY_BUILD_CONCURRENCY ]; then
   HOOD_PROXY_BUILD_CONCURRENCY=4
 fi
 
+host_arch=$(uname -r|cut -d - -f 3)
+arch=$host_arch
+toolset=gcc
+
+
+for arg in "$@"; do
+  case $arg in 
+    arch=*) arch=$(echo $arg|sed "s/[^=]*=//");;
+  esac
+done
+
 sudo apt install -y cmake build-essential clang clang-tidy clang-format libssl-dev
+
+if [ "$host_arch" != "$arch" ]; then
+  if [ "$arch" = "armhf" ]; then
+    sudo apt install -y gcc-arm-linux-gnueabihf
+    toolset=gcc-arm-linux-gnueabihf
+  fi
+  if [ "$arch" = "arm64" ]; then
+    sudo apt install -y gcc-aarch64-linux-gnu 
+    toolest=gcc-aarch64-linux-gnu 
+  fi
+fi
 
 export TAR_OPTIONS=--no-same-owner
 
@@ -30,18 +52,18 @@ else
     echo "Extracting boost."
     tar -xvmf $BOOST_FILE_NAME.tar.gz --exclude "libs" --exclude "doc" --exclude "example" --exclude "test"
     tar -xvmf $BOOST_FILE_NAME.tar.gz --exclude "test" --exclude "example" --exclude "doc" ${BOOST_FILE_NAME}/libs/
-    mkdir -p $(uname -s)/${BOOST_FILE_NAME}-install/include
+    mkdir -p $(uname -s)/$arch/${BOOST_FILE_NAME}-install/include
     mv ${BOOST_FILE_NAME} ${BOOST_FILE_NAME}-source
   fi
   cd ${BOOST_FILE_NAME}-source
 
   if [ ! -f "b2" ] ; then
-    ./bootstrap.sh --prefix="../$(uname -s)/${BOOST_FILE_NAME}-install"
+    ./bootstrap.sh --prefix="../$(uname -s)/$arch/${BOOST_FILE_NAME}-install"
   fi
 
   BOOST_CXXFLAGS="-std=c++20"
 
-  ./b2 link=static cxxflags="${BOOST_CXXFLAGS}" -j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release install
+  ./b2 toolset=$toolset link=static cxxflags="${BOOST_CXXFLAGS}" -j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release install
 
   # Get rid of  python2 build artifacts completely & do a clean build for python3
   cd -
