@@ -38,6 +38,11 @@ openssl_src=$(curl -s https://www.openssl.org/source/|grep "tar.gz</a"|tail -n 1
 curl -L -O -C - https://www.openssl.org/source/$openssl_src
 echo "Extracting openssl."
 tar -xmf $openssl_src
+openssl_src=$(echo $openssl_src |sed "s/.......$//")
+cd $openssl_src
+./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers --prefix="../$(uname -s)/$arch/${openssl_src}"
+make
+sudo make install
 
 # ---- begin code copied and modified from carla Simulator which is MIT License
 # ==============================================================================
@@ -47,7 +52,7 @@ tar -xmf $openssl_src
 BOOST_VERSION="1.84.0"
 BOOST_FILE_NAME=$(echo boost_$BOOST_VERSION|tr '.' '_')
 
-if [ -d "${BOOST_FILE_NAME}-install" ] ; then
+if [ -d /$(uname -s)/$arch/"${BOOST_FILE_NAME}-install" ] ; then
   echo "${BOOST_FILE_NAME} already installed."
 else
   if [ ! -d "${BOOST_FILE_NAME}-source" ]; then
