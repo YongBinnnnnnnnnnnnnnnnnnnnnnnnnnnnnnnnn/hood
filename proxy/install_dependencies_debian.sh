@@ -40,7 +40,10 @@ echo "Extracting openssl."
 tar -xmf $openssl_src
 openssl_src=$(echo $openssl_src |sed "s/.......$//")
 cd $openssl_src
-./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers no-rc2 no-rc4 no-md2 no-md4 no-des no-unit-test no-apps --prefix=$(realpath "../$(uname -s)/$arch/${openssl_src}")
+install_dir=../$(uname -s)/$arch/${openssl_src}
+mkdir -p $install_dir
+install_dir=$(realpath $install_dir)
+./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers no-rc2 no-rc4 no-md2 no-md4 no-des no-unit-test no-apps --prefix=$install_dir
 make -j ${HOOD_PROXY_BUILD_CONCURRENCY}
 make install_sw
 cd ..
