@@ -3,9 +3,10 @@ project (hood_proxy)
 
 
 set(Boost_NO_WARN_NEW_VERSIONS 1)
-set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_HOST_SYSTEM_NAME}/boost_1_84_0-install")
 set(Boost_USE_STATIC_LIBS ON)
 find_package( Boost 1.84 COMPONENTS program_options system log REQUIRED )
+set(OPENSSL_USE_STATIC_LIBS ON)
+find_package( OpenSSL REQUIRED )
 include_directories (SYSTEM ${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 20)
@@ -37,4 +38,4 @@ else()
   target_compile_options(hood_proxy PRIVATE -Wall -Wextra -Werror -fstack-protector)
 endif()
 
-target_link_libraries( hood_proxy ${Boost_LIBRARIES} pthread ssl crypto )
+target_link_libraries( hood_proxy ${Boost_LIBRARIES} pthread ${OPENSSL_LIBRARIES} )
