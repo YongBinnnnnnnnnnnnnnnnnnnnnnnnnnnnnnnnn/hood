@@ -33,6 +33,12 @@ fi
 
 export TAR_OPTIONS=--no-same-owner
 
+echo "Downloading openssl."
+openssl_src=$(curl -s https://www.openssl.org/source/|grep "tar.gz</a"|tail -n 1|sed -r -e "s/.*gz\">([^<]*).*/\1/")
+curl -L -O -C - https://www.openssl.org/source/$openssl_src
+echo "Extracting openssl."
+tar -xmf $openssl_src
+
 # ---- begin code copied and modified from carla Simulator which is MIT License
 # ==============================================================================
 # -- Get boost includes --------------------------------------------------------
@@ -50,8 +56,8 @@ else
       curl -L -O -C - "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_FILE_NAME}.tar.gz"
     fi
     echo "Extracting boost."
-    tar -xvmf $BOOST_FILE_NAME.tar.gz --exclude "libs" --exclude "doc" --exclude "example" --exclude "test"
-    tar -xvmf $BOOST_FILE_NAME.tar.gz --exclude "test" --exclude "example" --exclude "doc" ${BOOST_FILE_NAME}/libs/
+    tar -xmf $BOOST_FILE_NAME.tar.gz --exclude "libs" --exclude "doc" --exclude "example" --exclude "test"
+    tar -xmf $BOOST_FILE_NAME.tar.gz --exclude "test" --exclude "example" --exclude "doc" ${BOOST_FILE_NAME}/libs/
     mkdir -p $(uname -s)/$arch/${BOOST_FILE_NAME}-install/include
     mv ${BOOST_FILE_NAME} ${BOOST_FILE_NAME}-source
   fi
