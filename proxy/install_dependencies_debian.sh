@@ -4,7 +4,7 @@ mkdir -p libs/$(uname -s)
 cd libs/
 
 if [ -z $HOOD_PROXY_BUILD_CONCURRENCY ]; then
-  HOOD_PROXY_BUILD_CONCURRENCY=4
+  HOOD_PROXY_BUILD_CONCURRENCY=$(nproc --all)
 fi
 
 host_arch=$(uname -r|cut -d - -f 3)
@@ -40,9 +40,9 @@ echo "Extracting openssl."
 tar -xmf $openssl_src
 openssl_src=$(echo $openssl_src |sed "s/.......$//")
 cd $openssl_src
-./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers --prefix=$(realpath "../$(uname -s)/$arch/${openssl_src}")
+./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers no-rc2 no-rc4 no-md2 no-md4 no-des no-unit-test no-apps --prefix=$(realpath "../$(uname -s)/$arch/${openssl_src}")
 make -j ${HOOD_PROXY_BUILD_CONCURRENCY}
-make install
+make install_sw
 cd ..
 
 # ---- begin code copied and modified from carla Simulator which is MIT License
