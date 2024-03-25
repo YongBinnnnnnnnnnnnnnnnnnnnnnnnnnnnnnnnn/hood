@@ -60,14 +60,18 @@ jobs:
 
     - name: Install dependencies
       run: cd proxy; chmod +x ./install_dependencies_debian.sh; ./install_dependencies_debian.sh
-    - name: Configure CMake
+    - name: Run build script
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: >
+      run: > 
+        arch=$(uname -r|cut -d - -f 3);
+        system=$(uname -s);
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DOPENSSL_ROOT_DIR=$script_dir/libs/$system/$arch/openssl
+        -DBOOST_ROOT=$script_dir/libs/$system/$arch/boost
         -S ${{ github.workspace }}/proxy
         
     - name: Build
