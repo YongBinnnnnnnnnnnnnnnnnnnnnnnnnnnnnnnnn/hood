@@ -103,6 +103,12 @@ Commandline options available to the install script:
 
 Hood firewall now is possible to be installed to debian-based Linux systems. This feature has been tested in the live environment of Parrot OS 6.0.
 
+### Kernel parameters used by author when running Live CD.
+
+```
+module_blacklist=ime,mei,wmi,i915,acpi,ipv6 toram=filesystem.squashfs
+```
+
 ### Step 1. Get Hood
 
 ```shell
