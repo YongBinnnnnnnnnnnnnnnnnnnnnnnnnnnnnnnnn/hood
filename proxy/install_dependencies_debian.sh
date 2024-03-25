@@ -40,7 +40,7 @@ echo "Extracting openssl."
 tar -xmf $openssl_src
 openssl_src=$(echo $openssl_src |sed "s/.......$//")
 cd $openssl_src
-install_dir=../$(uname -s)/$arch/${openssl_src}
+install_dir=../$(uname -s)/$arch/openssl
 mkdir -p $install_dir
 install_dir=$(realpath $install_dir)
 ./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers no-rc2 no-rc4 no-md2 no-md4 no-des no-unit-test no-apps --prefix=$install_dir
@@ -56,7 +56,7 @@ cd ..
 BOOST_VERSION="1.84.0"
 BOOST_FILE_NAME=$(echo boost_$BOOST_VERSION|tr '.' '_')
 
-if [ -d /$(uname -s)/$arch/"${BOOST_FILE_NAME}-install" ] ; then
+if [ -d /$(uname -s)/$arch/boost ] ; then
   echo "${BOOST_FILE_NAME} already installed."
 else
   if [ ! -d "${BOOST_FILE_NAME}-source" ]; then
@@ -67,13 +67,13 @@ else
     echo "Extracting boost."
     tar -xmf $BOOST_FILE_NAME.tar.gz --exclude "libs" --exclude "doc" --exclude "example" --exclude "test"
     tar -xmf $BOOST_FILE_NAME.tar.gz --exclude "test" --exclude "example" --exclude "doc" ${BOOST_FILE_NAME}/libs/
-    mkdir -p $(uname -s)/$arch/${BOOST_FILE_NAME}-install/include
+    mkdir -p $(uname -s)/$arch/boost/include
     mv ${BOOST_FILE_NAME} ${BOOST_FILE_NAME}-source
   fi
   cd ${BOOST_FILE_NAME}-source
 
   if [ ! -f "b2" ] ; then
-    ./bootstrap.sh --prefix="../$(uname -s)/$arch/${BOOST_FILE_NAME}-install"
+    ./bootstrap.sh --prefix="../$(uname -s)/$arch/boost"
   fi
 
   BOOST_CXXFLAGS="-std=c++20"
