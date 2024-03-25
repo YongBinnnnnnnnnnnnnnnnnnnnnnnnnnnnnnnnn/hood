@@ -105,6 +105,8 @@ Hood firewall now is possible to be installed to debian-based Linux systems. Thi
 
 ### Kernel parameters used by author when running Live CD.
 
+On boot menu, press 'e' to goto edit prompt, and then add following to the end of the 'linux' line 
+
 ```
 module_blacklist=ime,mei,wmi,i915,acpi,ipv6 toram=filesystem.squashfs
 ```
