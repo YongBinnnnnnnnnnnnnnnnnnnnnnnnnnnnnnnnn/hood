@@ -68,8 +68,8 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DOPENSSL_ROOT_DIR=$script_dir/libs/$(uname -s)/$(uname -r|cut -d - -f 3)/openssl
-        -DBOOST_ROOT=$script_dir/libs/$(uname -s)/$(uname -r|cut -d - -f 3)/boost
+        -DOPENSSL_ROOT_DIR=${{ github.workspace }}/proxy/libs/$(uname -s)/$(uname -r|cut -d - -f 3)/openssl
+        -DBOOST_ROOT=${{ github.workspace }}/proxy/libs/$(uname -s)/$(uname -r|cut -d - -f 3)/boost
         -S ${{ github.workspace }}/proxy
         
     - name: Test
