@@ -37,7 +37,7 @@ for arg in "$@"; do
     gpio_shutdown_pin=*) gpio_shutdown_pin=$(echo $arg|sed "s/[^=]*=//");;
     screen_dtbo=*) screen_dtbo=$(echo $arg|sed "s/[^=]*=//");;
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
-    wan_port_device_path=*) prefix=$(echo $arg|sed "s/[^=]*=//");;
+    wan_port_device_path=*) wan_port_device_path=$(echo $arg|sed "s/[^=]*=//");;
     yongbin) yongbin=1;harden_only=1;;
     debian_live) debian_live=1;raspberrypi=0;harden_only=1;usb_tether=0;disable_wireless=0;disable_gpu=0;;
   esac
