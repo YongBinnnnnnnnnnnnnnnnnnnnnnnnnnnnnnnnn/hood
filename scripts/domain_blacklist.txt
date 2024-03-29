@@ -10,6 +10,8 @@ analytics\.[^\.]+\.com
 (.*\.)?adsensecustomsearchads\.com
 (.*\.)?adservice\.google\.com
 
+(.*\.)?hitchprivilege\.com
+(.*\.)?scoopauthority\.com
 (.*\.)?phortaub\.com
 (.*\.)?besmeargleor\.com
 (.*\.)?inpage-push\.com
