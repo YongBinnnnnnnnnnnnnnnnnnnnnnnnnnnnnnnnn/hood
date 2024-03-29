@@ -39,7 +39,7 @@ for arg in "$@"; do
     target=*) target=$(echo $arg|sed "s/[^=]*=//");;
     wan_port_device_path=*) wan_port_device_path=$(echo $arg|sed "s/[^=]*=//");;
     yongbin) yongbin=1;harden_only=1;;
-    debian_live) debian_live=1;raspberrypi=0;harden_only=1;usb_tether=0;disable_wireless=0;disable_gpu=0;;
+    debian_live) debian_live=1;raspberrypi=0;harden_only=1;usb_tether=0;disable_wireless=0;;
   esac
 done
 
@@ -231,6 +231,7 @@ fi
 
 sudo tee $prefix/etc/modprobe.d/bin-y-blacklist.conf > /dev/null <<EOF
 blacklist ipv6
+blacklist mei
 blacklist hci_uart
 blacklist i2c_brcmstb
 blacklist i2c_dev
@@ -269,7 +270,7 @@ if [ $disable_gpu -eq 1 ]; then
     sudosedi "s/dtoverlay=vc4-f?kms-v3d//g" $prefix/boot/firmware/config.txt
   fi
   if test -f $prefix/etc/systemd/system/display-manager.service; then
-    sudo rm $prefix/etc/systemd/system/display-manager.service
+    # sudo rm $prefix/etc/systemd/system/display-manager.service
     echo "GPU is disabled."
     echo "Default lightdm stopped working."
     echo "Please use startx command instead."
@@ -296,8 +297,15 @@ EOF
 blacklist v3d
 blacklist drm
 blacklist drm_panel_orientation_quirks
+blacklist i915
 EOF
-  find /usr/lib/modules/ -name "gpu" -type d|sudo xargs rm -r
+  if [ $raspberrypi -eq 1 ]; then
+    find /usr/lib/modules/ -name "gpu" -type d|sudo xargs rm -r
+  fi
+  if test -f $prefix/etc/gdm3/daemon.conf; then
+    sudo sed -i -e "s/\[daemon\]/\0\nWaylandEnable=false/g" $prefix/etc/gdm3/daemon.conf 
+  fi
+  sudocpcontent ./xorg.conf $prefix/etc/X11/xorg.conf.d/hood.conf
 fi
 
 

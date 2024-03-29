@@ -119,7 +119,9 @@ elif [ $machine = "Linux" ]; then
   #lspci -D |grep hunderbolt | grep "PCI" |cut -d " " -f 1|xargs -L 1 -I {} sh -c "echo {} | sudo tee /sys/bus/pci/drivers/pcieport/unbind"
   #lspci -D |grep hunderbolt | grep "PCI\|NHI" |sed -E "s|(\w+:\w+)([^ ]+).*|\1/\1\2|"|xargs -I "{}" cat /sys/devices/pci{}/vendor /sys/devices/pci{}/device|xargs -L 2 bash -c "echo \$0 \$1|sudo tee /sys/bus/pci/drivers/vfio-pci/new_id"
   rfkill block all
-  bluetoothctl power off
+  if lsmod |grep -q bluetooth; then
+    bluetoothctl power off
+  fi
   boltctl config global.auth-mode disabled
   sudo systemctl disable avahi-daemon
   sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
