@@ -26,6 +26,7 @@ analytics\.[^\.]+\.com
 (.*\.)?symcb\.com
 (.*\.)?hm\.baidu\.com
 (.*\.)?cnzz\.com
+(.*\.)?clarity\.ms
 (.*\.)?events\.data\.microsoft\.com
 (.*\.)?measure\.office\.com
 (.*\.)?dmd\.metaservices\.microsoft\.com
