@@ -405,6 +405,7 @@ if [ "$prefix" = "" ] || [ "$prefix" = "/" ] ; then
   cp ../chromium.sh ~/Desktop
   sudo systemctl stop ntpd
   if [ $debian_live -eq 1 ]; then
+    sudo ln -sf /dev/null $prefix/etc/systemd/system/suspend.target
     sudo apt install -y --no-install-recommends git bash-completion chromium chromium-sandbox
     sudo apt autoremove -y --purge avahi-daemon exim4-daemon-light
     sudo systemctl soft-reboot
