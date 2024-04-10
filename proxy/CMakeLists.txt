@@ -31,11 +31,13 @@ add_executable(hood_proxy
   src/network.cpp src/tls_security_policy.cpp src/tls_check_certificate.cpp src/tls_check_certificate_worker.cpp
   src/name_service_client.cpp
 )
+set_property(TARGET hood_proxy PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 if(MSVC)
   target_compile_options(hood_proxy PRIVATE /W4 /WX)
 else()
   target_compile_options(hood_proxy PRIVATE -Wall -Wextra -Werror -fstack-protector)
 endif()
+
 
 target_link_libraries( hood_proxy ${Boost_LIBRARIES} pthread ${OPENSSL_LIBRARIES} )

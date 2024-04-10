@@ -18,5 +18,5 @@ done
 mkdir -p $script_dir/build/$type/$arch
 cd $script_dir/build/$type/$arch
 
-cmake -DCMAKE_BUILD_TYPE=$type -DOPENSSL_ROOT_DIR=$script_dir/libs/$system/$arch/openssl -DBOOST_ROOT=$script_dir/libs/$system/$arch/boost ..
+cmake -DCMAKE_BUILD_TYPE=$type -DOPENSSL_ROOT_DIR=$script_dir/libs/$system/$arch/openssl -DBOOST_ROOT=$script_dir/libs/$system/$arch/boost $script_dir
 make -j $(nproc --all)
