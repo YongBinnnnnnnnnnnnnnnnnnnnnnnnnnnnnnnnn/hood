@@ -29,7 +29,7 @@ namespace tls {
 
 // TODO use hash as key to prevent privacy leak
 
-static const seconds cache_lifespan_(300);
+static const seconds cache_lifespan_(30);
 static const size_t cache_size_limit_(4096);
 
 struct ResultCache {
