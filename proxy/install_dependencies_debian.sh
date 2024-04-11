@@ -60,7 +60,7 @@ fi
 BOOST_VERSION="1.84.0"
 BOOST_FILE_NAME=$(echo boost_$BOOST_VERSION|tr '.' '_')
 
-if [ -d ./$(uname -s)/$arch/boost/include ] ; then
+if [ -d ./$(uname -s)/$arch/boost/lib ] ; then
   echo "${BOOST_FILE_NAME} already installed."
 else
   if [ ! -d "${BOOST_FILE_NAME}-source" ]; then
