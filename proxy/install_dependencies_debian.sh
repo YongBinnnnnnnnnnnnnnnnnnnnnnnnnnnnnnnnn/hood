@@ -33,8 +33,8 @@ fi
 
 export TAR_OPTIONS=--no-same-owner
 
-if [ -d ./$(uname -s)/$arch/openssl ] ; then
-  echo "${BOOST_FILE_NAME} already installed."
+if [ -d ./$(uname -s)/$arch/openssl/include ] ; then
+  echo "openssl already installed."
 else
   echo "Downloading openssl."
   openssl_src=$(curl -s https://www.openssl.org/source/|grep "tar.gz</a"|tail -n 1|sed -r -e "s/.*gz\">([^<]*).*/\1/")
@@ -46,7 +46,7 @@ else
   install_dir=../$(uname -s)/$arch/openssl
   mkdir -p $install_dir
   install_dir=$(realpath $install_dir)
-  ./Configure no-ssl2 no-ssl3 no-shared no-module no-weak-ssl-ciphers no-unit-test no-apps --prefix=$install_dir
+  ./Configure no-ssl3 no-shared no-module no-weak-ssl-ciphers no-unit-test no-apps no-quic no-uplink --prefix=$install_dir
   make -j ${HOOD_PROXY_BUILD_CONCURRENCY}
   make install_sw
   cd ..
@@ -60,7 +60,7 @@ fi
 BOOST_VERSION="1.84.0"
 BOOST_FILE_NAME=$(echo boost_$BOOST_VERSION|tr '.' '_')
 
-if [ -d ./$(uname -s)/$arch/boost ] ; then
+if [ -d ./$(uname -s)/$arch/boost/lib ] ; then
   echo "${BOOST_FILE_NAME} already installed."
 else
   if [ ! -d "${BOOST_FILE_NAME}-source" ]; then
@@ -80,8 +80,8 @@ else
   fi
 
   BOOST_CXXFLAGS="-std=c++20 -I /$(uname -s)/$arch/openssl/include"
-
-  ./b2 toolset=$toolset link=static cxxflags="${BOOST_CXXFLAGS}" -j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release install
+  
+  ./b2 toolset=$toolset link=static cxxflags="${BOOST_CXXFLAGS}" --without-chrono --without-graph --without-graph_parallel --without-mpi --without-python --without-stacktrace -j ${HOOD_PROXY_BUILD_CONCURRENCY} release install
 
   # Get rid of  python2 build artifacts completely & do a clean build for python3
   cd -
