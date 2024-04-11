@@ -108,7 +108,7 @@ Hood firewall now is possible to be installed to debian-based Linux systems. Thi
 On boot menu, press 'e' to goto edit prompt, and then add following to the end of the 'linux' line 
 
 ```
-noefi module_blacklist=mei,bluetooth,i915,wmi,i2c_smbus ipv6.disable=1 toram=filesystem.squashfs
+noefi noapic module_blacklist=mei,bluetooth,i915,wmi,i2c_smbus ipv6.disable=1 toram=filesystem.squashfs
 ```
 
 ### Step 1. Get Hood
