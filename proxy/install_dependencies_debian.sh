@@ -18,7 +18,7 @@ for arg in "$@"; do
   esac
 done
 
-sudo apt install -y cmake build-essential clang clang-tidy clang-format libssl-dev
+sudo apt install -y cmake build-essential clang clang-tidy clang-format
 
 if [ "$host_arch" != "$arch" ]; then
   if [ "$arch" = "armhf" ]; then
@@ -46,7 +46,7 @@ else
   install_dir=../$(uname -s)/$arch/openssl
   mkdir -p $install_dir
   install_dir=$(realpath $install_dir)
-  ./Configure no-ssl2 no-ssl3 no-shared no-weak-ssl-ciphers no-rc2 no-rc4 no-md2 no-md4 no-des no-unit-test no-apps --prefix=$install_dir
+  ./Configure no-ssl2 no-ssl3 no-shared no-module no-weak-ssl-ciphers no-unit-test no-apps --prefix=$install_dir
   make -j ${HOOD_PROXY_BUILD_CONCURRENCY}
   make install_sw
   cd ..
@@ -79,7 +79,7 @@ else
     ./bootstrap.sh --prefix="../$(uname -s)/$arch/boost"
   fi
 
-  BOOST_CXXFLAGS="-std=c++20"
+  BOOST_CXXFLAGS="-std=c++20 -I /$(uname -s)/$arch/openssl/include"
 
   ./b2 toolset=$toolset link=static cxxflags="${BOOST_CXXFLAGS}" -j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release install
 

@@ -1,3 +1,6 @@
+#include <boost/predef/os.h>
+#include <openssl/err.h>
+
 #include <boost/endian/conversion.hpp>
 #include <chrono>
 
@@ -125,8 +128,21 @@ void CertificateCheckWorker::CheckEndpoint(
             return;
           }
           if (error) {
-            LOG_ERROR(<< host_name_
-                      << " handshake failed: " << error.message());
+            if (error.category() == boost::asio::error::get_ssl_category()) {
+              char detail[256];
+              ERR_error_string_n(ERR_get_error(), detail, sizeof(detail));
+              const char *file, *function, *data;
+              int line, flags;
+              ERR_get_error_all(&file, &line, &function, &data, &flags);
+              LOG_ERROR(<< host_name_ << " handshake failed: "
+                        << "openssl " << detail << ":" << file << ":"
+                        << ":" << line << ":" << function << ":" << data << ":"
+                        << flags);
+            } else {
+              LOG_ERROR(<< host_name_
+                        << " handshake failed: " << error.message());
+            }
+
             CallHandler(endpoint, Flags::error);
             return;
           }

@@ -9,7 +9,7 @@ if [ "$1" = "lo" ]||[ "$1" = "" ]; then
   echo "nameserver 127.0.0.1" > /etc/resolv.conf
   sudo -u nobody -g nogroup /bin/sh -c "ulimit -S -n 1000000;ulimit -S -s 819200;/usr/local/lib/hood/hood-http-handler.py --address 0.0.0.0" >> /var/log/hood-http-handler.log 2>&1 &
   sudo -u nobody -g nogroup /bin/sh -c "ulimit -S -n 1000000;ulimit -S -s 819200;/usr/local/lib/hood/hood-name-service.py" >> /var/log/hood-name-service.log 2>&1 &
-  sudo -u nobody -g nogroup /bin/sh -c "ulimit -S -n 1000000;ulimit -S -s 819200;/usr/local/lib/hood/hood-tls-proxy --config=/etc/hood_proxy.conf" >> /var/log/hood-tls-proxy.log 2>&1 &
+  sudo -u nobody -g nogroup /bin/sh -c "ulimit -S -n 1000000;ulimit -S -s 819200;OPENSSL_CONF=/etc/ssl/openssl.cnf SSL_CERT_DIR=/etc/ssl/certs/ SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt /usr/local/lib/hood/hood-tls-proxy --config=/etc/hood_proxy.conf" >> /var/log/hood-tls-proxy.log 2>&1 &
 
   while read line || [ -n "$line" ]; do
     case $line in \#*)

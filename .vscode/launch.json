@@ -47,9 +47,14 @@
         {
             "type": "gdb",
             "request": "launch",
-            "name": "Debug Program",
-            "target": "${workspaceFolder}/proxy/build/debug/hood_proxy",
+            "name": "Debug proxy amd64",
+            "target": "${workspaceFolder}/proxy/build/debug/amd64/hood_proxy",
             "cwd": "${workspaceFolder}/proxy/",
+            "env": {
+                "OPENSSL_CONF": "/etc/ssl/openssl.cnf",
+                "SSL_CERT_DIR": "/etc/ssl/certs/",
+                "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt"
+            },
             "valuesFormatting": "parseText"
         }
     ]

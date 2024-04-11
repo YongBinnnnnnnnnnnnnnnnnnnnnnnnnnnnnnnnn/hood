@@ -4,7 +4,7 @@ script_dir=$(readlink -f $(dirname "$0"))
 #export CC=clang
 #export CXX=clang++
 
-type=Release
+type=release
 arch=$(uname -r|cut -d - -f 3)
 system=$(uname -s)
 

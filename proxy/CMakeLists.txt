@@ -7,7 +7,7 @@ set(Boost_USE_STATIC_LIBS ON)
 find_package( Boost 1.84 COMPONENTS program_options system log REQUIRED )
 set(OPENSSL_USE_STATIC_LIBS ON)
 find_package( OpenSSL REQUIRED )
-include_directories (SYSTEM ${Boost_INCLUDE_DIR})
+include_directories (${Boost_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} SYSTEM)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
