@@ -129,24 +129,27 @@ void CertificateCheckWorker::CheckEndpoint(
           }
           if (error) {
             if (error.category() == boost::asio::error::get_ssl_category()) {
-              char detail[256];
-              ERR_error_string_n(ERR_get_error(), detail, sizeof(detail));
-              const char *file, *function, *data;
-              int line, flags;
-              if (ERR_get_error_all(&file, &line, &function, &data, &flags) ==
-                  0) {
-                if (flags & ERR_TXT_STRING) {
-                  LOG_ERROR(<< host_name_ << " handshake failed: "
-                            << "openssl " << detail << ":" << *file << ":"
-                            << ":" << line << ":" << *function << ":" << *data);
+              auto openssl_error = ERR_get_error();
+              if (openssl_error) {
+                char detail[256];
+                ERR_error_string_n(openssl_error, detail, sizeof(detail));
+                const char *file, *function, *data;
+                int line, flags;
+                if (ERR_get_error_all(&file, &line, &function, &data, &flags) ==
+                    0 && line) {
+                  if (flags & ERR_TXT_STRING) {
+                    LOG_ERROR(<< host_name_ << " handshake failed: "
+                              << "openssl " << detail << ":" << *file << ":"
+                              << ":" << line << ":" << *function << ":" << *data);
+                  } else {
+                    LOG_ERROR(<< host_name_ << " handshake failed: "
+                              << "openssl " << detail << ":" << *file << ":"
+                              << ":" << line << ":" << *function);
+                  }
                 } else {
                   LOG_ERROR(<< host_name_ << " handshake failed: "
-                            << "openssl " << detail << ":" << *file << ":"
-                            << ":" << line << ":" << *function);
+                            << "openssl " << detail);
                 }
-              } else {
-                LOG_ERROR(<< host_name_ << " handshake failed: "
-                          << "openssl " << detail);
               }
 
             } else {
