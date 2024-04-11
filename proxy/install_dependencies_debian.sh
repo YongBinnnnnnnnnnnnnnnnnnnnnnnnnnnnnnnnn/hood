@@ -80,8 +80,8 @@ else
   fi
 
   BOOST_CXXFLAGS="-std=c++20 -I /$(uname -s)/$arch/openssl/include"
-
-  ./b2 toolset=$toolset link=static cxxflags="${BOOST_CXXFLAGS}" --without-chrono --without-graph --without-mpi --without-python --without-stacktrace --j ${HOOD_PROXY_BUILD_CONCURRENCY} stage release install
+  
+  ./b2 toolset=$toolset link=static cxxflags="${BOOST_CXXFLAGS}" --without-chrono --without-graph --without-graph_parallel --without-mpi --without-python --without-stacktrace -j ${HOOD_PROXY_BUILD_CONCURRENCY} release install
 
   # Get rid of  python2 build artifacts completely & do a clean build for python3
   cd -
