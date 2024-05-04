@@ -1,14 +1,16 @@
 #!/bin/sh
 
+export LC_ALL=C
+
 if which chromium; then
   executable=chromium
-  executable_path=/usr/lib/chromium
+  executable_path=`which chromium|xargs dirname`
 elif which chrome; then
   executable=chrome
-  executable_path=/usr/lib/chrome
+  executable_path=`which chrome|xargs dirname`
 elif which chromium-browser; then
   executable=chromium-browser
-  executable_path=/usr/lib/chromium-browser
+  executable_path=`which chromium-browser|xargs dirname`
 fi
 extra_options=
 
