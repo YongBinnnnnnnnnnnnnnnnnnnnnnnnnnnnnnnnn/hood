@@ -1,4 +1,10 @@
-#!/bin/bash
+#!/bin/sh
+if [ `ps -p $$ -o 'comm='` != "bash" ]; then
+  echo $0
+  bash $0
+  exit
+fi
+
 
 read -p "WARNING:This script is created for yongbin, using it on ur computer may cause damages. Continue?" go_ahead
 
