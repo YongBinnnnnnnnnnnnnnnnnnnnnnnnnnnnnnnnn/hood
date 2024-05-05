@@ -39,6 +39,7 @@ sudo devctl disable -f uart0
 sudo devctl disable -f uart1
 sudo devctl disable -f uart2
 sudo devctl disable -f em0
+sudo devctl disable -f ubt0
 sudo kldunload acpi_wmi ichsmb mac_ntpd
 sudo sysrc pf_enable=yes
 sudo sysrc pflog_enable=yes
