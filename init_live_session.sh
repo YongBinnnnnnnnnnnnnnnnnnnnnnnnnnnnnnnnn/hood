@@ -42,7 +42,12 @@ sudo devctl disable -f em0
 sudo devctl disable -f ubt0
 sudo kldunload acpi_wmi ichsmb mac_ntpd
 
-sudo cp scripts/xorg.conf /etc/X11/
+sudo tee /etc/X11/xorg.conf<<EOF
+Section "Device"
+  Identifier "HoodFBBSD"
+  Driver "scfb"
+EndSection
+EOF
 
 sudo sysrc pf_enable=yes
 sudo sysrc pflog_enable=yes
