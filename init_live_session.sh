@@ -41,6 +41,9 @@ sudo devctl disable -f uart2
 sudo devctl disable -f em0
 sudo devctl disable -f ubt0
 sudo kldunload acpi_wmi ichsmb mac_ntpd
+
+sudo cp scripts/xorg.conf /etc/X11/
+
 sudo sysrc pf_enable=yes
 sudo sysrc pflog_enable=yes
 sudo tee /etc/pf.conf <<EOF
@@ -51,7 +54,7 @@ block out quick inet6 all
 pass out quick proto tcp to any port {11371, 443, 80, 53} keep state
 pass out log quick proto udp to any port {53} keep state
 pass out log quick proto udp from any port 68 to any port 67
-pass out log quick proto udp from any port 67 to any port 68
+pass in log quick proto udp from any port 67 to any port 68
 block log  quick all
 EOF
 sudo tee /etc/dhclient.conf <<EOF
