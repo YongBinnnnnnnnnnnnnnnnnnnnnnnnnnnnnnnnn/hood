@@ -229,4 +229,6 @@ sudo tee -a /etc/hosts <<EOF
 0.0.0.0 region1.google-analytics.com
 0.0.0.0 www.googlesyndication.com
 0.0.0.0 www.googletagmanager.com
+0.0.0.0 pagead2.googlesyndication.com
+0.0.0.0 googleads.g.doubleclick.net
 EOF
