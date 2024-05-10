@@ -49,6 +49,8 @@ Section "Device"
 EndSection
 EOF
 
+cp hood/chromium.sh ~/Desktop/
+
 sudo sysrc pf_enable=yes
 sudo sysrc pflog_enable=yes
 sudo tee /etc/pf.conf <<EOF
@@ -56,10 +58,10 @@ set skip on lo0
 set block-policy drop
 block in quick inet6 all
 block out quick inet6 all
-pass out quick proto tcp to any port {11371, 443, 80, 53} keep state
+pass out quick proto tcp to any port {11371, 1935, 443, 80, 53} keep state
 pass out log quick proto udp to any port {53} keep state
-pass out log quick proto udp from any port 68 to any port 67
-pass in log quick proto udp from any port 67 to any port 68
+#pass out log quick proto udp from any port 68 to any port 67
+#pass in log quick proto udp from any port 67 to any port 68
 block log  quick all
 EOF
 sudo tee /etc/dhclient.conf <<EOF
