@@ -45,7 +45,7 @@ function proxy_access_on(){
   exec {counter_lock_fd}<>/tmp/hood/counter.lock
   flock $counter_lock_fd
   if ! test -f /tmp/hood/counter; then
-    python -c "import secrets; print(2+secrets.randbelow(256-2))" > /tmp/hood/counter
+    python -c "import secrets; print(2+secrets.randbelow(255-2))" > /tmp/hood/counter
   fi
   counter=$((2 + ($(cat /tmp/hood/counter) - 1) % 254))
   echo "$counter" > /tmp/hood/counter
