@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 HTTP timesync tool for hood firewall
 https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood
@@ -10,6 +10,7 @@ import http.client
 import subprocess
 import sys
 import os
+from email.utils import parsedate_to_datetime as parse_email_date_to_datetime
 
 parser = argparse.ArgumentParser(
   prog="hood-timesync",
@@ -19,7 +20,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("--host", default="www.bing.com", type=str, help="The website to request time from")
 parser.add_argument("--last-resort-host", default="1.1.1.1", type=str, help="The website used as the last resort, should be an IP address")
-parser.add_argument("--time-anchor", default=1703703361, type=int, help="An Epoch time that being anchored as past, the time earlier than the anchor will be rejected.\nBased on the assumption that time only moves forward, any time before this value will be rejected.\nSet 0 to disable this test.\nExample: --hard-time-anchor=$(stat /etc/os-release -c %W)")
+parser.add_argument("--time-anchor", default=1715363816, type=int, help="An Epoch time that being anchored as past, the time earlier than the anchor will be rejected.\nBased on the assumption that time only moves forward, any time before this value will be rejected.\nSet 0 to disable this test.\nExample: --hard-time-anchor=$(stat /etc/os-release -c %W)")
 
 args_ = parser.parse_args()
 
@@ -44,21 +45,25 @@ headers_ = {
   "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
+def get_epoch_from_string(date):
+  return int(parse_email_date_to_datetime(date).timestamp())
+
 def time_anchor_test(date):
   if not args_.time_anchor:
     return True
-  # use date command to convert date string to seconds since the Epoch
-  run_result = subprocess.run(['date', '-d', date, "+%s"], text=True, capture_output=True)
-  if run_result.returncode != 0:
-    return False
-  new_date = int(run_result.stdout)
-  return new_date > args_.time_anchor
+  # https://www.rfc-editor.org/rfc/rfc2616#section-3.3
+  return date > args_.time_anchor
 
 def set_date(date):
+  date = get_epoch_from_string(date)
   if not time_anchor_test(date):
     print(date, "failed time anchor test")
     return
-  command = ['sudo', 'date', '-s', date]
+  date = str(date)
+  if 'freebsd' in sys.platform:
+    command = ['sudo', 'date', '-f', "%s", date]
+  else:
+    command = ['sudo', 'date', '-s', "@" + date]
   if os.getuid() == 0:
     command.pop(0)
   return subprocess.call(command) == 0
