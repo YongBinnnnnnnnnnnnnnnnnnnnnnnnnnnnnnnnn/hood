@@ -113,7 +113,9 @@ git config --global user.email yongb@usi.ch
 #sudo mkdir -p /usr/local/texlive/
 sudo rm /usr/local/share/texmf-dist
 
-sudo dhclient ue0
+#sudo dhclient ue0
+sudo chmod -x /sbin/dhclient
+sudo killall dhclient
 if ! [ -f /tmp/ca-root-nss.crt ]; then
   certctl -v list|grep "subject=C = "|grep -v "=C = US"|awk '$2="/etc/ssl/certs/"{print $2$1}'|xargs readlink -f|xargs -I {} sudo mv {} /tmp/
   sudo mv /usr/local/share/certs/ca-root-nss.crt  /tmp/
