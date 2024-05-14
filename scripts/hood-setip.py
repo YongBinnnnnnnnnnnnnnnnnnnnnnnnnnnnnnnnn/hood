@@ -37,21 +37,19 @@ if args_.reserve < 2:
   args_.reserve = 2
 gateway = args_.gateway
 
-
+[address, mask_length] = args_.address.split("/")
+byte_address = socket.inet_pton(socket.AF_INET, address)
+mask = int(mask_length)
+assert mask_length <= 32
+if byte_address[3] == 0:
+  byte_address = byte_address[:3] + bytes([args_.reserve + 1 + secrets.randbelow(254 - args_.reserve)])
+address = socket.inet_ntoa(byte_address)
+print("address:", address)
 if 'freebsd' in sys.platform:
   #TODO: code copied from name service, consider crate a common library instead of this stupid lazy way.
-  [address, length] = args_.address.split("/")
-  byte_address = socket.inet_pton(socket.AF_INET, address)
-  length = int(length)
-  assert length <= 32
-  if byte_address[3] == 0:
-    byte_address = byte_address[:3] + bytes([args_.reserve + 1 + secrets.randbelow(254 - args_.reserve)])
-  address = socket.inet_ntoa(byte_address)
-  print("address:", address)
-  execute_as_root(["ifconfig", args_.interface, "add",  address + '/' + str(length)])
+  execute_as_root(["ifconfig", args_.interface, "add",  address + '/' + str(mask_length)])
 else:
-  #TODO
-  raise NotImplementedError
+  execute_as_root(["ip", "addr", "add",  address + '/' + str(mask_length), "dev", args_.interface])
   
    
 if args_.gateway == 'auto':
@@ -63,4 +61,7 @@ if args_.gateway == 'auto':
 
 if gateway:
   # TODO: non default
-  execute_as_root(["route", "add", "default", gateway, "-ifp", args_.interface])
+  if 'freebsd' in sys.platform:
+    execute_as_root(["route", "add", "default", gateway, "-ifp", args_.interface])
+  else:
+    execute_as_root(["ip", "route", "add", "default", "via", gateway])
