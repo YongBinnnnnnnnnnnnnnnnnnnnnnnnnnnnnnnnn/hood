@@ -65,7 +65,7 @@ if args_.gateway == 'auto':
     mask_left = mask_left - 8
   if processed_bytes < 4:
     gateway = gateway + b'\x00' * (4 - processed_bytes)
-  gateway = gateway[:3] + bytes((gateway[3] & 1,))
+  gateway = gateway[:3] + bytes((gateway[3] | 1,))
   
   #'.'.join(map(str, gateway) is much slower
   gateway = socket.inet_ntoa(gateway)
