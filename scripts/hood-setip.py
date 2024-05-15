@@ -39,10 +39,10 @@ gateway = args_.gateway
 
 [address, mask_length] = args_.address.split("/")
 byte_address = socket.inet_pton(socket.AF_INET, address)
-mask = int(mask_length)
-assert mask_length <= 32
+mask_length = int(mask_length)
+assert mask_length < 32
 if byte_address[3] == 0:
-  byte_address = byte_address[:3] + bytes([args_.reserve + 1 + secrets.randbelow(254 - args_.reserve)])
+  byte_address = byte_address[:3] + bytes((args_.reserve + 1 + secrets.randbelow(254 - args_.reserve),))
 address = socket.inet_ntoa(byte_address)
 print("address:", address)
 if 'freebsd' in sys.platform:
@@ -51,9 +51,22 @@ if 'freebsd' in sys.platform:
 else:
   execute_as_root(["ip", "addr", "add",  address + '/' + str(mask_length), "dev", args_.interface])
   
-   
+byte_masks = (0b00000000,0b10000000,0b11000000,0b11100000,0b11110000,0b11111000,0b11111100,0b11111110,0b11111111)
 if args_.gateway == 'auto':
-  gateway = byte_address[:3] + b'\x01'
+  processed_bytes = 0
+  gateway=bytes()
+  mask_left = mask_length
+  while mask_left > 0:
+    if mask_left >= 8:
+      gateway = gateway + bytes((byte_address[processed_bytes] & 0b11111111,))
+    else:
+      gateway = gateway + bytes((byte_address[processed_bytes] & byte_masks[mask_left],))
+    processed_bytes = processed_bytes + 1
+    mask_left = mask_left - 8
+  if processed_bytes < 4:
+    gateway = gateway + b'\x00' * (4 - processed_bytes)
+  gateway = gateway[:3] + bytes((gateway[3] & 1,))
+  
   #'.'.join(map(str, gateway) is much slower
   gateway = socket.inet_ntoa(gateway)
   print("gateway:", gateway)
