@@ -23,6 +23,7 @@ script_dir=$(readlink -f $(dirname "$0"))
 echo $script_dir
 sudo service avahi-daemon stop
 sudo service ntpd stop
+usbconfig|grep -i bluetooth| cut -d ":" -f 1 | xargs -L 1 sudo usbconfig power_off
 sudo devctl disable -f smbios0
 sudo devctl disable -f ichsmb0
 sudo devctl disable -f acpi_wmi0
