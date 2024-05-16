@@ -58,7 +58,7 @@ if args_.gateway == 'auto':
   if mask_end:
     gateway = gateway + bytes((byte_address[len(gateway)] & byte_masks[mask_end],))
   if len(gateway) < 4:
-    gateway = gateway + b'\x00' * (4 - processed_bytes)
+    gateway = gateway + b'\x00' * (4 - len(gateway))
   gateway = gateway[:3] + bytes((gateway[3] | 1,))
   
   #'.'.join(map(str, gateway) is much slower
