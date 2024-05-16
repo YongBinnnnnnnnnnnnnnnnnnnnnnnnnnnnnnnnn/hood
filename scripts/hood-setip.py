@@ -53,17 +53,11 @@ else:
   
 byte_masks = (0b00000000,0b10000000,0b11000000,0b11100000,0b11110000,0b11111000,0b11111100,0b11111110,0b11111111)
 if args_.gateway == 'auto':
-  processed_bytes = 0
-  gateway=bytes()
-  mask_left = mask_length
-  while mask_left > 0:
-    if mask_left >= 8:
-      gateway = gateway + bytes((byte_address[processed_bytes] & 0b11111111,))
-    else:
-      gateway = gateway + bytes((byte_address[processed_bytes] & byte_masks[mask_left],))
-    processed_bytes = processed_bytes + 1
-    mask_left = mask_left - 8
-  if processed_bytes < 4:
+  gateway=byte_address[:int(mask_length/8)]
+  mask_end = mask_length % 8
+  if mask_end:
+    gateway = gateway + bytes((byte_address[len(gateway)] & byte_masks[mask_end],))
+  if len(gateway) < 4:
     gateway = gateway + b'\x00' * (4 - processed_bytes)
   gateway = gateway[:3] + bytes((gateway[3] | 1,))
   
