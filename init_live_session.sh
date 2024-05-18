@@ -217,11 +217,11 @@ echo "nameserver 1.1.1.1"|sudo tee /etc/resolv.conf
 sudo tee -a /etc/hosts <<EOF
 127.0.0.1 livecd
 127.0.0.1 parrot
-#0.0.0.0 firefox.settings.services.mozilla.com
-#0.0.0.0 contile.services.mozilla.com
-#0.0.0.0 shavar.services.mozilla.com
-#0.0.0.0 content-signature-2.cdn.mozilla.net
-#0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
+0.0.0.0 firefox.settings.services.mozilla.com
+0.0.0.0 contile.services.mozilla.com
+0.0.0.0 shavar.services.mozilla.com
+0.0.0.0 content-signature-2.cdn.mozilla.net
+0.0.0.0 firefox-settings-attachments.cdn.mozilla.net
 0.0.0.0 safebrowsing.googleapis.com
 0.0.0.0 redirector.gvt1.com
 #0.0.0.0 openvsxorg.blob.core.windows.net
