@@ -34,6 +34,18 @@ def execute_as_root(command):
 
 args_ = parser.parse_args()
 
+if args_.mac_address:
+  if args_.mac_address == "random":
+    mac_address = ':'.join(map(lambda x:f'{x:02x}', x))
+  else:
+    mac_address = args_.mac_address
+  if 'freebsd' in sys.platform:
+    execute_as_root(["ifconfig", args_.interface, "link",  mac_address)
+  else:
+    execute_as_root(["ip", "link", "set", "address",  mac_address, "dev", args_.interface])
+  
+  
+
 if args_.reserve < 2:
   args_.reserve = 2
 gateway = args_.gateway
