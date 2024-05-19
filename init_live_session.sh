@@ -116,7 +116,6 @@ sudo rm /usr/local/share/texmf-dist
 
 #sudo dhclient ue0
 #sudo chmod -x /sbin/dhclient
-#sudo killall dhclient
 if ! [ -f /tmp/ca-root-nss.crt ]; then
   certctl -v list|grep "subject=C = "|grep -v "=C = US"|awk '$2="/etc/ssl/certs/"{print $2$1}'|xargs readlink -f|xargs -I {} sudo mv {} /tmp/
   sudo mv /usr/local/share/certs/ca-root-nss.crt  /tmp/
@@ -139,13 +138,17 @@ elif [ $machine = "Linux" ]; then
   #lspci -D |grep hunderbolt | grep "NHI" |cut -d " " -f 1|xargs -L 1 -I {} sh -c "echo {} | sudo tee /sys/bus/pci/drivers/thunderbolt/unbind"
   #lspci -D |grep hunderbolt | grep "PCI" |cut -d " " -f 1|xargs -L 1 -I {} sh -c "echo {} | sudo tee /sys/bus/pci/drivers/pcieport/unbind"
   #lspci -D |grep hunderbolt | grep "PCI\|NHI" |sed -E "s|(\w+:\w+)([^ ]+).*|\1/\1\2|"|xargs -I "{}" cat /sys/devices/pci{}/vendor /sys/devices/pci{}/device|xargs -L 2 bash -c "echo \$0 \$1|sudo tee /sys/bus/pci/drivers/vfio-pci/new_id"
+  # fdtsp
+  # grep -i "bluetooth" /sys/bus/usb/devices/*/product -C 0|sed -e "s|/product:.*|/power/level|g"|xargs sudo tee <<< "off"
+
   rfkill block all
   if lsmod |grep -q bluetooth; then
     bluetoothctl power off
   fi
   boltctl config global.auth-mode disabled
-  sudo systemctl disable avahi-daemon
+  sudo systemctl mask avahi-daemon connman
   sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
+  sudo systemctl stop connman
   sudo cp ./scripts/dhclient.conf /etc/dhcp/
   echo "deny /{,usr/}bin/bash mr," | sudo tee /etc/apparmor.d/local/sbin.dhclient > /dev/null
   sudo apparmor_parser -r /etc/apparmor.d/sbin.dhclient
@@ -213,6 +216,8 @@ elif [ $machine = "Linux" ]; then
     fi
   fi
 fi
+sudo killall dhclient
+
 echo "nameserver 1.1.1.1"|sudo tee /etc/resolv.conf
 sudo tee -a /etc/hosts <<EOF
 127.0.0.1 livecd
