@@ -36,36 +36,40 @@ args_ = parser.parse_args()
 
 if args_.mac_address:
   if args_.mac_address == "random":
-    mac_address = ':'.join(map(lambda x:f'{x:02x}', x))
+    mac_address = secrets.token_bytes(6)
+    mac_address = ':'.join(map(lambda x:f'{x:02x}', mac_address))
   else:
     mac_address = args_.mac_address
   if 'freebsd' in sys.platform:
-    execute_as_root(["ifconfig", args_.interface, "link",  mac_address)
+    execute_as_root(["ifconfig", args_.interface, "link",  mac_address])
   else:
     execute_as_root(["ip", "link", "set", "address",  mac_address, "dev", args_.interface])
   
   
 
-if args_.reserve < 2:
-  args_.reserve = 2
-gateway = args_.gateway
+if args_.address:
+  if args_.reserve < 2:
+    args_.reserve = 2
+  gateway = args_.gateway
 
-[address, mask_length] = args_.address.split("/")
-byte_address = socket.inet_pton(socket.AF_INET, address)
-mask_length = int(mask_length)
-assert mask_length < 32
-if byte_address[3] == 0:
-  byte_address = byte_address[:3] + bytes((args_.reserve + 1 + secrets.randbelow(254 - args_.reserve),))
-address = socket.inet_ntoa(byte_address)
-print("address:", address)
-if 'freebsd' in sys.platform:
-  #TODO: code copied from name service, consider crate a common library instead of this stupid lazy way.
-  execute_as_root(["ifconfig", args_.interface, "add",  address + '/' + str(mask_length)])
-else:
-  execute_as_root(["ip", "addr", "add",  address + '/' + str(mask_length), "dev", args_.interface])
-  
-byte_masks = (0b00000000,0b10000000,0b11000000,0b11100000,0b11110000,0b11111000,0b11111100,0b11111110,0b11111111)
+  [address, mask_length] = args_.address.split("/")
+  byte_address = socket.inet_pton(socket.AF_INET, address)
+  mask_length = int(mask_length)
+  assert mask_length < 32
+  if byte_address[3] == 0:
+    byte_address = byte_address[:3] + bytes((args_.reserve + 1 + secrets.randbelow(254 - args_.reserve),))
+  address = socket.inet_ntoa(byte_address)
+  print("address:", address)
+  if 'freebsd' in sys.platform:
+    #TODO: code copied from name service, consider crate a common library instead of this stupid lazy way.
+    execute_as_root(["ifconfig", args_.interface, "add",  address + '/' + str(mask_length)])
+  else:
+    execute_as_root(["ip", "addr", "add",  address + '/' + str(mask_length), "dev", args_.interface])
+    
+  byte_masks = (0b00000000,0b10000000,0b11000000,0b11100000,0b11110000,0b11111000,0b11111100,0b11111110,0b11111111)
+
 if args_.gateway == 'auto':
+  #TODO auto from current ip
   gateway=byte_address[:int(mask_length/8)]
   mask_end = mask_length % 8
   if mask_end:
