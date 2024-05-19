@@ -32,6 +32,7 @@ def execute_as_root(command):
   #print(command)
   subprocess.call(command)
   
+byte_masks = (0b00000000,0b10000000,0b11000000,0b11100000,0b11110000,0b11111000,0b11111100,0b11111110,0b11111111)
 
 args_ = parser.parse_args()
 
@@ -67,26 +68,23 @@ if args_.address:
   else:
     execute_as_root(["ip", "addr", "add",  address + '/' + str(mask_length), "dev", args_.interface])
     
-  byte_masks = (0b00000000,0b10000000,0b11000000,0b11100000,0b11110000,0b11111000,0b11111100,0b11111110,0b11111111)
 
-if args_.gateway == 'auto':
-  #TODO auto from current ip
-  gateway=byte_address[:int(mask_length/8)]
-  mask_end = mask_length % 8
-  if mask_end:
-    gateway = gateway + bytes((byte_address[len(gateway)] & byte_masks[mask_end],))
-  if len(gateway) < 4:
-    gateway = gateway + b'\x00' * (4 - len(gateway))
-  gateway = gateway[:3] + bytes((gateway[3] | 1,))
-  
-  #'.'.join(map(str, gateway) is much slower
-  gateway = socket.inet_ntoa(gateway)
-  print("gateway:", gateway)
-
-
-if gateway:
+if args_.gateway:
+  if args_.gateway == 'auto':
+    #TODO auto from current ip
+    gateway=byte_address[:int(mask_length/8)]
+    mask_end = mask_length % 8
+    if mask_end:
+      gatepway = gateway + bytes((byte_address[len(gateway)] & byte_masks[mask_end],))
+    if len(gateway) < 4:
+      gateway = gateway + b'\x00' * (4 - len(gateway))
+    args_.gateway = gateway[:3] + bytes((gateway[3] | 1,))
+    
+    #'.'.join(map(str, gateway) is much slower
+    gateway = socket.inet_ntoa(gateway)
+    print("gateway:", gateway)
   # TODO: non default
   if 'freebsd' in sys.platform:
-    execute_as_root(["route", "add", "default", gateway, "-ifp", args_.interface])
+    execute_as_root(["route", "add", "default", args_.gateway, "-ifp", args_.interface])
   else:
     execute_as_root(["ip", "route", "add", "default", "via", gateway])
