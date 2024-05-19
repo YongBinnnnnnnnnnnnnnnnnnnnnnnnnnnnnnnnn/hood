@@ -140,6 +140,7 @@ elif [ $machine = "Linux" ]; then
   #lspci -D |grep hunderbolt | grep "PCI\|NHI" |sed -E "s|(\w+:\w+)([^ ]+).*|\1/\1\2|"|xargs -I "{}" cat /sys/devices/pci{}/vendor /sys/devices/pci{}/device|xargs -L 2 bash -c "echo \$0 \$1|sudo tee /sys/bus/pci/drivers/vfio-pci/new_id"
   # fdtsp
   # grep -i "bluetooth" /sys/bus/usb/devices/*/product -C 0|sed -e "s|/product:.*|/power/level|g"|xargs sudo tee <<< "off"
+  grep -i "bluetooth" /sys/bus/usb/devices/*/product -C 0|sed -e "s|/product:.*|/authorized|g"|xargs sudo tee <<< "0"
 
   rfkill block all
   if lsmod |grep -q bluetooth; then
