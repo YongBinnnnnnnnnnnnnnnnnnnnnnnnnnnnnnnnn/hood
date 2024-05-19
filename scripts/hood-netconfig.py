@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -B
 """
-IP configuration tool for hood firewall
+Network configuration tool for hood firewall
 https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood
 Bin Yong all rights reserved.
 """
@@ -15,14 +15,14 @@ import sys
 
 parser = argparse.ArgumentParser(
   prog="hood-setip",
-  description="**EXPERIMENTAL!! DO NOT USE!!!** IP configuration tool specially designed for the hood firewall. ",
+  description="**EXPERIMENTAL!! DO NOT USE!!!** Network configuration tool specially designed for the hood firewall. ",
   epilog="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood",
 )
 
 parser.add_argument("--interface", type=str, required=True, help="The interface to be configured")
 parser.add_argument("--address", type=str, help="The subnet or ip to be joined use it when you want a random IP address. If the last number is 0, it will be replaced as a random number.")
-parser.add_argument("--mac-address", type=str, help="The subnet or ip to be joined use it when you want a random IP address. If the last number is 0, it will be replaced as a random number.")
 parser.add_argument("--reserve", default=32, type=int, help="Number of addresses to be reserved for DHCP")
+parser.add_argument("--mac-address", type=str, help="The new mac address to be assigned to the interface. If the value is 'random', a random address will be assigned to the interface.")
 parser.add_argument("--gateway", default="", type=str, help="The gateway. Use value 'auto' to guess it from other optoins.")
 
 def execute_as_root(command):
