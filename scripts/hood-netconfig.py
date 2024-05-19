@@ -20,7 +20,8 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument("--interface", type=str, required=True, help="The interface to be configured")
-parser.add_argument("--address", type=str, required=True, help="The subnet or ip to be joined use it when you want a random IP address. If the last number is 0, it will be replaced as a random number.")
+parser.add_argument("--address", type=str, help="The subnet or ip to be joined use it when you want a random IP address. If the last number is 0, it will be replaced as a random number.")
+parser.add_argument("--mac-address", type=str, help="The subnet or ip to be joined use it when you want a random IP address. If the last number is 0, it will be replaced as a random number.")
 parser.add_argument("--reserve", default=32, type=int, help="Number of addresses to be reserved for DHCP")
 parser.add_argument("--gateway", default="", type=str, help="The gateway. Use value 'auto' to guess it from other optoins.")
 
