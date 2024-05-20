@@ -45,7 +45,13 @@ if args_.mac_address:
   if 'freebsd' in sys.platform:
     execute_as_root(["ifconfig", args_.interface, "link",  mac_address])
   else:
+    with open('/sys/class/net/' + args_.interface + '/operstate', 'r' ) as operstate_file:
+      operstate = operstate_file.read()
+    if operstate == 'up\n':
+      execute_as_root(["ip", "link", "set", "down", "dev", args_.interface])
     execute_as_root(["ip", "link", "set", "address",  mac_address, "dev", args_.interface])
+    if operstate == 'up\n':
+      execute_as_root(["ip", "link", "set", "up", "dev", args_.interface])
   
   
 
@@ -64,8 +70,10 @@ if args_.address:
   print("address:", address)
   if 'freebsd' in sys.platform:
     #TODO: code copied from name service, consider crate a common library instead of this stupid lazy way.
+    execute_as_root(["ifconfig", args_.interface, "delete ")
     execute_as_root(["ifconfig", args_.interface, "add",  address + '/' + str(mask_length)])
   else:
+    execute_as_root(["ip", "addr", "flush", "dev", args_.interface])
     execute_as_root(["ip", "addr", "add",  address + '/' + str(mask_length), "dev", args_.interface])
     
 
