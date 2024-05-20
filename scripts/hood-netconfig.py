@@ -15,7 +15,7 @@ import sys
 
 parser = argparse.ArgumentParser(
   prog="hood-setip",
-  description="**EXPERIMENTAL!! DO NOT USE!!!** Network configuration tool specially designed for the hood firewall. ",
+  description="**EXPERIMENTAL AND UNSTABLE!! DO NOT USE!!!** Network configuration tool specially designed for the hood firewall. ",
   epilog="https://github.com/YongBinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/hood",
 )
 
