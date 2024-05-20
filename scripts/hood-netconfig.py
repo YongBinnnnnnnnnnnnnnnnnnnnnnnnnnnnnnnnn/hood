@@ -25,6 +25,7 @@ parser.add_argument("--reserve", default=32, type=int, help="Number of addresses
 parser.add_argument("--link", type=str, help="up/down")
 parser.add_argument("--mac-address", type=str, help="The new mac address to be assigned to the interface. If the value is 'random', a random address will be assigned to the interface.")
 parser.add_argument("--gateway", default="", type=str, help="The gateway. Use value 'auto' to guess it from other optoins.")
+parser.add_argument("--gateway-mac-address", default="", type=str, help="The mac address of the gateway")
 
 def execute_as_root(command):
   if os.getuid() != 0:
@@ -94,5 +95,13 @@ if args_.gateway:
   # TODO: non default
   if 'freebsd' in sys.platform:
     execute_as_root(["route", "add", "default", args_.gateway, "-ifp", args_.interface])
+    if args_.gateway_mac_address:
+      raise NotImplementedError
+      #TODO
   else:
-    execute_as_root(["ip", "route", "add", "default", "via", gateway])
+    command = ["ip", "route", "add", "default", "via", gateway, "dev", args_.interface]
+    if args_.gateway_mac_address:
+      command = command + ["lladdr", args_.gateway_mac_address]
+    execute_as_root(command)
+    
+    
