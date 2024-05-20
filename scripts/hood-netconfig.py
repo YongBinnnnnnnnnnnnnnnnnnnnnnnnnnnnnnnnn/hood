@@ -45,7 +45,7 @@ def link_set_state(interface, new_state):
 
 def flush_ip_address(interface):
   if 'freebsd' in sys.platform:
-    execute_as_root(["ifconfig", interface, "delete ")
+    execute_as_root(["ifconfig", interface, "delete"])
   else:
     execute_as_root(["ip", "addr", "flush", "dev", interface])
 
@@ -114,9 +114,9 @@ def hood_netconfig(args_):
         raise NotImplementedError
         #TODO
     else:
-      command = ["ip", "route", "add", "default", "via", gateway, "dev", args_.interface]
+      command = 
       if args_.gateway_mac_address:
-        command = command + ["lladdr", args_.gateway_mac_address]
-      execute_as_root(command)
+        execute_as_root(["ip", "neigh", "add", gateway, "dev", args_.interface, "lladdr", args_.gateway_mac_address])
+      execute_as_root(["ip", "route", "add", "default", "via", gateway, "dev", args_.interface])
       
 hood_netconfig(parser.parse_args())
