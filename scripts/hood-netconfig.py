@@ -114,7 +114,6 @@ def hood_netconfig(args_):
         raise NotImplementedError
         #TODO
     else:
-      command = 
       if args_.gateway_mac_address:
         execute_as_root(["ip", "neigh", "add", gateway, "dev", args_.interface, "lladdr", args_.gateway_mac_address])
       execute_as_root(["ip", "route", "add", "default", "via", gateway, "dev", args_.interface])
