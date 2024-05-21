@@ -9,7 +9,9 @@ analytics\.[^\.]+\.com
 (.*\.)?google-analytics\.com
 (.*\.)?adsensecustomsearchads\.com
 (.*\.)?adservice\.google\.com
+(.*\.)?pub\.network
 
+(.*\.)?ad-delivery\.net
 (.*\.)?hitchprivilege\.com
 (.*\.)?scoopauthority\.com
 (.*\.)?phortaub\.com

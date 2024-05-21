@@ -220,6 +220,7 @@ fi
 sudo killall dhclient
 
 echo "nameserver 1.1.1.1"|sudo tee /etc/resolv.conf
+sudo cp scripts/hosts /etc/
 sudo tee -a /etc/hosts <<EOF
 127.0.0.1 livecd
 127.0.0.1 parrot
@@ -248,4 +249,8 @@ sudo tee -a /etc/hosts <<EOF
 0.0.0.0 www.googletagmanager.com
 0.0.0.0 pagead2.googlesyndication.com
 0.0.0.0 googleads.g.doubleclick.net
+0.0.0.0 securepubads.g.doubleclick.net
+0.0.0.0 ad.doubleclick.net
+0.0.0.0 a.pub.network
+0.0.0.0 c.pub.network
 EOF
