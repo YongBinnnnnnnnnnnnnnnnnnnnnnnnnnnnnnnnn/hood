@@ -147,7 +147,7 @@ elif [ $machine = "Linux" ]; then
     bluetoothctl power off
   fi
   boltctl config global.auth-mode disabled
-  sudo systemctl mask avahi-daemon connman
+  sudo systemctl mask avahi-daemon connman NetworkManager
   sudo systemctl stop NetworkManager ntpd avahi-daemon.socket avahi-daemon cups cups-browsed exim4
   sudo systemctl stop connman
   sudo cp ./scripts/dhclient.conf /etc/dhcp/
