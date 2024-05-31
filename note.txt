@@ -2,7 +2,7 @@ USB
       bInterfaceClass       224 Wireless
       bInterfaceSubClass      1 Radio Frequency
       bInterfaceProtocol      1 Bluetooth
-
+menuetos
 
 FreeBSD fb: https://www.reddit.com/r/freebsd/comments/fbd80i/comment/fj9win7/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 
