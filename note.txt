@@ -1,3 +1,5 @@
+krn_drs
+
 USB
       bInterfaceClass       224 Wireless
       bInterfaceSubClass      1 Radio Frequency
