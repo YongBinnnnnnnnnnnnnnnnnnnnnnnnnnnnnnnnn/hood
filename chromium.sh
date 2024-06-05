@@ -14,7 +14,7 @@ elif which chromium-browser; then
 fi
 extra_options=
 
-if [ "executable_path" = "yongbin" ]; then
+if [ "executable_path" = "/bin" ] || [ "executable_path" = "/usr/bin" ] || [ "executable_path" = "/usr/local/bin" ]; then
   find /usr -name "chrom*.pak" |grep -e "chrom.*chrom" -m 1
 fi
 
