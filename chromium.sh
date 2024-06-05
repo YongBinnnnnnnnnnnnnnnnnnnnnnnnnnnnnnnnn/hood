@@ -14,7 +14,7 @@ elif which chromium-browser; then
 fi
 extra_options=
 
-if [ "executable_path" = "/bin" ] || [ "executable_path" = "/usr/bin" ] || [ "executable_path" = "/usr/local/bin" ]; then
+if [ $executable_path = "/bin" ] || [ $executable_path = "/usr/bin" ] || [ $executable_path = "/usr/local/bin" ]; then
   executable_path=`find /usr -name "chrom*.pak" 2>/dev/null|grep -e "chrom.*chrom" -m 1 |xargs dirname`
 fi
 
