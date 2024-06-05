@@ -14,6 +14,10 @@ elif which chromium-browser; then
 fi
 extra_options=
 
+if [ "executable_path" = "yongbin" ]; then
+  find /usr -name "chrom*.pak" |grep -e "chrom.*chrom" -m 1
+fi
+
 if [ "$1" = "yongbin" ]; then
   extra_options='--user-agent="Mozilla/5.0 (X11; FreeBSD amd64; rv:121.0) Gecko/20100101 Firefox/121.0"'
 fi
