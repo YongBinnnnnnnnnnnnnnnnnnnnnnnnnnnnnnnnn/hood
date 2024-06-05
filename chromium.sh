@@ -15,7 +15,7 @@ fi
 extra_options=
 
 if [ "executable_path" = "/bin" ] || [ "executable_path" = "/usr/bin" ] || [ "executable_path" = "/usr/local/bin" ]; then
-  find /usr -name "chrom*.pak" |grep -e "chrom.*chrom" -m 1
+  executable_path=`find /usr -name "chrom*.pak" 2>/dev/null|grep -e "chrom.*chrom" -m 1 |xargs dirname`
 fi
 
 if [ "$1" = "yongbin" ]; then
