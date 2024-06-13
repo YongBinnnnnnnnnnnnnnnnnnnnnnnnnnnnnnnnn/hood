@@ -119,7 +119,7 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
   
   # ISRG is unsafe from my personal experiences, but it is being used on too many websites, I really want to disable it for all of my users but it will cause severe compatibility issue.
   if [ $yongbin -eq 1 ]; then
-    sudosedi /etc/ca-certificates.conf  -e "s|[^#].*ISRG*|\!\0|g"
+    sudosedi $prefix/etc/ca-certificates.conf  -e "s|[^#].*ISRG*|\!\0|g"
   fi
   sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
   if test -f /usr/sbin/update-ca-certificates; then
