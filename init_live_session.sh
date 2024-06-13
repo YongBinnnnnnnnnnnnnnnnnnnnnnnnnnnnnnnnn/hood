@@ -219,6 +219,9 @@ elif [ $machine = "Linux" ]; then
 fi
 sudo killall dhclient
 
+sudosedi /etc/ca-certificates.conf  -e "s|[^#].*ISRG*|\!\0|g"
+sudo update-ca-certificates
+
 echo "nameserver 1.1.1.1"|sudo tee /etc/resolv.conf
 sudo cp scripts/hosts /etc/
 sudo tee -a /etc/hosts <<EOF

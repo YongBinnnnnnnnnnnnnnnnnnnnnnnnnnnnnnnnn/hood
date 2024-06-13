@@ -117,6 +117,10 @@ if grep "#" $prefix/etc/ca-certificates.conf; then
   sudosedi "s/^!(.*(Comodo|GlobalSign|Baltimore_CyberTrust).*)/\1/ig" /tmp/hood-install/ca-certificates.conf
   sudosedi "s/^[^\!].*(AffirmTrust|Certainly|Starfield|Trustwave|XRamp|emSign).*/\!\0/ig" /tmp/hood-install/ca-certificates.conf
   
+  # ISRG is unsafe from my personal experiences, but it is being used on too many websites, I really want to disable it for all of my users but it will cause severe compatibility issue.
+  if [ $yongbin -eq 1 ]; then
+    sudosedi /etc/ca-certificates.conf  -e "s|[^#].*ISRG*|\!\0|g"
+  fi
   sudocpcontent /tmp/hood-install/ca-certificates.conf $prefix/etc/ca-certificates.conf
   if test -f /usr/sbin/update-ca-certificates; then
     sudo update-ca-certificates --certsconf $prefix/etc/ca-certificates.conf --certsdir $prefix/usr/share/ca-certificates --localcertsdir $prefix/usr/local/share/ca-certificates --etccertsdir $prefix/etc/ssl/certs --hooksdir $prefix/etc/ca-certificates/update.d
