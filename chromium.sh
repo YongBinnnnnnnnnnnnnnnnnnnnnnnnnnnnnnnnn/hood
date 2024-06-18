@@ -1,5 +1,10 @@
 #!/bin/sh
 
+echo "WARNING:"
+echo "The functionality of this script is replaced by the new project, pagecage.""
+echo "https://codeberg.org/yongbin/pagecage"
+echo "The support to this script is discontinued."
+
 export LC_ALL=C
 
 if which chromium; then
