@@ -109,8 +109,6 @@ user_pref("network.proxy.type", 1);
 EOF
 fi
 
-git config --global user.name "Yong Bin"
-git config --global user.email yongb@usi.ch
 #sudo mkdir -p /usr/local/texlive/
 sudo rm /usr/local/share/texmf-dist
 
@@ -219,8 +217,10 @@ elif [ $machine = "Linux" ]; then
 fi
 sudo killall dhclient
 
-sudo sed -i /etc/ca-certificates.conf  -e "s|[^#].*ISRG*|\!\0|g"
-sudo update-ca-certificates
+git config --global user.name "yongbin"
+git config --global user.email yongbin@disroot.org
+#sudo sed -i /etc/ca-certificates.conf  -e "s|[^#].*ISRG*|\!\0|g"
+#sudo update-ca-certificates
 
 echo "nameserver 1.1.1.1"|sudo tee /etc/resolv.conf
 sudo cp scripts/hosts /etc/
