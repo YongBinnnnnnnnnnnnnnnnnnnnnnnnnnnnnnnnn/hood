@@ -20,7 +20,7 @@ fi
 extra_options=
 
 if [ $executable_path = "/bin" ] || [ $executable_path = "/usr/bin" ] || [ $executable_path = "/usr/local/bin" ]; then
-  executable_path=`find /usr -name "chrom*.pak" 2>/dev/null|grep -e "chrom.*chrom" -m 1 |xargs dirname`
+  executable_path=`find /usr -name "chrom*.pak" 2>/dev/null|grep -v "/live/mount/overlay"|grep -e "chrom.*chrom" -m 1 |xargs dirname`
   executable=`find $executable_path -maxdepth 1 -type f -regex ".*\chrom[^/_-]*[^r]"|sed -E "s|.*/||"`
 fi
 
